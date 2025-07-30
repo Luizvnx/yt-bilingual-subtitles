@@ -1,0 +1,5 @@
+flask
+yt-dlp
+python-dotenv
+openai-whisper
+torch   

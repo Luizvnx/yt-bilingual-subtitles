@@ -1,0 +1,33 @@
+echo "__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.env
+.venv/
+venv/
+ENV/
+*.log
+*.sqlite3
+instance/
+*.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+downloads/
+media/
+subtitles/
+*.part
+*.temp
+*.webm
+*.mp4
+*.mp3
+/docker-data/" > .gitignore
