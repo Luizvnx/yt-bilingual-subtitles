@@ -1,6 +1,9 @@
-def traduzir_texto(text: str, target_lang: str = "en") -> str:
+from deep_translator import GoogleTranslator
+
+
+
+def traduzir_texto(text: str, source: str = "auto", target: str = "en") -> str:
     """
-    Traduz um texto para o idioma alvo.
-    TODO: integrar com API (Google, DeepL, etc.)
+    Traduz texto usando Google Translator (via deep-translator).
     """
-    return f"[{target_lang}] {text}"
+    return GoogleTranslator(source=source, target=target).translate(text)
