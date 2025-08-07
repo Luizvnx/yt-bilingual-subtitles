@@ -3,3 +3,4 @@ yt-dlp
 python-dotenv
 openai-whisper
 torch   
+deep-translator
