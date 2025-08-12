@@ -32,6 +32,8 @@ def process_video():
     try:
         audio_path = baixar_audio(video_url)
 
+        print("audio_path:", audio_path)
+
         result = transcrever_audio(audio_path)
         detected_lang = result["detected_lang"]
         legendas = result["legendas"]
