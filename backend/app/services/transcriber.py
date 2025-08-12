@@ -1,5 +1,10 @@
 import whisper
 import os
+import subprocess
+from app.config import FFMPEG_PATH
+
+
+os.environ["PATH"] += os.pathsep + os.path.dirname(FFMPEG_PATH)
 
 # (tiny, base, small, medium, large)
 model = whisper.load_model("small")
@@ -11,18 +16,19 @@ def format_time(seconds: float) -> str:
     return f"{hours:02}:{minutes:02}:{secs:02}"
 
 def transcrever_audio(file_path: str) -> dict:
-    """
-    Transcreve áudio usando Whisper e retorna dicionário com:
-      - detected_lang: idioma detectado (ISO code, ex: 'pt', 'en')
-      - legendas: lista de legendas com timestamps
-    """
+
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Arquivo não encontrado: {file_path}")
 
-    result = model.transcribe(file_path)  # detecta idioma automaticamente
+    # Testa ffmpeg
+    try:
+        subprocess.run([FFMPEG_PATH, "-version"], check=True, capture_output=True)
+    except Exception as e:
+        raise RuntimeError(f"Erro ao executar ffmpeg: {e}")
+
+    result = model.transcribe(file_path)
 
     detected_lang = result.get("language", "unknown")
-
     legendas = []
     for seg in result["segments"]:
         legendas.append({
