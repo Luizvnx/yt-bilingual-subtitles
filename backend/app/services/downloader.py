@@ -26,8 +26,6 @@ def baixar_audio(link: str) -> str:
 
     file_path = result.stdout.strip()
 
-    print("Caminho do arquivo baixado:", file_path)
-
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Arquivo não encontrado: {file_path}")
 
