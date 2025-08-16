@@ -9,6 +9,7 @@ venv/
 ENV/
 *.log
 *.sqlite3
+teste.py
 instance/
 *.db
 .vscode/
