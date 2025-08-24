@@ -9,15 +9,14 @@ def baixar_audio(link: str) -> str:
 
     cmd = [
         "yt-dlp",
-        "-x", "--audio-format", "mp3",
+        "-f", "bestvideo+bestaudio/best",
         f"--ffmpeg-location={FFMPEG_PATH}",
         "-o", output_template,
         "--no-playlist",
         "--restrict-filenames",
-        "--print", "after_move:filepath", 
-        
+        "--print", "after_move:filepath",
         link
-    ]
+]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
 
