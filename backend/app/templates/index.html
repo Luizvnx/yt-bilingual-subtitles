@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>YT Bilingual Subtitles</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    #video-container {
+      margin-top: 20px;
+    }
+    video {
+      width: 80%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Assistir vídeo com legendas bilíngues</h1>
+
+  <input type="text" id="youtube-url" placeholder="Cole o link do YouTube aqui" size="60">
+  <button onclick="processVideo()">Gerar Legendas</button>
+
+  <div id="status"></div>
+  <div id="video-container"></div>
+
+  <script>
+    async function processVideo() {
+      const url = document.getElementById("youtube-url").value;
+      const statusDiv = document.getElementById("status");
+      const videoContainer = document.getElementById("video-container");
+
+      if (!url) {
+        alert("Por favor insira a URL do YouTube.");
+        return;
+      }
+
+      statusDiv.innerText = "Processando vídeo, aguarde...";
+
+      try {
+        const response = await fetch("http://localhost:5000/process", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          statusDiv.innerText = "Erro: " + data.error;
+          return;
+        }
+
+        statusDiv.innerText = "Legenda gerada com sucesso!";
+
+        videoContainer.innerHTML = `
+          <video controls>
+            <source src="http://localhost:5000/${data.video_file}" type="video/mp4">
+            <track src="http://localhost:5000/${data.vtt_bilingue}" kind="subtitles" srclang="pt" label="PT/EN" default>
+          </video>
+          <p><a href="http://localhost:5000/${data.srt_bilingue}" target="_blank">Baixar Legenda (.srt)</a></p>
+        `;
+      } catch (err) {
+        statusDiv.innerText = "Erro ao processar: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

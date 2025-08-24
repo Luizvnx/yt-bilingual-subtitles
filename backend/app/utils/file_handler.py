@@ -1,10 +1,6 @@
 import os
 
 def delete_file(file_path: str) -> bool:
-    """
-    Exclui um arquivo do sistema.
-    Retorna True se conseguiu, False caso contrário.
-    """
     try:
         if os.path.exists(file_path):
             os.remove(file_path)
