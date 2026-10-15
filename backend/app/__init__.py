@@ -3,11 +3,16 @@ from flask import Flask, render_template, send_from_directory, abort
 from flask_cors import CORS
 from app.config import DOWNLOAD_DIR, SUBTITLES_DIR, SECRET_KEY
 from app.services.storage import get_video_by_id
+from app.security import init_cors, register_security_headers, register_security_error_handlers
 
 def create_app():
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config["SECRET_KEY"] = SECRET_KEY
-    CORS(app)
+
+    # Inicializa segurança centralizada
+    init_cors(app)
+    register_security_headers(app)
+    register_security_error_handlers(app)
 
     # Rota raiz (Interface principal)
     @app.route("/")
@@ -39,6 +44,9 @@ def create_app():
     from app.routes.subtitles import subtitles_bp
     app.register_blueprint(subtitles_bp, url_prefix="/subtitles")
     app.register_blueprint(subtitles_bp, name="api", url_prefix="/api")
+
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
     from app.routes.helloworld import helloworld_bp
     app.register_blueprint(helloworld_bp, url_prefix="/hello")

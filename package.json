@@ -1,0 +1,15 @@
+{
+  "name": "yt-bilingual-subtitles-saas",
+  "version": "1.0.0",
+  "description": "SaaS para Estudo de Idiomas com Vídeos do YouTube",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend start",
+    "lint": "npm --prefix frontend run lint"
+  },
+  "keywords": ["saas", "language-learning", "subtitles", "youtube", "nextjs", "react"],
+  "author": "Luizvnx",
+  "license": "ISC"
+}

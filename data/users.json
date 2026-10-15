@@ -1,0 +1,68 @@
+[
+  {
+    "id": "usr_cfe2f142a8d9",
+    "name": "Maria Silva",
+    "email": "test_86f0a47f@example.com",
+    "password_hash": "scrypt:32768:8:1$JELj3Xoj0TU9cIjJ$6ec06cb9814c919fca0a13a1aab7df758b2851b1a499c6ab0413ee8cda2066add2e15fd4e53264883a0c01df67ef755ad93cd13226fe5f0af745541d19e27d97",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:46:04.132682+00:00",
+    "updated_at": "2026-10-15T03:46:04.132682+00:00"
+  },
+  {
+    "id": "usr_7dba10439ae8",
+    "name": "João",
+    "email": "user_8715cbee@example.com",
+    "password_hash": "scrypt:32768:8:1$00LpFa3C0JV8VjnN$60545aebf06f2f8a1635fea01503b817ca7a23ed4263e9ec948ad9a017bb337c2c3db642f972837a8a663d75202cfdb44dec7e9d597ca4041f7c9a74d85b04e4",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:46:04.347596+00:00",
+    "updated_at": "2026-10-15T03:46:04.347596+00:00"
+  },
+  {
+    "id": "usr_5fe2672d0870",
+    "name": "Maria Silva",
+    "email": "test_5148e31f@example.com",
+    "password_hash": "scrypt:32768:8:1$aFLCTXHEgnr1HBbf$c8b8559067bfb8fb46aa1b0f1b3ad92ca846b9c638985fe249317efd1c5c9de167d417512cb9e1200b253e6fd6d10b2fbdcdacabd9ef48a28bb43989c1d16489",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:46:48.033886+00:00",
+    "updated_at": "2026-10-15T03:46:48.033886+00:00"
+  },
+  {
+    "id": "usr_cef3487e8912",
+    "name": "João",
+    "email": "user_a9da8992@example.com",
+    "password_hash": "scrypt:32768:8:1$UYtlsJf8dxUacJAO$cb10b0f695cb491e908e38917f8efd4244954bcffce86baa00a664266198d36190bdd39a15614ed5c028d0387e937c2e19fe4bb3688cd0a9004c18c3281285ee",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:46:48.255286+00:00",
+    "updated_at": "2026-10-15T03:46:48.255286+00:00"
+  },
+  {
+    "id": "usr_84fa979b1891",
+    "name": "Maria Silva",
+    "email": "test_9c6f9f24@example.com",
+    "password_hash": "scrypt:32768:8:1$uax1tUBh5oyhuIzM$d7366b5ca2e834cbe574dc3187af9abbd6e854fb2f446bd08b2edb155d904a65368fc85bc569b0be7cd60cd636eb15ea39ebf75d5b44b8f9d55f03d9bae91fa0",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:47:30.989364+00:00",
+    "updated_at": "2026-10-15T03:47:30.989364+00:00"
+  },
+  {
+    "id": "usr_7f86fd4d62e4",
+    "name": "João",
+    "email": "user_681794a5@example.com",
+    "password_hash": "scrypt:32768:8:1$ynq0FvSIuWl4YaSH$3800e1196605fccc299e5745892ae6778b0c7ca23fc40720470deeb697c4ec4525ba32006e48d0f20c935deef6555c665c60b92e676e0df0d168e29c3edf17a5",
+    "role": "user",
+    "tier": "free",
+    "is_active": true,
+    "created_at": "2026-10-15T03:47:31.202149+00:00",
+    "updated_at": "2026-10-15T03:47:31.202149+00:00"
+  }
+]

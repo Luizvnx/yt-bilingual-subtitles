@@ -1,0 +1,13 @@
+[
+  {
+    "id": "usr_e0868d0cd054",
+    "name": "SaaS Tester",
+    "email": "saas_tester@example.com",
+    "passwordHash": "$2b$10$fUBA9G551DTaL3gRnKd0V.WKRhNwwSZYvDUgdOUyxFjA32HZ7U8xy",
+    "role": "user",
+    "tier": "free",
+    "isActive": true,
+    "createdAt": "2026-10-15T12:08:47.444Z",
+    "updatedAt": "2026-10-15T12:08:47.444Z"
+  }
+]
