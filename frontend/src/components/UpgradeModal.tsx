@@ -150,22 +150,20 @@ export function UpgradeModal({
             <button
               type="button"
               onClick={() => setBillingCycle("monthly")}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-                billingCycle === "monthly"
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${billingCycle === "monthly"
                   ? "bg-zinc-800 text-white shadow-sm"
                   : "text-zinc-400 hover:text-zinc-200"
-              }`}
+                }`}
             >
               Mensal
             </button>
             <button
               type="button"
               onClick={() => setBillingCycle("annual")}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-                billingCycle === "annual"
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${billingCycle === "annual"
                   ? "bg-amber-500 text-zinc-950 shadow-md font-bold"
                   : "text-zinc-400 hover:text-zinc-200"
-              }`}
+                }`}
             >
               <span>Anual</span>
               <span className="rounded-full bg-amber-400/30 px-1.5 py-0.2 text-[9px] font-extrabold uppercase">
@@ -199,7 +197,7 @@ export function UpgradeModal({
             </div>
             <div>
               <span className="font-semibold text-zinc-200">
-                Vídeos Novos Ilimitados:
+                Vídeos Ilimitados:
               </span>{" "}
               <span className="text-zinc-400">
                 Livre do limite de 3 vídeos por mês do plano gratuito.

@@ -1,0 +1,117 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Tier {
+  FREE
+  PRO
+}
+
+enum SubscriptionGateway {
+  STRIPE
+  ASAAS
+  MERCADOPAGO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model User {
+  id           String             @id @default(cuid())
+  name         String?
+  email        String             @unique
+  avatar       String?
+  passwordHash String?
+  role         Role               @default(USER)
+  tier         Tier               @default(FREE)
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  videos          Video[]
+  vocabularyWords VocabularyWord[]
+  subscriptions   Subscription[]
+  usageMetrics    UsageMetric[]
+
+  @@map("users")
+}
+
+model Video {
+  id            String   @id
+  videoId       String   @unique
+  title         String
+  uploader      String?
+  duration      Int      @default(0)
+  thumbnail     String?
+  url           String?
+  detectedLang  String   @default("en")
+  segmentsCount Int      @default(0)
+  segments      Json
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("videos")
+}
+
+model VocabularyWord {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word            String
+  translation     String
+  phonetic        String?
+  contextSentence String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, word])
+  @@map("vocabulary_words")
+}
+
+model Subscription {
+  id                    String              @id @default(cuid())
+  userId                String
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gateway               SubscriptionGateway @default(STRIPE)
+  gatewayCustomerId     String?
+  gatewaySubscriptionId String?
+  planTier              Tier                @default(FREE)
+  status                SubscriptionStatus  @default(ACTIVE)
+  expiresAt             DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model UsageMetric {
+  id                 String   @id
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthYear          String
+  videosProcessedIds Json
+  minutesProcessed   Int      @default(0)
+  lastProcessedAt    DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([userId, monthYear])
+  @@map("usage_metrics")
+}
