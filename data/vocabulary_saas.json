@@ -1,0 +1,28 @@
+[
+  {
+    "id": "voc_3bdcb8e8d528",
+    "userId": "usr_44c62991e97f",
+    "word": "effortless",
+    "translationPt": "sem esforço / natural",
+    "phonetics": "/ˈef.ət.ləs/",
+    "partOfSpeech": "adjective",
+    "contextSentence": "Speaking English will become effortless with daily practice.",
+    "createdAt": "2026-10-15T14:24:19.817Z"
+  },
+  {
+    "id": "voc_02135da499ef",
+    "userId": "usr_62ef7b82f046",
+    "word": "breakthrough",
+    "translationPt": "avanço",
+    "phonetics": "/ˈbreɪkˌθruː/",
+    "createdAt": "2026-10-15T13:19:43.327Z"
+  },
+  {
+    "id": "voc_06794bc8284d",
+    "userId": "usr_d4414fa87fc7",
+    "word": "breakthrough",
+    "translationPt": "avanço",
+    "phonetics": "/ˈbreɪkˌθruː/",
+    "createdAt": "2026-10-15T13:17:44.495Z"
+  }
+]

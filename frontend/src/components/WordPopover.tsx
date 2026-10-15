@@ -1,24 +1,59 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Volume2, BookmarkPlus, X, Loader2, Check } from "lucide-react";
+import {
+  Volume2,
+  BookmarkPlus,
+  X,
+  Loader2,
+  Check,
+  Lock,
+} from "lucide-react";
 
 interface WordPopoverProps {
   word: string;
   position: { x: number; y: number } | null;
   onClose: () => void;
+  user: any;
+  onRequireLogin: () => void;
+  onWordSaved?: () => void;
 }
 
-export function WordPopover({ word, position, onClose }: WordPopoverProps) {
+export function WordPopover({
+  word,
+  position,
+  onClose,
+  user,
+  onRequireLogin,
+  onWordSaved,
+}: WordPopoverProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  // Pronúncia imediata via Web Speech API nativa (0ms)
+  const speakImmediate = (text: string) => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   useEffect(() => {
     if (!word) return;
     setLoading(true);
     setSaved(false);
+    setSaveError("");
 
+    // Pronúncia instantânea na hora em que clica!
+    speakImmediate(word);
+
+    // Busca dados em paralelo no cache / API de dicionário
     fetch(`/api/dictionary/lookup?word=${encodeURIComponent(word)}`)
       .then((res) => res.json())
       .then((resData) => {
@@ -26,7 +61,7 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
         setLoading(false);
       })
       .catch(() => {
-        setData({ word, translationPt: word });
+        setData({ word, translationPt: word, phonetics: `/${word}/` });
         setLoading(false);
       });
   }, [word]);
@@ -36,24 +71,53 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
   const playPronunciation = () => {
     if (data?.audioUrl) {
       const audio = new Audio(data.audioUrl);
-      audio.play();
+      audio.play().catch(() => speakImmediate(word));
     } else {
-      // Fallback para Web Speech API nativa do navegador
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = "en-US";
-      window.speechSynthesis.speak(utterance);
+      speakImmediate(word);
     }
   };
 
-  const handleSaveWord = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSaveWord = async () => {
+    // 1. Validação estrita: exige usuário autenticado
+    if (!user) {
+      onRequireLogin();
+      return;
+    }
+
+    setSaving(true);
+    setSaveError("");
+
+    try {
+      const res = await fetch("/api/vocabulary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          word: data?.word || word,
+          translationPt: data?.translationPt || word,
+          phonetics: data?.phonetics || "",
+          partOfSpeech: data?.partOfSpeech || "",
+        }),
+      });
+
+      const resJson = await res.json();
+      if (!res.ok) {
+        throw new Error(resJson.error || "Erro ao salvar.");
+      }
+
+      setSaved(true);
+      if (onWordSaved) onWordSaved();
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: any) {
+      setSaveError(err?.message || "Erro ao salvar palavra.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Ajusta a posição para não vazar da tela
   const style: React.CSSProperties = {
-    top: Math.max(10, Math.min(position.y + 15, window.innerHeight - 250)),
-    left: Math.max(10, Math.min(position.x - 120, window.innerWidth - 300)),
+    top: Math.max(10, Math.min(position.y + 15, window.innerHeight - 280)),
+    left: Math.max(10, Math.min(position.x - 130, window.innerWidth - 320)),
   };
 
   return (
@@ -64,7 +128,9 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-white capitalize">{word}</span>
+          <span className="text-base font-bold text-white capitalize">
+            {word}
+          </span>
           {data?.partOfSpeech && (
             <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300 italic">
               {data.partOfSpeech}
@@ -80,8 +146,9 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-6">
+        <div className="flex flex-col items-center justify-center py-6 gap-2">
           <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
+          <span className="text-[11px] text-zinc-400">Carregando tradução...</span>
         </div>
       ) : (
         <div className="space-y-3">
@@ -92,8 +159,8 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
             </span>
             <button
               onClick={playPronunciation}
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-300 hover:bg-indigo-500/20 transition-colors"
-              title="Ouvir pronúncia nativa"
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-300 hover:bg-indigo-500/20 active:scale-95 transition-all"
+              title="Ouvir pronúncia"
             >
               <Volume2 className="h-3.5 w-3.5" />
               <span>Ouvir</span>
@@ -117,19 +184,33 @@ export function WordPopover({ word, position, onClose }: WordPopoverProps) {
             </p>
           )}
 
-          {/* Ação: Salvar */}
+          {saveError && (
+            <p className="text-[11px] text-red-400">{saveError}</p>
+          )}
+
+          {/* Ação: Salvar no Vocabulário com Validação de Login */}
           <button
             onClick={handleSaveWord}
-            className={`w-full flex items-center justify-center gap-2 rounded-xl py-2 text-xs font-semibold transition-all ${
+            disabled={saving}
+            className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold transition-all ${
               saved
                 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                : "bg-white/10 text-white hover:bg-white/20 active:scale-98"
+                : user
+                ? "bg-white/10 text-white hover:bg-white/20 active:scale-98"
+                : "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/25"
             }`}
           >
-            {saved ? (
+            {saving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : saved ? (
               <>
                 <Check className="h-3.5 w-3.5" />
-                <span>Salva no Caderno!</span>
+                <span>Salva no seu Caderno!</span>
+              </>
+            ) : !user ? (
+              <>
+                <Lock className="h-3.5 w-3.5 text-indigo-400" />
+                <span>Entrar para Salvar Palavra</span>
               </>
             ) : (
               <>
