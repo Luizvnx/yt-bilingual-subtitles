@@ -26,6 +26,7 @@ export function VocabularyModal({
   const [words, setWords] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [downloadingAnki, setDownloadingAnki] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !user) return;
@@ -50,8 +51,6 @@ export function VocabularyModal({
       window.speechSynthesis.speak(u);
     }
   };
-
-  const [downloadingAnki, setDownloadingAnki] = useState(false);
 
   const handleDelete = async (id: string) => {
     try {

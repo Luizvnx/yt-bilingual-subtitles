@@ -31,7 +31,7 @@ export function Navbar({
                 Bilingual Subtitles
               </span>
               <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-400 border border-indigo-500/20">
-                SaaS
+                IA
               </span>
             </div>
             <p className="text-xs text-zinc-400">Estudo de Idiomas com IA</p>
