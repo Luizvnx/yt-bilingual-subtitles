@@ -1,0 +1,77 @@
+[
+  {
+    "id": "jNQXAC9IVRw",
+    "video_id": "jNQXAC9IVRw",
+    "title": "Me at the zoo",
+    "uploader": "jawed",
+    "duration": 19,
+    "thumbnail": "https://i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AG-AoAC8AGKAgwIABABGFUgWShlMA8=&rs=AOn4CLA9eLBatYv9WbkD4BbZ2Im-biSPTw",
+    "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+    "detected_lang": "en",
+    "video_filename": "jNQXAC9IVRw.mp4",
+    "video_url": "/media/video/jNQXAC9IVRw.mp4",
+    "watch_url": "/watch/jNQXAC9IVRw",
+    "srt_bilingual_url": "/media/subtitle/jNQXAC9IVRw_bilingual.srt",
+    "vtt_bilingual_url": "/media/subtitle/jNQXAC9IVRw_bilingual.vtt",
+    "srt_en_url": "/media/subtitle/jNQXAC9IVRw_en.srt",
+    "vtt_en_url": "/media/subtitle/jNQXAC9IVRw_en.vtt",
+    "srt_pt_url": "/media/subtitle/jNQXAC9IVRw_pt.srt",
+    "vtt_pt_url": "/media/subtitle/jNQXAC9IVRw_pt.vtt",
+    "segments_count": 4,
+    "segments": [
+      {
+        "id": 1,
+        "start": 0.0,
+        "end": 4.0,
+        "start_srt": "00:00:00,000",
+        "end_srt": "00:00:04,000",
+        "start_vtt": "00:00:00.000",
+        "end_vtt": "00:00:04.000",
+        "time_display": "00:00",
+        "text": "Alright so here we are one of the elephants.",
+        "text_en": "Alright so here we are one of the elephants.",
+        "text_pt": "Tudo bem, então aqui somos um dos elefantes."
+      },
+      {
+        "id": 2,
+        "start": 4.0,
+        "end": 12.0,
+        "start_srt": "00:00:04,000",
+        "end_srt": "00:00:12,000",
+        "start_vtt": "00:00:04.000",
+        "end_vtt": "00:00:12.000",
+        "time_display": "00:04",
+        "text": "The cool thing about these guys is that they have really, really, really long hunts.",
+        "text_en": "The cool thing about these guys is that they have really, really, really long hunts.",
+        "text_pt": "O legal desses caras é que eles têm caçadas muito, muito, muito longas."
+      },
+      {
+        "id": 3,
+        "start": 12.0,
+        "end": 14.0,
+        "start_srt": "00:00:12,000",
+        "end_srt": "00:00:14,000",
+        "start_vtt": "00:00:12.000",
+        "end_vtt": "00:00:14.000",
+        "time_display": "00:12",
+        "text": "And that's cool.",
+        "text_en": "And that's cool.",
+        "text_pt": "E isso é legal."
+      },
+      {
+        "id": 4,
+        "start": 14.0,
+        "end": 19.0,
+        "start_srt": "00:00:14,000",
+        "end_srt": "00:00:19,000",
+        "start_vtt": "00:00:14.000",
+        "end_vtt": "00:00:19.000",
+        "time_display": "00:14",
+        "text": "And that's pretty much all there is to say.",
+        "text_en": "And that's pretty much all there is to say.",
+        "text_pt": "E isso é tudo o que há a dizer."
+      }
+    ],
+    "created_at": "2026-10-14T23:41:30.018456"
+  }
+]
