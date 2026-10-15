@@ -7,30 +7,44 @@ from app.services.translator import traduzir_lote, traduzir_texto
 from app.services.srt_generator import generate_srt
 from app.services.vtt_generator import generate_vtt
 from app.services.storage import save_video_data, get_all_videos, get_video_by_id, delete_video
+from app.security import (
+    validate_and_extract_youtube_id,
+    rate_limit,
+    optional_auth,
+    get_current_user,
+    SecurityValidationError
+)
 
 subtitles_bp = Blueprint("subtitles", __name__)
 
 @subtitles_bp.route("/process", methods=["POST"])
+@rate_limit(limit=10, period_seconds=60)
+@optional_auth
 def process_video():
     """
     Endpoint principal para processar o vídeo do YouTube:
-    1. Baixa o vídeo MP4 em alta qualidade
-    2. Transcreve o áudio em inglês com IA (Whisper)
-    3. Traduz sincronizadamente para português
-    4. Gera arquivos VTT e SRT (bilíngue, apenas inglês e apenas português)
-    5. Salva no histórico e retorna todos os dados para o player interativo
+    1. Validação rigorosa da URL para prevenir SSRF e injeção de parâmetros
+    2. Baixa o vídeo MP4 em alta qualidade
+    3. Transcreve o áudio em inglês com IA (Whisper)
+    4. Traduz sincronizadamente para português
+    5. Gera arquivos VTT e SRT (bilíngue, apenas inglês e apenas português)
+    6. Salva no histórico e associa ao usuário autenticado (se logado)
     """
     data = request.get_json(silent=True) or {}
-    video_url = data.get("url", "").strip()
+    raw_url = data.get("url", "").strip()
     model_name = data.get("model", "base")
 
-    if not video_url:
+    if not raw_url:
         return jsonify({"error": "URL do vídeo é obrigatória."}), 400
 
     try:
+        # Validação estrita anti-SSRF: garante domínio legítimo do YouTube e extrai ID de 11 caracteres
+        video_id = validate_and_extract_youtube_id(raw_url)
+        canonical_url = f"https://www.youtube.com/watch?v={video_id}"
+
         # 1. Download do vídeo MP4
-        print(f"[Process] Iniciando download do vídeo: {video_url}")
-        dl_result = baixar_video(video_url)
+        print(f"[Process] Iniciando download do vídeo canônico: {canonical_url} (ID: {video_id})")
+        dl_result = baixar_video(canonical_url)
         video_path = dl_result["video_path"]
         video_filename = dl_result["filename"]
         video_id = dl_result["video_id"]
@@ -123,6 +137,8 @@ def process_video():
             "video": video_payload
         })
 
+    except SecurityValidationError as e:
+        return jsonify({"error": e.message, "code": "VALIDATION_ERROR"}), e.status_code
     except Exception as e:
         import traceback
         traceback.print_exc()

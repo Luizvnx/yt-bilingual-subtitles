@@ -281,8 +281,16 @@
   <div id="toast" class="toast-msg">Mensagem</div>
 
   <!-- Inicialização do contexto do vídeo -->
+  <script id="initial-video-data" type="application/json">
+    {{ (initial_video or None) | tojson }}
+  </script>
   <script>
-    window.INITIAL_VIDEO_DATA = {{ initial_video | tojson if initial_video else 'null' }};
+    try {
+      const dataEl = document.getElementById("initial-video-data");
+      window.INITIAL_VIDEO_DATA = dataEl ? JSON.parse(dataEl.textContent) : null;
+    } catch (e) {
+      window.INITIAL_VIDEO_DATA = null;
+    }
   </script>
   <script src="/static/app.js"></script>
 </body>
