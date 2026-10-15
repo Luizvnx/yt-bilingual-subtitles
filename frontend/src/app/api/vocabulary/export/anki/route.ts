@@ -4,8 +4,6 @@ import {
   CryptoService,
   vocabularyRepository,
 } from "@/lib/security";
-import initSqlJs from "sql.js";
-import AnkiExport from "anki-apkg-export";
 
 export async function GET() {
   const token = await getAuthTokenFromCookies();
@@ -33,10 +31,29 @@ export async function GET() {
   }
 
   try {
-    const SQL = await initSqlJs();
-    const apkg = new (AnkiExport as any)("Inglês - YT Bilingual Subtitles", {
-      sql: SQL,
-    });
+    // Carregamento dinâmico compatível com Turbopack / Next.js
+    const nodeRequire = eval("require");
+    const fs = nodeRequire("fs");
+    const path = nodeRequire("path");
+    const initSqlJs = nodeRequire("sql.js");
+    const AnkiExport = nodeRequire("anki-apkg-export").default;
+
+    const ext = "wasm";
+    const wasmFilename = `sql-${ext}.${ext}`;
+
+    const candidates = [
+      path.join(process.cwd(), "frontend", "node_modules", "sql.js", "dist", wasmFilename),
+      path.join(process.cwd(), "node_modules", "sql.js", "dist", wasmFilename),
+    ];
+
+    const validPath = candidates.find((p) => fs.existsSync(p));
+    if (!validPath) {
+      throw new Error("Arquivo sql-wasm não encontrado no servidor.");
+    }
+
+    const wasmBinary = fs.readFileSync(validPath);
+    const SQL = await initSqlJs({ wasmBinary });
+    const apkg = new AnkiExport("Inglês - YT Bilingual Subtitles", { sql: SQL });
 
     for (const item of words) {
       const frontHtml = `
@@ -87,7 +104,7 @@ export async function GET() {
       headers: {
         "Content-Type": "application/octet-stream",
         "Content-Disposition":
-          'attachment; filename="vocabulario_ingles_bilingual_subtitles.apkg"',
+          'attachment; filename="meu_vocabulario_bilingual_subtitles.apkg"',
         "Content-Length": String(zipBuffer.length),
       },
     });
