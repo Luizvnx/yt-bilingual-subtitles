@@ -9,7 +9,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "YT Bilingual Subtitles | Estudo de Idiomas com YouTube",
   description:
-    "Plataforma SaaS para estudo interativo de inglês com vídeos do YouTube, legendas bilíngues sincronizadas, dicionário instantâneo e repetição de pronúncia.",
+    "Plataforma de estudos para aprendizado interativo de inglês com vídeos do YouTube, legendas bilíngues sincronizadas, dicionário instantâneo e repetição de pronúncia.",
 };
 
 export default function RootLayout({

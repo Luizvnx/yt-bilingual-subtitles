@@ -3,6 +3,7 @@ import { promisify } from "util";
 import fs from "fs";
 import path from "path";
 import { validateAndExtractYouTubeId } from "../security";
+import { CloudWhisperService } from "./cloudWhisperService";
 
 const execAsync = promisify(exec);
 
@@ -66,8 +67,114 @@ export class YouTubeService {
   }
 
   /**
-   * Tradução em lote de alta performance com agrupamento (chunks de 12 frases)
-   * e controle de concorrência para evitar atrasos e erro 429.
+   * Traduz um único texto com cadeia de fallbacks resiliente:
+   * 1. Google Chrome Extension Translation (clients5)
+   * 2. MyMemory Translated API
+   * 3. Google GTX Single endpoint
+   */
+  private static async translateSingleText(
+    text: string,
+    source = "en",
+    target = "pt"
+  ): Promise<string> {
+    const clean = text.trim();
+    if (!clean) return clean;
+
+    const cacheKey = `${source}:${target}:${clean}`;
+    const cached = TRANSLATION_CACHE.get(cacheKey);
+    if (
+      cached &&
+      (clean.length <= 4 ||
+        cached.trim().toLowerCase() !== clean.trim().toLowerCase())
+    ) {
+      return cached;
+    }
+
+    // 1. Provedor Primário: Google Chrome Extension API
+    try {
+      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${source}&tl=${target}&q=${encodeURIComponent(
+        clean
+      )}`;
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        signal: AbortSignal.timeout(4500),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const trans = Array.isArray(json) ? json[0] : json;
+        if (trans && typeof trans === "string" && trans.trim()) {
+          const result = trans.trim();
+          if (clean.length <= 4 || result.toLowerCase() !== clean.toLowerCase()) {
+            TRANSLATION_CACHE.set(cacheKey, result);
+          }
+          return result;
+        }
+      }
+    } catch {}
+
+    // 2. Provedor Secundário: MyMemory Translated API
+    try {
+      const targetLang = target === "pt" ? "pt-BR" : target;
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+        clean
+      )}&langpair=${source}|${targetLang}&de=bilingualstudy@app.io`;
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        signal: AbortSignal.timeout(4500),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const trans = json.responseData?.translatedText;
+        if (
+          trans &&
+          typeof trans === "string" &&
+          trans.trim() &&
+          !trans.includes("MYMEMORY WARNING")
+        ) {
+          const result = trans.trim();
+          if (clean.length <= 4 || result.toLowerCase() !== clean.toLowerCase()) {
+            TRANSLATION_CACHE.set(cacheKey, result);
+          }
+          return result;
+        }
+      }
+    } catch {}
+
+    // 3. Provedor Terciário: Google GTX single
+    try {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(
+        clean
+      )}`;
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        signal: AbortSignal.timeout(4500),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json) && Array.isArray(json[0])) {
+          const trans = json[0].map((item: any) => item[0]).join("");
+          if (trans && typeof trans === "string" && trans.trim()) {
+            const result = trans.trim();
+            if (clean.length <= 4 || result.toLowerCase() !== clean.toLowerCase()) {
+              TRANSLATION_CACHE.set(cacheKey, result);
+            }
+            return result;
+          }
+        }
+      }
+    } catch {}
+
+    return clean;
+  }
+
+  /**
+   * Tradução em lote de alta performance e à prova de falhas:
+   * 1. Consulta cache em memória instantâneo.
+   * 2. Agrupa sentenças usando delimitador " ||| " com clients5.google.com.
+   * 3. Se um lote falhar ou retornar tamanho inconsistente, traduz em paralelo via translateSingleText.
    */
   static async translateBatch(
     texts: string[],
@@ -80,7 +187,7 @@ export class YouTubeService {
     const indicesToFetch: number[] = [];
     const textsToFetch: string[] = [];
 
-    // 1. Verifica cache em memória primeiro
+    // 1. Verifica cache em memória primeiro (ignora entradas não traduzidas)
     for (let i = 0; i < texts.length; i++) {
       const clean = texts[i].trim();
       if (!clean) {
@@ -88,8 +195,13 @@ export class YouTubeService {
         continue;
       }
       const cacheKey = `${source}:${target}:${clean}`;
-      if (TRANSLATION_CACHE.has(cacheKey)) {
-        results[i] = TRANSLATION_CACHE.get(cacheKey)!;
+      const cached = TRANSLATION_CACHE.get(cacheKey);
+      if (
+        cached &&
+        (clean.length <= 4 ||
+          cached.trim().toLowerCase() !== clean.trim().toLowerCase())
+      ) {
+        results[i] = cached;
       } else {
         indicesToFetch.push(i);
         textsToFetch.push(clean);
@@ -100,8 +212,8 @@ export class YouTubeService {
       return results;
     }
 
-    // 2. Agrupa em lotes de 10 frases usando delimitador exclusivo " === "
-    const CHUNK_SIZE = 10;
+    // 2. Agrupa em lotes de 15 frases usando delimitador exclusivo " ||| "
+    const CHUNK_SIZE = 15;
     const chunks: { indices: number[]; texts: string[] }[] = [];
 
     for (let i = 0; i < textsToFetch.length; i += CHUNK_SIZE) {
@@ -111,11 +223,14 @@ export class YouTubeService {
       });
     }
 
-    // Executa em paralelo até 4 chunks simultâneos
+    // Executa em paralelo até 3 chunks simultâneos
     const processChunk = async (chunk: { indices: number[]; texts: string[] }) => {
-      const combined = chunk.texts.join(" \n \n ");
+      const separator = " ||| ";
+      const combined = chunk.texts.join(separator);
+
+      // Tenta tradução em lote via clients5.google.com
       try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(
+        const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${source}&tl=${target}&q=${encodeURIComponent(
           combined
         )}`;
         const res = await fetch(url, {
@@ -123,42 +238,56 @@ export class YouTubeService {
             "User-Agent":
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           },
-          signal: AbortSignal.timeout(5000),
+          signal: AbortSignal.timeout(7500),
         });
 
         if (res.ok) {
           const json = await res.json();
-          if (Array.isArray(json) && Array.isArray(json[0])) {
-            const fullTranslated = json[0]
-              .map((item: any) => item[0])
-              .join("");
-            const parts = fullTranslated.split(/\s*\n\s*\n\s*/);
+          const fullTranslated = Array.isArray(json) ? json[0] : json;
 
-            for (let j = 0; j < chunk.indices.length; j++) {
-              const originalIndex = chunk.indices[j];
-              const originalText = chunk.texts[j];
-              const transText = (parts[j] || originalText).trim();
+          if (fullTranslated && typeof fullTranslated === "string") {
+            const parts = fullTranslated.split(/\s*\|\|\|\s*/);
 
-              results[originalIndex] = transText;
-              TRANSLATION_CACHE.set(
-                `${source}:${target}:${originalText}`,
-                transText
-              );
+            if (parts.length === chunk.indices.length) {
+              for (let j = 0; j < chunk.indices.length; j++) {
+                const originalIndex = chunk.indices[j];
+                const originalText = chunk.texts[j];
+                const transText = (parts[j] || "").trim() || originalText;
+
+                results[originalIndex] = transText;
+                if (
+                  originalText.length <= 4 ||
+                  transText.trim().toLowerCase() !==
+                    originalText.trim().toLowerCase()
+                ) {
+                  TRANSLATION_CACHE.set(
+                    `${source}:${target}:${originalText}`,
+                    transText
+                  );
+                }
+              }
+              return;
             }
-            return;
           }
         }
       } catch {
-        // Fallback: mantém original se houver falha de rede
+        // Se o lote falhar, segue para os fallbacks individuais
       }
 
-      // Fallback para cada texto do chunk se o lote falhar
-      for (let j = 0; j < chunk.indices.length; j++) {
-        results[chunk.indices[j]] = chunk.texts[j];
-      }
+      // Fallback: tradução individual resiliente em paralelo
+      await Promise.all(
+        chunk.indices.map(async (origIdx, j) => {
+          const originalText = chunk.texts[j];
+          const trans = await YouTubeService.translateSingleText(
+            originalText,
+            source,
+            target
+          );
+          results[origIdx] = trans;
+        })
+      );
     };
 
-    // Executa chunks com controle de concorrência
     const MAX_CONCURRENT = 3;
     for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
       const batch = chunks.slice(i, i + MAX_CONCURRENT);
@@ -266,6 +395,41 @@ export class YouTubeService {
             text_pt: portugueseTexts[idx] || seg.text_en,
           }));
         }
+      }
+
+      // 3. Fallback inteligente com Cloud Whisper (Groq) se o YouTube não possuir legendas nativas
+      const whisperSegments = await CloudWhisperService.transcribeAudio(
+        videoId,
+        onProgress
+      );
+
+      if (whisperSegments.length > 0) {
+        onProgress?.(
+          78,
+          `Agrupando ${whisperSegments.length} falas da IA em frases naturais...`
+        );
+        const rawSegments = whisperSegments.map((s) => ({
+          start: s.start,
+          end: s.end,
+          text_en: s.text,
+        }));
+        const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
+        const englishTexts = mergedSegments.map((s) => s.text_en);
+        onProgress?.(
+          85,
+          `Traduzindo ${mergedSegments.length} frases da IA para o português...`
+        );
+        const portugueseTexts = await YouTubeService.translateBatch(
+          englishTexts,
+          "en",
+          "pt"
+        );
+
+        onProgress?.(95, "Sincronizando estúdio bilíngue...");
+        return mergedSegments.map((seg, idx) => ({
+          ...seg,
+          text_pt: portugueseTexts[idx] || seg.text_en,
+        }));
       }
 
       return [];

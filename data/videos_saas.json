@@ -1,860 +1,5 @@
 [
   {
-    "id": "Yx1llx8WUxU",
-    "videoId": "Yx1llx8WUxU",
-    "title": "16. Running the eval - Building with the Claude API - Claude course",
-    "uploader": "Claude Courses",
-    "duration": 403,
-    "thumbnail": "https://i.ytimg.com/vi/Yx1llx8WUxU/maxresdefault.jpg",
-    "url": "https://www.youtube.com/watch?v=Yx1llx8WUxU",
-    "detectedLang": "en",
-    "segmentsCount": 140,
-    "segments": [
-      {
-        "start": 0.48,
-        "end": 5.84,
-        "text_en": "With our data set generation complete, we now need to take every record in that",
-        "text_pt": "Com a geração do nosso conjunto de dados concluída, agora precisamos pegar todos os registros desse"
-      },
-      {
-        "start": 4.28,
-        "end": 9.68,
-        "text_en": "data set, which we're going to refer to as a test case. So, we're going to take",
-        "text_pt": "conjunto de dados, que chamaremos de caso de teste. Então, vamos levar"
-      },
-      {
-        "start": 7.92,
-        "end": 13.68,
-        "text_en": "each test case and merge it with the prompt. We're then going to take the",
-        "text_pt": "cada caso de teste e mescle-o com o prompt. Vamos então pegar o"
-      },
-      {
-        "start": 11.28,
-        "end": 16.2,
-        "text_en": "result and feed it into Claude. And then once we have all these different",
-        "text_pt": "resultado e alimentá-lo em Claude. E então, quando tivermos todos esses diferentes"
-      },
-      {
-        "start": 14.76,
-        "end": 19.6,
-        "text_en": "outputs, we're going to feed them through our grader.",
-        "text_pt": "resultados, vamos alimentá-los por meio de nossa niveladora."
-      },
-      {
-        "start": 17.84,
-        "end": 22.88,
-        "text_en": "Remember, we have not discussed graders just yet. Don't worry, that's going to",
-        "text_pt": "Lembre-se de que ainda não discutimos os alunos. Não se preocupe, isso vai"
-      },
-      {
-        "start": 21,
-        "end": 24.08,
-        "text_en": "come up very quickly.",
-        "text_pt": "suba muito rapidamente."
-      },
-      {
-        "start": 22.88,
-        "end": 28.2,
-        "text_en": "And once again, just to save a little bit of time, I have written out a little",
-        "text_pt": "E mais uma vez, só para economizar um pouco de tempo, escrevi um pouco"
-      },
-      {
-        "start": 26.04,
-        "end": 30.92,
-        "text_en": "bit of code here just to help guide this",
-        "text_pt": "um pouco de código aqui apenas para ajudar a orientar isso"
-      },
-      {
-        "start": 28.2,
-        "end": 33.12,
-        "text_en": "next phase of our workflow. I put",
-        "text_pt": "próxima fase do nosso fluxo de trabalho. eu coloquei"
-      },
-      {
-        "start": 30.92,
-        "end": 34.92,
-        "text_en": "together three separate functions with a",
-        "text_pt": "juntos três funções separadas com um"
-      },
-      {
-        "start": 33.12,
-        "end": 39.52,
-        "text_en": "very clear comment on what each one does. The first one that's easiest to",
-        "text_pt": "comentário muito claro sobre o que cada um faz. O primeiro que é mais fácil de"
-      },
-      {
-        "start": 36.88,
-        "end": 41.08,
-        "text_en": "understand is the run prompt function.",
-        "text_pt": "entender é a função de prompt de execução."
-      },
-      {
-        "start": 39.52,
-        "end": 44.08,
-        "text_en": "This is going to be called with a test",
-        "text_pt": "Isso será chamado com um teste"
-      },
-      {
-        "start": 41.08,
-        "end": 45.84,
-        "text_en": "case. And those JSON objects we",
-        "text_pt": "caso. E esses objetos JSON que"
-      },
-      {
-        "start": 44.08,
-        "end": 50.16,
-        "text_en": "generated just a moment ago, each of these is a test case. So, you can",
-        "text_pt": "gerado há pouco, cada um deles é um caso de teste. Então, você pode"
-      },
-      {
-        "start": 47.88,
-        "end": 54.2,
-        "text_en": "imagine that each of these one by one are going to flow into the run prompt",
-        "text_pt": "imagine que cada um deles, um por um, irá fluir para o prompt de execução"
-      },
-      {
-        "start": 51.84,
-        "end": 57.24,
-        "text_en": "function. So, inside of here, our goal",
-        "text_pt": "função. Então, aqui dentro, nosso objetivo"
-      },
-      {
-        "start": 54.2,
-        "end": 59.48,
-        "text_en": "is to merge that task that we generated",
-        "text_pt": "é mesclar aquela tarefa que geramos"
-      },
-      {
-        "start": 57.24,
-        "end": 61.8,
-        "text_en": "with our prompt, generate some text with",
-        "text_pt": "com nosso prompt, gere algum texto com"
-      },
-      {
-        "start": 59.48,
-        "end": 63.84,
-        "text_en": "Claude, and then return the result. So,",
-        "text_pt": "Claude e depois retorne o resultado. Então,"
-      },
-      {
-        "start": 61.8,
-        "end": 65.76,
-        "text_en": "let's do that right away.",
-        "text_pt": "vamos fazer isso imediatamente."
-      },
-      {
-        "start": 63.84,
-        "end": 69.44,
-        "text_en": "I'm going to put in",
-        "text_pt": "eu vou colocar"
-      },
-      {
-        "start": 65.76,
-        "end": 71.16,
-        "text_en": "my V1 prompt right here,",
-        "text_pt": "meu prompt V1 aqui,"
-      },
-      {
-        "start": 69.44,
-        "end": 76.08,
-        "text_en": "which is very simple. Remember, we are starting off as simple as possible here,",
-        "text_pt": "o que é muito simples. Lembre-se, estamos começando da forma mais simples possível aqui,"
-      },
-      {
-        "start": 73.16,
-        "end": 80.24,
-        "text_en": "so it'll just say something like",
-        "text_pt": "então vou apenas dizer algo como"
-      },
-      {
-        "start": 76.08,
-        "end": 82.72,
-        "text_en": "\"Please solve the following task.\"",
-        "text_pt": "“Por favor, resolva a seguinte tarefa.”"
-      },
-      {
-        "start": 80.24,
-        "end": 85.92,
-        "text_en": "And I want this to be a F string, and",
-        "text_pt": "E eu quero que isso seja uma corda F, e"
-      },
-      {
-        "start": 82.72,
-        "end": 87.72,
-        "text_en": "I'm going to put in test case",
-        "text_pt": "vou colocar em caso de teste"
-      },
-      {
-        "start": 85.92,
-        "end": 89.2,
-        "text_en": "task.",
-        "text_pt": "tarefa."
-      },
-      {
-        "start": 87.72,
-        "end": 95.44,
-        "text_en": "Next up, we want to send this off to Claude. So, we'll make a list of",
-        "text_pt": "Em seguida, queremos enviar isto para Claude. Então, vamos fazer uma lista de"
-      },
-      {
-        "start": 90.68,
-        "end": 95.44,
-        "text_en": "messages. I'll add in a user message.",
-        "text_pt": "mensagens. Vou adicionar uma mensagem do usuário."
-      },
-      {
-        "start": 98.12,
-        "end": 103.08,
-        "text_en": "I'm then going to pass this off to",
-        "text_pt": "Vou então passar isso para"
-      },
-      {
-        "start": 99.68,
-        "end": 104.36,
-        "text_en": "Claude by calling chat.",
-        "text_pt": "Claude ligando para o chat."
-      },
-      {
-        "start": 103.08,
-        "end": 107.92,
-        "text_en": "And we're going to get back some resulting text, some result, or maybe",
-        "text_pt": "E vamos recuperar algum texto resultante, algum resultado, ou talvez"
-      },
-      {
-        "start": 106.28,
-        "end": 109.44,
-        "text_en": "we'll call it output this time around.",
-        "text_pt": "vamos chamá-lo de saída desta vez."
-      },
-      {
-        "start": 107.92,
-        "end": 113.28,
-        "text_en": "And then for right now, I'll just return the output.",
-        "text_pt": "E então, por enquanto, retornarei a saída."
-      },
-      {
-        "start": 110.96,
-        "end": 115.08,
-        "text_en": "Now, remember, we don't have any kind of",
-        "text_pt": "Agora, lembre-se, não temos nenhum tipo de"
-      },
-      {
-        "start": 113.28,
-        "end": 118.68,
-        "text_en": "formatting included or any formatting instructions inside the prompt right",
-        "text_pt": "formatação incluída ou quaisquer instruções de formatação dentro do prompt à direita"
-      },
-      {
-        "start": 116.4,
-        "end": 120.76,
-        "text_en": "now. So, we're going to probably get",
-        "text_pt": "agora. Então, provavelmente vamos conseguir"
-      },
-      {
-        "start": 118.68,
-        "end": 123.12,
-        "text_en": "back a lot more output than we ever",
-        "text_pt": "retornamos muito mais produção do que nunca"
-      },
-      {
-        "start": 120.76,
-        "end": 125.2,
-        "text_en": "asked for. The real goal of our prompt",
-        "text_pt": "pediu. O verdadeiro objetivo do nosso prompt"
-      },
-      {
-        "start": 123.12,
-        "end": 127.44,
-        "text_en": "is to make sure that we get just Python",
-        "text_pt": "é ter certeza de que obteremos apenas Python"
-      },
-      {
-        "start": 125.2,
-        "end": 130.32,
-        "text_en": "or JSON or that regular expression. We don't have anything that for that right",
-        "text_pt": "ou JSON ou aquela expressão regular. Não temos nada disso certo"
-      },
-      {
-        "start": 128.92,
-        "end": 134.08,
-        "text_en": "now, so we'll almost definitely have to come back and make some improvements.",
-        "text_pt": "agora, então quase definitivamente teremos que voltar e fazer algumas melhorias."
-      },
-      {
-        "start": 132.68,
-        "end": 138.24,
-        "text_en": "But for right now, we at least have a start to run prompt.",
-        "text_pt": "Mas, por enquanto, pelo menos temos um prompt de início para execução."
-      },
-      {
-        "start": 136.52,
-        "end": 141.88,
-        "text_en": "The next thing we're going to work on is run test case.",
-        "text_pt": "A próxima coisa em que trabalharemos é executar o caso de teste."
-      },
-      {
-        "start": 139.92,
-        "end": 144.12,
-        "text_en": "The goal of this function is to take in",
-        "text_pt": "O objetivo desta função é levar em conta"
-      },
-      {
-        "start": 141.88,
-        "end": 145.96,
-        "text_en": "one of those individual cases,",
-        "text_pt": "um desses casos individuais,"
-      },
-      {
-        "start": 144.12,
-        "end": 150.16,
-        "text_en": "call the run prompt function we just put together, get some output from Claude,",
-        "text_pt": "chame a função de prompt de execução que acabamos de montar, obtenha alguma saída de Claude,"
-      },
-      {
-        "start": 147.84,
-        "end": 152.4,
-        "text_en": "and then grade the result, and return a",
-        "text_pt": "e depois avaliar o resultado e retornar um"
-      },
-      {
-        "start": 150.16,
-        "end": 155.6,
-        "text_en": "dictionary describing the everything that happened there.",
-        "text_pt": "dicionário descrevendo tudo o que aconteceu lá."
-      },
-      {
-        "start": 153.84,
-        "end": 158.24,
-        "text_en": "Now, that sounds really complicated, but in reality,",
-        "text_pt": "Agora, isso parece muito complicado, mas na realidade,"
-      },
-      {
-        "start": 156.8,
-        "end": 159.52,
-        "text_en": "it's going to be surprisingly simple.",
-        "text_pt": "será surpreendentemente simples."
-      },
-      {
-        "start": 158.24,
-        "end": 162.88,
-        "text_en": "So, let me show you all we have to do here.",
-        "text_pt": "Então, deixe-me mostrar tudo o que temos que fazer aqui."
-      },
-      {
-        "start": 160.44,
-        "end": 166,
-        "text_en": "We're going to put in output, that's going to come from",
-        "text_pt": "Vamos colocar uma produção, que virá de"
-      },
-      {
-        "start": 164.28,
-        "end": 170.48,
-        "text_en": "calling the function that we were just working on a moment ago. So, this run",
-        "text_pt": "chamando a função na qual estávamos trabalhando há pouco. Então, esta corrida"
-      },
-      {
-        "start": 167.76,
-        "end": 170.48,
-        "text_en": "prompt function.",
-        "text_pt": "função de alerta."
-      },
-      {
-        "start": 171.88,
-        "end": 177.72,
-        "text_en": "Put in our test case, and then we're going to do some grading",
-        "text_pt": "Coloque nosso caso de teste e então faremos algumas avaliações"
-      },
-      {
-        "start": 174.92,
-        "end": 178.6,
-        "text_en": "right here. That's going to be a to-do.",
-        "text_pt": "aqui mesmo. Isso vai ser uma tarefa difícil."
-      },
-      {
-        "start": 177.72,
-        "end": 182.48,
-        "text_en": "For right now, I'll just say that we have a hard-coded score of 10. So, we",
-        "text_pt": "Por enquanto, direi apenas que temos uma pontuação codificada de 10. Então,"
-      },
-      {
-        "start": 180.52,
-        "end": 184.8,
-        "text_en": "definitely have to come back and do a",
-        "text_pt": "definitivamente tenho que voltar e fazer um"
-      },
-      {
-        "start": 182.48,
-        "end": 187.72,
-        "text_en": "lot of heavy lifting right there. And then at the bottom, we're just going to",
-        "text_pt": "muito trabalho pesado ali mesmo. E então, no final, vamos apenas"
-      },
-      {
-        "start": 185.88,
-        "end": 189.92,
-        "text_en": "return some information that summarizes",
-        "text_pt": "retornar algumas informações que resumem"
-      },
-      {
-        "start": 187.72,
-        "end": 192.36,
-        "text_en": "everything about running this test case.",
-        "text_pt": "tudo sobre a execução deste caso de teste."
-      },
-      {
-        "start": 189.92,
-        "end": 194.28,
-        "text_en": "So, I'll return a dictionary",
-        "text_pt": "Então, vou devolver um dicionário"
-      },
-      {
-        "start": 192.36,
-        "end": 195.16,
-        "text_en": "with some output.",
-        "text_pt": "com alguma saída."
-      },
-      {
-        "start": 194.28,
-        "end": 200.24,
-        "text_en": "It's going to be whatever we got back from Claude.",
-        "text_pt": "Será o que recebemos de Claude."
-      },
-      {
-        "start": 196.6,
-        "end": 204.16,
-        "text_en": "I'll include the test case, and then our score.",
-        "text_pt": "Incluirei o caso de teste e depois nossa pontuação."
-      },
-      {
-        "start": 205.56,
-        "end": 209.56,
-        "text_en": "And then one final step here, we have to",
-        "text_pt": "E então, um passo final aqui, temos que"
-      },
-      {
-        "start": 207.28,
-        "end": 212.12,
-        "text_en": "implement run eval. So, this function is",
-        "text_pt": "implementar execução de avaliação. Então, esta função é"
-      },
-      {
-        "start": 209.56,
-        "end": 213.6,
-        "text_en": "going to load up our data set, or",
-        "text_pt": "vamos carregar nosso conjunto de dados, ou"
-      },
-      {
-        "start": 212.12,
-        "end": 215.44,
-        "text_en": "receive it as an argument, either one is fine.",
-        "text_pt": "receba isso como um argumento, qualquer um está bem."
-      },
-      {
-        "start": 214.6,
-        "end": 219.44,
-        "text_en": "And then we're going to loop through that data set, and for every test case,",
-        "text_pt": "E então vamos percorrer esse conjunto de dados e, para cada caso de teste,"
-      },
-      {
-        "start": 217.24,
-        "end": 223.24,
-        "text_en": "we will call run test case, and then",
-        "text_pt": "chamaremos de caso de teste de execução e, em seguida,"
-      },
-      {
-        "start": 219.44,
-        "end": 225.68,
-        "text_en": "just assemble all the results together.",
-        "text_pt": "basta reunir todos os resultados."
-      },
-      {
-        "start": 223.24,
-        "end": 227.44,
-        "text_en": "So, for our implementation here, I'll",
-        "text_pt": "Então, para nossa implementação aqui, vou"
-      },
-      {
-        "start": 225.68,
-        "end": 233.96,
-        "text_en": "say results, it's going to start off as an empty list.",
-        "text_pt": "digamos resultados, começará como uma lista vazia."
-      },
-      {
-        "start": 229.16,
-        "end": 237.32,
-        "text_en": "And for every test case in data set,",
-        "text_pt": "E para cada caso de teste no conjunto de dados,"
-      },
-      {
-        "start": 233.96,
-        "end": 238.92,
-        "text_en": "I'm going to get our result",
-        "text_pt": "vou pegar nosso resultado"
-      },
-      {
-        "start": 237.32,
-        "end": 241.36,
-        "text_en": "from calling",
-        "text_pt": "de ligar"
-      },
-      {
-        "start": 238.92,
-        "end": 244.44,
-        "text_en": "run test case",
-        "text_pt": "executar caso de teste"
-      },
-      {
-        "start": 241.36,
-        "end": 245.8,
-        "text_en": "and pass in the test case to it.",
-        "text_pt": "e passe no caso de teste para ele."
-      },
-      {
-        "start": 244.44,
-        "end": 248.32,
-        "text_en": "And then add that into our list of results.",
-        "text_pt": "E então adicione isso à nossa lista de resultados."
-      },
-      {
-        "start": 248.52,
-        "end": 252.96,
-        "text_en": "And then down here, I'm just going to print up",
-        "text_pt": "E então aqui embaixo, vou apenas imprimir"
-      },
-      {
-        "start": 251.6,
-        "end": 256.32,
-        "text_en": "all of our results. Actually, you know what? Let's actually just go ahead and",
-        "text_pt": "todos os nossos resultados. Na verdade, quer saber? Na verdade, vamos em frente e"
-      },
-      {
-        "start": 254.2,
-        "end": 258.92,
-        "text_en": "return results.",
-        "text_pt": "retornar resultados."
-      },
-      {
-        "start": 256.32,
-        "end": 260.6,
-        "text_en": "I think that's a little bit better.",
-        "text_pt": "Acho que é um pouco melhor."
-      },
-      {
-        "start": 258.92,
-        "end": 263,
-        "text_en": "Okay, so there's the outline for our",
-        "text_pt": "Ok, então aí está o esboço do nosso"
-      },
-      {
-        "start": 260.6,
-        "end": 265.6,
-        "text_en": "three major functions. Now, believe it",
-        "text_pt": "três funções principais. Agora, acredite"
-      },
-      {
-        "start": 263,
-        "end": 267.6,
-        "text_en": "or not, this is like a vast majority of",
-        "text_pt": "ou não, isso é como a grande maioria dos"
-      },
-      {
-        "start": 265.6,
-        "end": 271.4,
-        "text_en": "what a eval pipeline is. We just put together the vast majority, with the",
-        "text_pt": "o que é um pipeline de avaliação. Acabamos de reunir a grande maioria, com o"
-      },
-      {
-        "start": 269.4,
-        "end": 272.8,
-        "text_en": "obvious exception of grading.",
-        "text_pt": "exceção óbvia de classificação."
-      },
-      {
-        "start": 271.4,
-        "end": 278.56,
-        "text_en": "So, as you can see, there's not a whole lot of code that goes into this.",
-        "text_pt": "Então, como você pode ver, não há muito código envolvido nisso."
-      },
-      {
-        "start": 275.12,
-        "end": 280.08,
-        "text_en": "Let's now test this out.",
-        "text_pt": "Vamos agora testar isso."
-      },
-      {
-        "start": 278.56,
-        "end": 285.04,
-        "text_en": "So, down here, in the next cell down, I'm going to going to open up our",
-        "text_pt": "Então, aqui embaixo, na próxima cela, vou abrir nosso"
-      },
-      {
-        "start": 281.72,
-        "end": 285.04,
-        "text_en": "dataset.json file",
-        "text_pt": "arquivo dataset.json"
-      },
-      {
-        "start": 291.88,
-        "end": 295.24,
-        "text_en": "and parse it as JSON.",
-        "text_pt": "e analise-o como JSON."
-      },
-      {
-        "start": 295.52,
-        "end": 299.6,
-        "text_en": "And then call the run eval function.",
-        "text_pt": "E então chame a função run eval."
-      },
-      {
-        "start": 298.28,
-        "end": 303.36,
-        "text_en": "That's the one that we were just putting together right here",
-        "text_pt": "Esse é o que estávamos montando aqui"
-      },
-      {
-        "start": 300.92,
-        "end": 304.76,
-        "text_en": "with the entire dataset.",
-        "text_pt": "com todo o conjunto de dados."
-      },
-      {
-        "start": 303.36,
-        "end": 308.68,
-        "text_en": "Finally, I'm going to assign the result of that to",
-        "text_pt": "Finalmente, vou atribuir o resultado disso a"
-      },
-      {
-        "start": 306.48,
-        "end": 310.2,
-        "text_en": "results.",
-        "text_pt": "resultados."
-      },
-      {
-        "start": 308.68,
-        "end": 313.72,
-        "text_en": "I'm then going to rerun all the cells above just to make sure that I executed",
-        "text_pt": "Em seguida, executarei novamente todas as células acima apenas para ter certeza de que executei"
-      },
-      {
-        "start": 311.92,
-        "end": 315.92,
-        "text_en": "all of them. And then I'm going to run",
-        "text_pt": "todos eles. E então eu vou correr"
-      },
-      {
-        "start": 313.72,
-        "end": 318.76,
-        "text_en": "this cell. We'll see what happens. And just you know, the first time you run",
-        "text_pt": "esta célula. Veremos o que acontece. E você sabe, a primeira vez que você corre"
-      },
-      {
-        "start": 317.08,
-        "end": 321.84,
-        "text_en": "this, it is going to take a pretty good amount of time, even if you are using Hi",
-        "text_pt": "isso, vai levar um bom tempo, mesmo se você estiver usando o Hi"
-      },
-      {
-        "start": 320.68,
-        "end": 323.68,
-        "text_en": "Q.",
-        "text_pt": "Q."
-      },
-      {
-        "start": 321.84,
-        "end": 326.08,
-        "text_en": "It's going to end up taking me about 31",
-        "text_pt": "Vai acabar me levando cerca de 31"
-      },
-      {
-        "start": 323.68,
-        "end": 327.04,
-        "text_en": "seconds to complete this with Hi Q.",
-        "text_pt": "segundos para concluir isso com Hi Q."
-      },
-      {
-        "start": 326.08,
-        "end": 330.16,
-        "text_en": "I'm going to show you some techniques for speeding up our eval runtime, but",
-        "text_pt": "Vou mostrar algumas técnicas para acelerar nosso tempo de execução de avaliação, mas"
-      },
-      {
-        "start": 329.04,
-        "end": 333.32,
-        "text_en": "for right now, we're just going to have it take a little bit longer, but don't",
-        "text_pt": "por enquanto, vamos demorar um pouco mais, mas não"
-      },
-      {
-        "start": 331.48,
-        "end": 334.72,
-        "text_en": "worry, we will speed it up.",
-        "text_pt": "se preocupe, vamos acelerar isso."
-      },
-      {
-        "start": 333.32,
-        "end": 338.6,
-        "text_en": "So, now let's take a look at results and see what we have. Results is going to be",
-        "text_pt": "Então, agora vamos dar uma olhada nos resultados e ver o que temos. Os resultados serão"
-      },
-      {
-        "start": 336.64,
-        "end": 343.72,
-        "text_en": "a rather large JSON object, so I'm going to print it out really nicely with a",
-        "text_pt": "um objeto JSON bastante grande, então vou imprimi-lo muito bem com um"
-      },
-      {
-        "start": 340.44,
-        "end": 345.44,
-        "text_en": "print json.dumps",
-        "text_pt": "imprimir json.dumps"
-      },
-      {
-        "start": 343.72,
-        "end": 348.56,
-        "text_en": "with results and an indent",
-        "text_pt": "com resultados e um recuo"
-      },
-      {
-        "start": 346.84,
-        "end": 349.6,
-        "text_en": "of two.",
-        "text_pt": "de dois."
-      },
-      {
-        "start": 348.56,
-        "end": 351.52,
-        "text_en": "Here we go.",
-        "text_pt": "Aqui vamos nós."
-      },
-      {
-        "start": 349.6,
-        "end": 354.08,
-        "text_en": "So, now we get an array of objects.",
-        "text_pt": "Então, agora temos um array de objetos."
-      },
-      {
-        "start": 351.52,
-        "end": 356.32,
-        "text_en": "Every object represents the output from",
-        "text_pt": "Cada objeto representa a saída de"
-      },
-      {
-        "start": 354.08,
-        "end": 357.88,
-        "text_en": "one of our individual test cases.",
-        "text_pt": "um de nossos casos de teste individuais."
-      },
-      {
-        "start": 356.32,
-        "end": 360.84,
-        "text_en": "I've got the output right here. That's the output coming from Claude, and we",
-        "text_pt": "Eu tenho a saída bem aqui. Esse é o resultado vindo de Claude, e nós"
-      },
-      {
-        "start": 359.36,
-        "end": 364.84,
-        "text_en": "can see there is a lot of stuff generated here.",
-        "text_pt": "posso ver que há muitas coisas geradas aqui."
-      },
-      {
-        "start": 362.56,
-        "end": 366.6,
-        "text_en": "And if I scroll down a little bit,",
-        "text_pt": "E se eu rolar um pouco para baixo,"
-      },
-      {
-        "start": 364.84,
-        "end": 369.96,
-        "text_en": "I'll see the definition of the test case that this was based upon, and then the",
-        "text_pt": "Verei a definição do caso de teste em que isso foi baseado e, em seguida, o"
-      },
-      {
-        "start": 368.56,
-        "end": 372.92,
-        "text_en": "score, which again right now is just hardcoded at 10.",
-        "text_pt": "pontuação, que novamente agora está apenas codificada em 10."
-      },
-      {
-        "start": 371.8,
-        "end": 376.16,
-        "text_en": "And then that's just going to repeat over and over again.",
-        "text_pt": "E então isso vai se repetir indefinidamente."
-      },
-      {
-        "start": 374.72,
-        "end": 378.88,
-        "text_en": "All right. So, at this point in time, we",
-        "text_pt": "Tudo bem. Então, neste momento, nós"
-      },
-      {
-        "start": 376.16,
-        "end": 381.48,
-        "text_en": "have successfully gone through this step",
-        "text_pt": "passaram por esta etapa com sucesso"
-      },
-      {
-        "start": 378.88,
-        "end": 383.76,
-        "text_en": "right here. We merge together our data",
-        "text_pt": "aqui mesmo. Nós mesclamos nossos dados"
-      },
-      {
-        "start": 381.48,
-        "end": 387.64,
-        "text_en": "set with our test prompt, and we got some output from Claude, and we kind of",
-        "text_pt": "definido com nosso prompt de teste, e obtivemos alguns resultados de Claude, e meio que"
-      },
-      {
-        "start": 385.2,
-        "end": 388.84,
-        "text_en": "collated all this stuff together.",
-        "text_pt": "reuniu todas essas coisas."
-      },
-      {
-        "start": 387.64,
-        "end": 391.68,
-        "text_en": "So, now the last thing we really have to",
-        "text_pt": "Então, agora a última coisa que realmente precisamos"
-      },
-      {
-        "start": 388.84,
-        "end": 393.48,
-        "text_en": "do here is take the input and the result",
-        "text_pt": "o que fazer aqui é pegar a entrada e o resultado"
-      },
-      {
-        "start": 391.68,
-        "end": 395.68,
-        "text_en": "that we got out of Claude and feed it",
-        "text_pt": "que saímos de Claude e o alimentamos"
-      },
-      {
-        "start": 393.48,
-        "end": 399.48,
-        "text_en": "into one of these different graders. So, this finally is the time where we're",
-        "text_pt": "em uma dessas diferentes séries. Então, este finalmente é o momento em que estamos"
-      },
-      {
-        "start": 397.28,
-        "end": 400.76,
-        "text_en": "going to start to learn about graders.",
-        "text_pt": "vou começar a aprender sobre os alunos."
-      },
-      {
-        "start": 399.48,
-        "end": 403.56,
-        "text_en": "We're going to start to discuss them in",
-        "text_pt": "Vamos começar a discuti-los em"
-      },
-      {
-        "start": 400.76,
-        "end": 403.56,
-        "text_en": "the next video.",
-        "text_pt": "o próximo vídeo."
-      }
-    ],
-    "createdAt": "2026-10-15T12:47:04.155Z",
-    "updatedAt": "2026-10-15T12:47:04.155Z"
-  },
-  {
     "id": "oSZu68-gbv4",
     "videoId": "oSZu68-gbv4",
     "title": "11. Structured data - Building with the Claude API - Claude course",
@@ -863,2189 +8,785 @@
     "thumbnail": "https://i.ytimg.com/vi/oSZu68-gbv4/maxresdefault.jpg",
     "url": "https://www.youtube.com/watch?v=oSZu68-gbv4",
     "detectedLang": "en",
-    "segmentsCount": 363,
+    "segmentsCount": 129,
     "segments": [
       {
         "start": 0,
-        "end": 2.19,
+        "end": 4,
         "text_en": "Stop sequences and assistant message",
-        "text_pt": "Stop sequences and assistant message"
-      },
-      {
-        "start": 2.19,
-        "end": 2.2,
-        "text_en": "Stop sequences and assistant message",
-        "text_pt": "Parar sequências e mensagem do assistente"
+        "text_pt": "Sequências de parada e mensagem do assistente"
       },
       {
         "start": 2.2,
-        "end": 3.99,
-        "text_en": "Stop sequences and assistant message prefilling can be combined together in a",
-        "text_pt": "Stop sequences and assistant message prefilling can be combined together in a"
-      },
-      {
-        "start": 3.99,
-        "end": 4,
-        "text_en": "prefilling can be combined together in a",
-        "text_pt": "prefilling can be combined together in a"
-      },
-      {
-        "start": 4,
-        "end": 5.83,
+        "end": 7,
         "text_en": "prefilling can be combined together in a really powerful way. Something that",
-        "text_pt": "prefilling can be combined together in a really powerful way. Something that"
-      },
-      {
-        "start": 5.83,
-        "end": 5.84,
-        "text_en": "really powerful way. Something that",
-        "text_pt": "maneira realmente poderosa. Algo que"
+        "text_pt": "o pré-preenchimento pode ser combinado de uma forma realmente poderosa. Algo que"
       },
       {
         "start": 5.84,
-        "end": 6.99,
-        "text_en": "really powerful way. Something that you're probably going to end up doing",
-        "text_pt": "really powerful way. Something that you're probably going to end up doing"
-      },
-      {
-        "start": 6.99,
-        "end": 7,
-        "text_en": "you're probably going to end up doing",
-        "text_pt": "you're probably going to end up doing"
-      },
-      {
-        "start": 7,
-        "end": 8.91,
+        "end": 10.88,
         "text_en": "you're probably going to end up doing rather frequently anytime you need to",
         "text_pt": "você provavelmente acabará fazendo isso com bastante frequência sempre que precisar"
       },
       {
-        "start": 8.91,
-        "end": 8.92,
-        "text_en": "rather frequently anytime you need to",
-        "text_pt": "rather frequently anytime you need to"
-      },
-      {
         "start": 8.92,
-        "end": 10.87,
-        "text_en": "rather frequently anytime you need to generate some kind of structured data.",
-        "text_pt": "rather frequently anytime you need to generate some kind of structured data."
-      },
-      {
-        "start": 10.87,
-        "end": 10.88,
+        "end": 12.36,
         "text_en": "generate some kind of structured data.",
         "text_pt": "gerar algum tipo de dados estruturados."
       },
       {
         "start": 10.88,
-        "end": 12.35,
-        "text_en": "generate some kind of structured data. So, to help you understand how these",
-        "text_pt": "generate some kind of structured data. So, to help you understand how these"
-      },
-      {
-        "start": 12.35,
-        "end": 12.36,
-        "text_en": "So, to help you understand how these",
-        "text_pt": "So, to help you understand how these"
-      },
-      {
-        "start": 12.36,
-        "end": 13.87,
+        "end": 15.92,
         "text_en": "So, to help you understand how these things work together, let me walk you",
-        "text_pt": "Então, para ajudá-lo a entender como essas coisas funcionam juntas, deixe-me explicar"
-      },
-      {
-        "start": 13.87,
-        "end": 13.88,
-        "text_en": "things work together, let me walk you",
-        "text_pt": "things work together, let me walk you"
+        "text_pt": "Então, para ajudar você a entender como essas coisas funcionam juntas, deixe-me explicar"
       },
       {
         "start": 13.88,
-        "end": 15.91,
-        "text_en": "things work together, let me walk you through a really quick example. Let's",
-        "text_pt": "things work together, let me walk you through a really quick example. Let's"
-      },
-      {
-        "start": 15.91,
-        "end": 15.92,
-        "text_en": "through a really quick example. Let's",
-        "text_pt": "through a really quick example. Let's"
-      },
-      {
-        "start": 15.92,
-        "end": 17.79,
+        "end": 19.52,
         "text_en": "through a really quick example. Let's imagine that we are building a web app",
-        "text_pt": "através de um exemplo muito rápido. Vamos imaginar que estamos construindo um aplicativo web"
-      },
-      {
-        "start": 17.79,
-        "end": 17.8,
-        "text_en": "imagine that we are building a web app",
-        "text_pt": "imagine that we are building a web app"
+        "text_pt": "através de um exemplo muito rápido. Vamos imaginar que estamos construindo uma aplicação web"
       },
       {
         "start": 17.8,
-        "end": 19.51,
-        "text_en": "imagine that we are building a web app like the one you see on the screen. This",
-        "text_pt": "imagine that we are building a web app like the one you see on the screen. This"
-      },
-      {
-        "start": 19.51,
-        "end": 19.52,
-        "text_en": "like the one you see on the screen. This",
-        "text_pt": "like the one you see on the screen. This"
-      },
-      {
-        "start": 19.52,
-        "end": 21.51,
+        "end": 23.76,
         "text_en": "like the one you see on the screen. This is a web app that's going to generate",
-        "text_pt": "como o que você vê na tela. Este é um aplicativo da web que irá gerar"
-      },
-      {
-        "start": 21.51,
-        "end": 21.52,
-        "text_en": "is a web app that's going to generate",
-        "text_pt": "is a web app that's going to generate"
+        "text_pt": "como o que você vê na tela. Este é um aplicativo web que irá gerar"
       },
       {
         "start": 21.52,
-        "end": 23.75,
-        "text_en": "is a web app that's going to generate event bridge rules based upon some user",
-        "text_pt": "is a web app that's going to generate event bridge rules based upon some user"
-      },
-      {
-        "start": 23.75,
-        "end": 23.76,
+        "end": 25.64,
         "text_en": "event bridge rules based upon some user",
-        "text_pt": "event bridge rules based upon some user"
+        "text_pt": "regras de ponte de eventos baseadas em algum usuário"
       },
       {
         "start": 23.76,
-        "end": 25.63,
-        "text_en": "event bridge rules based upon some user input. If you're not familiar with them,",
-        "text_pt": "event bridge rules based upon some user input. If you're not familiar with them,"
-      },
-      {
-        "start": 25.63,
-        "end": 25.64,
+        "end": 27.84,
         "text_en": "input. If you're not familiar with them,",
         "text_pt": "entrada. Se você não está familiarizado com eles,"
       },
       {
         "start": 25.64,
-        "end": 27.83,
-        "text_en": "input. If you're not familiar with them, event bridge rules are used in AWS.",
-        "text_pt": "input. If you're not familiar with them, event bridge rules are used in AWS."
-      },
-      {
-        "start": 27.83,
-        "end": 27.84,
+        "end": 29,
         "text_en": "event bridge rules are used in AWS.",
-        "text_pt": "event bridge rules are used in AWS."
+        "text_pt": "regras de ponte de eventos são usadas na AWS."
       },
       {
         "start": 27.84,
-        "end": 28.99,
-        "text_en": "event bridge rules are used in AWS. They're essentially little JSON",
-        "text_pt": "event bridge rules are used in AWS. They're essentially little JSON"
-      },
-      {
-        "start": 28.99,
-        "end": 29,
-        "text_en": "They're essentially little JSON",
-        "text_pt": "Eles são essencialmente pequenos JSON"
-      },
-      {
-        "start": 29,
-        "end": 30.91,
+        "end": 32.44,
         "text_en": "They're essentially little JSON snippets. So, the user is going to enter",
-        "text_pt": "They're essentially little JSON snippets. So, the user is going to enter"
-      },
-      {
-        "start": 30.91,
-        "end": 30.92,
-        "text_en": "snippets. So, the user is going to enter",
-        "text_pt": "snippets. So, the user is going to enter"
+        "text_pt": "Eles são essencialmente pequenos trechos JSON. Então, o usuário irá inserir"
       },
       {
         "start": 30.92,
-        "end": 32.429,
-        "text_en": "snippets. So, the user is going to enter in some prompt like this and then click",
-        "text_pt": "snippets. So, the user is going to enter in some prompt like this and then click"
-      },
-      {
-        "start": 32.429,
-        "end": 32.439,
-        "text_en": "in some prompt like this and then click",
-        "text_pt": "in some prompt like this and then click"
-      },
-      {
-        "start": 32.439,
-        "end": 34.99,
-        "text_en": "in some prompt like this and then click on generate. And chances are the user is",
-        "text_pt": "in some prompt like this and then click on generate. And chances are the user is"
-      },
-      {
-        "start": 34.99,
         "end": 35,
+        "text_en": "in some prompt like this and then click",
+        "text_pt": "em algum prompt como este e clique em"
+      },
+      {
+        "start": 32.44,
+        "end": 37.48,
         "text_en": "on generate. And chances are the user is",
-        "text_pt": "em gerar. E é provável que o usuário esteja"
+        "text_pt": "em gerar. E é provável que o usuário seja"
       },
       {
         "start": 35,
-        "end": 37.47,
-        "text_en": "on generate. And chances are the user is going to want to see some generated rule",
-        "text_pt": "on generate. And chances are the user is going to want to see some generated rule"
-      },
-      {
-        "start": 37.47,
-        "end": 37.48,
+        "end": 39.72,
         "text_en": "going to want to see some generated rule",
         "text_pt": "vou querer ver alguma regra gerada"
       },
       {
         "start": 37.48,
-        "end": 39.71,
-        "text_en": "going to want to see some generated rule just up here that they can very easily",
-        "text_pt": "going to want to see some generated rule just up here that they can very easily"
-      },
-      {
-        "start": 39.71,
-        "end": 39.72,
+        "end": 41.48,
         "text_en": "just up here that they can very easily",
-        "text_pt": "just up here that they can very easily"
+        "text_pt": "aqui em cima que eles podem facilmente"
       },
       {
         "start": 39.72,
-        "end": 41.47,
-        "text_en": "just up here that they can very easily select right away or click on this",
-        "text_pt": "just up here that they can very easily select right away or click on this"
-      },
-      {
-        "start": 41.47,
-        "end": 41.48,
-        "text_en": "select right away or click on this",
-        "text_pt": "selecione imediatamente ou clique aqui"
-      },
-      {
-        "start": 41.48,
-        "end": 43.63,
+        "end": 45.88,
         "text_en": "select right away or click on this little copy button and go use somewhere",
-        "text_pt": "select right away or click on this little copy button and go use somewhere"
-      },
-      {
-        "start": 43.63,
-        "end": 43.64,
-        "text_en": "little copy button and go use somewhere",
-        "text_pt": "pequeno botão de copiar e usar em algum lugar"
+        "text_pt": "selecione agora mesmo ou clique neste pequeno botão de copiar e vá usar em algum lugar"
       },
       {
         "start": 43.64,
-        "end": 45.87,
-        "text_en": "little copy button and go use somewhere else. The point there is that part of",
-        "text_pt": "little copy button and go use somewhere else. The point there is that part of"
-      },
-      {
-        "start": 45.87,
-        "end": 45.88,
+        "end": 48.08,
         "text_en": "else. The point there is that part of",
-        "text_pt": "else. The point there is that part of"
+        "text_pt": "outro. A questão é aquela parte de"
       },
       {
         "start": 45.88,
-        "end": 48.07,
-        "text_en": "else. The point there is that part of the critical user experience here is",
-        "text_pt": "else. The point there is that part of the critical user experience here is"
-      },
-      {
-        "start": 48.07,
-        "end": 48.08,
-        "text_en": "the critical user experience here is",
-        "text_pt": "the critical user experience here is"
-      },
-      {
-        "start": 48.08,
-        "end": 49.75,
+        "end": 52.24,
         "text_en": "the critical user experience here is that we want to show just the JSON for",
-        "text_pt": "the critical user experience here is that we want to show just the JSON for"
-      },
-      {
-        "start": 49.75,
-        "end": 49.76,
-        "text_en": "that we want to show just the JSON for",
-        "text_pt": "que queremos mostrar apenas o JSON para"
+        "text_pt": "a experiência crítica do usuário aqui é que queremos mostrar apenas o JSON para"
       },
       {
         "start": 49.76,
-        "end": 52.23,
-        "text_en": "that we want to show just the JSON for the generated rule and nothing else. So,",
-        "text_pt": "that we want to show just the JSON for the generated rule and nothing else. So,"
-      },
-      {
-        "start": 52.23,
-        "end": 52.24,
+        "end": 54.44,
         "text_en": "the generated rule and nothing else. So,",
-        "text_pt": "the generated rule and nothing else. So,"
+        "text_pt": "a regra gerada e nada mais. Então,"
       },
       {
         "start": 52.24,
-        "end": 54.43,
-        "text_en": "the generated rule and nothing else. So, if we instead displayed a response that",
-        "text_pt": "the generated rule and nothing else. So, if we instead displayed a response that"
-      },
-      {
-        "start": 54.43,
-        "end": 54.44,
+        "end": 56.28,
         "text_en": "if we instead displayed a response that",
         "text_pt": "se em vez disso exibissemos uma resposta que"
       },
       {
         "start": 54.44,
-        "end": 56.27,
-        "text_en": "if we instead displayed a response that looks like this, it would definitely not",
-        "text_pt": "if we instead displayed a response that looks like this, it would definitely not"
-      },
-      {
-        "start": 56.27,
-        "end": 56.28,
-        "text_en": "looks like this, it would definitely not",
-        "text_pt": "parece com isso, definitivamente não seria"
-      },
-      {
-        "start": 56.28,
-        "end": 58.39,
+        "end": 60.32,
         "text_en": "looks like this, it would definitely not be as helpful for our users. We're still",
-        "text_pt": "looks like this, it would definitely not be as helpful for our users. We're still"
-      },
-      {
-        "start": 58.39,
-        "end": 58.4,
-        "text_en": "be as helpful for our users. We're still",
-        "text_pt": "be as helpful for our users. We're still"
+        "text_pt": "parece assim, definitivamente não seria tão útil para nossos usuários. Ainda estamos"
       },
       {
         "start": 58.4,
-        "end": 60.31,
-        "text_en": "be as helpful for our users. We're still generating the rule, but now it also has",
-        "text_pt": "be as helpful for our users. We're still generating the rule, but now it also has"
-      },
-      {
-        "start": 60.31,
-        "end": 60.32,
+        "end": 62.6,
         "text_en": "generating the rule, but now it also has",
-        "text_pt": "generating the rule, but now it also has"
+        "text_pt": "gerando a regra, mas agora também tem"
       },
       {
         "start": 60.32,
-        "end": 62.59,
-        "text_en": "generating the rule, but now it also has this header up top and this commentary",
-        "text_pt": "generating the rule, but now it also has this header up top and this commentary"
-      },
-      {
-        "start": 62.59,
-        "end": 62.6,
+        "end": 64.44,
         "text_en": "this header up top and this commentary",
-        "text_pt": "this header up top and this commentary"
+        "text_pt": "este cabeçalho no topo e este comentário"
       },
       {
         "start": 62.6,
-        "end": 64.43,
-        "text_en": "this header up top and this commentary footer down at the bottom. So, now a",
-        "text_pt": "this header up top and this commentary footer down at the bottom. So, now a"
-      },
-      {
-        "start": 64.43,
-        "end": 64.44,
-        "text_en": "footer down at the bottom. So, now a",
-        "text_pt": "footer down at the bottom. So, now a"
-      },
-      {
-        "start": 64.44,
-        "end": 66.59,
+        "end": 68.2,
         "text_en": "footer down at the bottom. So, now a user can't really use this copy all",
-        "text_pt": "footer down at the bottom. So, now a user can't really use this copy all"
-      },
-      {
-        "start": 66.59,
-        "end": 66.6,
-        "text_en": "user can't really use this copy all",
-        "text_pt": "user can't really use this copy all"
+        "text_pt": "rodapé na parte inferior. Então, agora um usuário não pode realmente usar esta cópia toda"
       },
       {
         "start": 66.6,
-        "end": 68.19,
-        "text_en": "user can't really use this copy all button. They would have to go in and",
-        "text_pt": "user can't really use this copy all button. They would have to go in and"
-      },
-      {
-        "start": 68.19,
-        "end": 68.2,
+        "end": 70.72,
         "text_en": "button. They would have to go in and",
-        "text_pt": "button. They would have to go in and"
+        "text_pt": "botão. Eles teriam que entrar e"
       },
       {
         "start": 68.2,
-        "end": 70.71000000000001,
-        "text_en": "button. They would have to go in and manually select that JSON right there.",
-        "text_pt": "button. They would have to go in and manually select that JSON right there."
-      },
-      {
-        "start": 70.71000000000001,
-        "end": 70.72,
+        "end": 72.64,
         "text_en": "manually select that JSON right there.",
-        "text_pt": "manually select that JSON right there."
+        "text_pt": "selecione manualmente esse JSON ali mesmo."
       },
       {
         "start": 70.72,
-        "end": 72.63,
-        "text_en": "manually select that JSON right there. So, this is an example where we really",
-        "text_pt": "manually select that JSON right there. So, this is an example where we really"
-      },
-      {
-        "start": 72.63,
-        "end": 72.64,
+        "end": 74.92,
         "text_en": "So, this is an example where we really",
-        "text_pt": "So, this is an example where we really"
+        "text_pt": "Então, este é um exemplo onde realmente"
       },
       {
         "start": 72.64,
-        "end": 74.91,
-        "text_en": "So, this is an example where we really don't want Claude to be that helpful and",
-        "text_pt": "So, this is an example where we really don't want Claude to be that helpful and"
-      },
-      {
-        "start": 74.91,
-        "end": 74.92,
+        "end": 77.6,
         "text_en": "don't want Claude to be that helpful and",
-        "text_pt": "don't want Claude to be that helpful and"
+        "text_pt": "não quero que Claude seja tão prestativo e"
       },
       {
         "start": 74.92,
-        "end": 77.59,
-        "text_en": "don't want Claude to be that helpful and explain its work. We want just some very",
-        "text_pt": "don't want Claude to be that helpful and explain its work. We want just some very"
-      },
-      {
-        "start": 77.59,
-        "end": 77.6,
+        "end": 79.88,
         "text_en": "explain its work. We want just some very",
-        "text_pt": "explain its work. We want just some very"
+        "text_pt": "explicar seu trabalho. Queremos apenas alguns"
       },
       {
         "start": 77.6,
-        "end": 79.87,
-        "text_en": "explain its work. We want just some very particular data and nothing else.",
-        "text_pt": "explain its work. We want just some very particular data and nothing else."
-      },
-      {
-        "start": 79.87,
-        "end": 79.88,
+        "end": 82,
         "text_en": "particular data and nothing else.",
-        "text_pt": "particular data and nothing else."
+        "text_pt": "dados específicos e nada mais."
       },
       {
         "start": 79.88,
-        "end": 81.99,
-        "text_en": "particular data and nothing else. Now, to be clear, this is not a problem",
-        "text_pt": "particular data and nothing else. Now, to be clear, this is not a problem"
-      },
-      {
-        "start": 81.99,
-        "end": 82,
+        "end": 84.36,
         "text_en": "Now, to be clear, this is not a problem",
-        "text_pt": "Now, to be clear, this is not a problem"
+        "text_pt": "Agora, para ficar claro, isso não é um problema"
       },
       {
         "start": 82,
-        "end": 84.35,
-        "text_en": "Now, to be clear, this is not a problem that is just limited to generating JSON.",
-        "text_pt": "Now, to be clear, this is not a problem that is just limited to generating JSON."
-      },
-      {
-        "start": 84.35,
-        "end": 84.36,
+        "end": 85.8,
         "text_en": "that is just limited to generating JSON.",
-        "text_pt": "that is just limited to generating JSON."
+        "text_pt": "isso se limita apenas à geração de JSON."
       },
       {
         "start": 84.36,
-        "end": 85.78999999999999,
-        "text_en": "that is just limited to generating JSON. It turns out that anytime you're using",
-        "text_pt": "that is just limited to generating JSON. It turns out that anytime you're using"
-      },
-      {
-        "start": 85.78999999999999,
-        "end": 85.8,
-        "text_en": "It turns out that anytime you're using",
-        "text_pt": "It turns out that anytime you're using"
-      },
-      {
-        "start": 85.8,
-        "end": 87.11,
+        "end": 89.56,
         "text_en": "It turns out that anytime you're using Claude to generate any kind of",
-        "text_pt": "It turns out that anytime you're using Claude to generate any kind of"
-      },
-      {
-        "start": 87.11,
-        "end": 87.12,
-        "text_en": "Claude to generate any kind of",
-        "text_pt": "Claude to generate any kind of"
+        "text_pt": "Acontece que sempre que você estiver usando Claude para gerar qualquer tipo de"
       },
       {
         "start": 87.12,
-        "end": 89.55,
-        "text_en": "Claude to generate any kind of structured data. So, it could be JSON or",
-        "text_pt": "Claude to generate any kind of structured data. So, it could be JSON or"
-      },
-      {
-        "start": 89.55,
-        "end": 89.56,
+        "end": 91.28,
         "text_en": "structured data. So, it could be JSON or",
-        "text_pt": "structured data. So, it could be JSON or"
+        "text_pt": "dados estruturados. Então, pode ser JSON ou"
       },
       {
         "start": 89.56,
-        "end": 91.27,
-        "text_en": "structured data. So, it could be JSON or it could be Python or even just a",
-        "text_pt": "structured data. So, it could be JSON or it could be Python or even just a"
-      },
-      {
-        "start": 91.27,
-        "end": 91.28,
+        "end": 94.44,
         "text_en": "it could be Python or even just a",
-        "text_pt": "it could be Python or even just a"
+        "text_pt": "poderia ser Python ou mesmo apenas um"
       },
       {
         "start": 91.28,
-        "end": 94.43,
-        "text_en": "it could be Python or even just a bulleted list of text items. Claude is",
-        "text_pt": "it could be Python or even just a bulleted list of text items. Claude is"
-      },
-      {
-        "start": 94.43,
-        "end": 94.44,
+        "end": 96.4,
         "text_en": "bulleted list of text items. Claude is",
-        "text_pt": "bulleted list of text items. Claude is"
+        "text_pt": "lista com marcadores de itens de texto. Cláudio é"
       },
       {
         "start": 94.44,
-        "end": 96.39,
-        "text_en": "bulleted list of text items. Claude is very often going to try to insert a",
-        "text_pt": "bulleted list of text items. Claude is very often going to try to insert a"
-      },
-      {
-        "start": 96.39,
-        "end": 96.4,
-        "text_en": "very often going to try to insert a",
-        "text_pt": "very often going to try to insert a"
-      },
-      {
-        "start": 96.4,
-        "end": 98.27000000000001,
+        "end": 100.32,
         "text_en": "very often going to try to insert a header or a footer or some additional",
-        "text_pt": "very often going to try to insert a header or a footer or some additional"
-      },
-      {
-        "start": 98.27000000000001,
-        "end": 98.28,
-        "text_en": "header or a footer or some additional",
-        "text_pt": "header or a footer or some additional"
+        "text_pt": "muitas vezes vou tentar inserir um cabeçalho ou rodapé ou algum"
       },
       {
         "start": 98.28,
-        "end": 100.31,
-        "text_en": "header or a footer or some additional kind of commentary. And in many of these",
-        "text_pt": "header or a footer or some additional kind of commentary. And in many of these"
-      },
-      {
-        "start": 100.31,
-        "end": 100.32,
-        "text_en": "kind of commentary. And in many of these",
-        "text_pt": "kind of commentary. And in many of these"
-      },
-      {
-        "start": 100.32,
-        "end": 101.63,
+        "end": 103.8,
         "text_en": "kind of commentary. And in many of these scenarios, you don't want that",
-        "text_pt": "kind of commentary. And in many of these scenarios, you don't want that"
-      },
-      {
-        "start": 101.63,
-        "end": 101.64,
-        "text_en": "scenarios, you don't want that",
-        "text_pt": "scenarios, you don't want that"
+        "text_pt": "adicional tipo de comentário. E em muitos desses cenários, você não quer isso"
       },
       {
         "start": 101.64,
-        "end": 103.78999999999999,
-        "text_en": "scenarios, you don't want that additional commentary. You just want the",
-        "text_pt": "scenarios, you don't want that additional commentary. You just want the"
-      },
-      {
-        "start": 103.78999999999999,
-        "end": 103.8,
-        "text_en": "additional commentary. You just want the",
-        "text_pt": "additional commentary. You just want the"
-      },
-      {
-        "start": 103.8,
-        "end": 105.55,
+        "end": 108.28,
         "text_en": "additional commentary. You just want the raw content that you asked Claude to",
-        "text_pt": "additional commentary. You just want the raw content that you asked Claude to"
-      },
-      {
-        "start": 105.55,
-        "end": 105.56,
-        "text_en": "raw content that you asked Claude to",
-        "text_pt": "raw content that you asked Claude to"
+        "text_pt": "comentário adicional. Você só quer o conteúdo bruto que pediu ao Claude"
       },
       {
         "start": 105.56,
-        "end": 108.27000000000001,
-        "text_en": "raw content that you asked Claude to create. So, to help keep Claude on track",
-        "text_pt": "raw content that you asked Claude to create. So, to help keep Claude on track"
-      },
-      {
-        "start": 108.27000000000001,
-        "end": 108.28,
+        "end": 110.32,
         "text_en": "create. So, to help keep Claude on track",
-        "text_pt": "create. So, to help keep Claude on track"
+        "text_pt": "criar. Então, para ajudar a manter Claude no caminho certo"
       },
       {
         "start": 108.28,
-        "end": 110.31,
-        "text_en": "create. So, to help keep Claude on track here and only give us the raw content",
-        "text_pt": "create. So, to help keep Claude on track here and only give us the raw content"
-      },
-      {
-        "start": 110.31,
-        "end": 110.32,
-        "text_en": "here and only give us the raw content",
-        "text_pt": "here and only give us the raw content"
-      },
-      {
-        "start": 110.32,
-        "end": 111.95,
-        "text_en": "here and only give us the raw content we're asking for and no additional",
-        "text_pt": "here and only give us the raw content we're asking for and no additional"
-      },
-      {
-        "start": 111.95,
-        "end": 111.96000000000001,
-        "text_en": "we're asking for and no additional",
-        "text_pt": "we're asking for and no additional"
-      },
-      {
-        "start": 111.96000000000001,
-        "end": 113.87,
-        "text_en": "we're asking for and no additional header or footer or commentary or",
-        "text_pt": "we're asking for and no additional header or footer or commentary or"
-      },
-      {
-        "start": 113.87,
         "end": 113.88,
+        "text_en": "here and only give us the raw content we're asking for and no additional",
+        "text_pt": "aqui e nos forneça apenas o conteúdo bruto que solicitamos e nenhum adicional"
+      },
+      {
+        "start": 111.96,
+        "end": 116.52,
         "text_en": "header or footer or commentary or",
-        "text_pt": "header or footer or commentary or"
+        "text_pt": "cabeçalho ou rodapé ou comentário ou"
       },
       {
         "start": 113.88,
-        "end": 116.50999999999999,
-        "text_en": "header or footer or commentary or anything like that, we can use our stop",
-        "text_pt": "header or footer or commentary or anything like that, we can use our stop"
-      },
-      {
-        "start": 116.50999999999999,
-        "end": 116.52000000000001,
-        "text_en": "anything like that, we can use our stop",
-        "text_pt": "anything like that, we can use our stop"
-      },
-      {
-        "start": 116.52000000000001,
-        "end": 118.55,
-        "text_en": "anything like that, we can use our stop sequence in combination with a",
-        "text_pt": "anything like that, we can use our stop sequence in combination with a"
-      },
-      {
-        "start": 118.55,
         "end": 118.56,
+        "text_en": "anything like that, we can use our stop",
+        "text_pt": "qualquer coisa assim, podemos usar nosso stop"
+      },
+      {
+        "start": 116.52,
+        "end": 120.64,
         "text_en": "sequence in combination with a",
-        "text_pt": "sequence in combination with a"
+        "text_pt": "sequência em combinação com um"
       },
       {
         "start": 118.56,
-        "end": 120.63,
-        "text_en": "sequence in combination with a pre-filled assistant message. Let me",
-        "text_pt": "sequence in combination with a pre-filled assistant message. Let me"
-      },
-      {
-        "start": 120.63,
-        "end": 120.64,
-        "text_en": "pre-filled assistant message. Let me",
-        "text_pt": "pre-filled assistant message. Let me"
-      },
-      {
-        "start": 120.64,
-        "end": 121.95,
+        "end": 123.12,
         "text_en": "pre-filled assistant message. Let me show you how.",
-        "text_pt": "pre-filled assistant message. Let me show you how."
-      },
-      {
-        "start": 121.95,
-        "end": 121.96,
-        "text_en": "show you how.",
-        "text_pt": "show you how."
+        "text_pt": "mensagem do assistente pré-preenchida. Deixe-me mostrar como."
       },
       {
         "start": 121.96,
-        "end": 123.11,
-        "text_en": "show you how. I'm going to go back over to my",
-        "text_pt": "show you how. I'm going to go back over to my"
-      },
-      {
-        "start": 123.11,
-        "end": 123.12,
-        "text_en": "I'm going to go back over to my",
-        "text_pt": "I'm going to go back over to my"
-      },
-      {
-        "start": 123.12,
-        "end": 124.469,
-        "text_en": "I'm going to go back over to my notebook.",
-        "text_pt": "I'm going to go back over to my notebook."
-      },
-      {
-        "start": 124.469,
-        "end": 124.479,
-        "text_en": "notebook.",
-        "text_pt": "notebook."
-      },
-      {
-        "start": 124.479,
-        "end": 126.35,
-        "text_en": "notebook. I'm going to continue on by making a new",
-        "text_pt": "notebook. I'm going to continue on by making a new"
-      },
-      {
-        "start": 126.35,
         "end": 126.36,
-        "text_en": "I'm going to continue on by making a new",
-        "text_pt": "I'm going to continue on by making a new"
+        "text_en": "I'm going to go back over to my notebook.",
+        "text_pt": "Vou voltar ao meu caderno."
       },
       {
-        "start": 126.36,
-        "end": 127.55,
+        "start": 124.48,
+        "end": 129.52,
         "text_en": "I'm going to continue on by making a new cell down here.",
-        "text_pt": "I'm going to continue on by making a new cell down here."
-      },
-      {
-        "start": 127.55,
-        "end": 127.56,
-        "text_en": "cell down here.",
-        "text_pt": "cell down here."
+        "text_pt": "Vou continuar fazendo uma nova cela aqui embaixo."
       },
       {
         "start": 127.56,
-        "end": 129.51,
-        "text_en": "cell down here. I'm going to again make a list of",
-        "text_pt": "cell down here. I'm going to again make a list of"
-      },
-      {
-        "start": 129.51,
-        "end": 129.52,
-        "text_en": "I'm going to again make a list of",
-        "text_pt": "I'm going to again make a list of"
-      },
-      {
-        "start": 129.52,
-        "end": 130.669,
-        "text_en": "I'm going to again make a list of messages.",
-        "text_pt": "I'm going to again make a list of messages."
-      },
-      {
-        "start": 130.669,
-        "end": 130.679,
-        "text_en": "messages.",
-        "text_pt": "messages."
-      },
-      {
-        "start": 130.679,
-        "end": 133.75,
-        "text_en": "messages. I'll add in a user message.",
-        "text_pt": "messages. I'll add in a user message."
-      },
-      {
-        "start": 133.75,
         "end": 133.76,
+        "text_en": "I'm going to again make a list of messages.",
+        "text_pt": "Vou fazer novamente uma lista de mensagens."
+      },
+      {
+        "start": 130.68,
+        "end": 137.24,
         "text_en": "I'll add in a user message.",
-        "text_pt": "I'll add in a user message."
+        "text_pt": "Vou adicionar uma mensagem do usuário."
       },
       {
         "start": 133.76,
-        "end": 137.23,
-        "text_en": "I'll add in a user message. I'll say something like generate a very",
-        "text_pt": "I'll add in a user message. I'll say something like generate a very"
-      },
-      {
-        "start": 137.23,
-        "end": 137.24,
+        "end": 141.48,
         "text_en": "I'll say something like generate a very",
-        "text_pt": "I'll say something like generate a very"
+        "text_pt": "Direi algo como gerar um muito"
       },
       {
         "start": 137.24,
-        "end": 141.47,
-        "text_en": "I'll say something like generate a very short event ridge rule as JSON.",
-        "text_pt": "I'll say something like generate a very short event ridge rule as JSON."
-      },
-      {
-        "start": 141.47,
-        "end": 141.48,
+        "end": 143.2,
         "text_en": "short event ridge rule as JSON.",
-        "text_pt": "short event ridge rule as JSON."
+        "text_pt": "regra de cume de evento curto como JSON."
       },
       {
         "start": 141.48,
-        "end": 143.19,
-        "text_en": "short event ridge rule as JSON. I'll then pass that off",
-        "text_pt": "short event ridge rule as JSON. I'll then pass that off"
-      },
-      {
-        "start": 143.19,
-        "end": 143.2,
-        "text_en": "I'll then pass that off",
-        "text_pt": "I'll then pass that off"
-      },
-      {
-        "start": 143.2,
-        "end": 145.11,
+        "end": 147.44,
         "text_en": "I'll then pass that off like so. And then let's just see what we",
-        "text_pt": "I'll then pass that off like so. And then let's just see what we"
-      },
-      {
-        "start": 145.11,
-        "end": 145.12,
-        "text_en": "like so. And then let's just see what we",
-        "text_pt": "like so. And then let's just see what we"
+        "text_pt": "Vou então passar isso assim. E então vamos ver o que"
       },
       {
         "start": 145.12,
-        "end": 147.43,
-        "text_en": "like so. And then let's just see what we get with this kind of initial take.",
-        "text_pt": "like so. And then let's just see what we get with this kind of initial take."
-      },
-      {
-        "start": 147.43,
-        "end": 147.44,
+        "end": 148.96,
         "text_en": "get with this kind of initial take.",
-        "text_pt": "get with this kind of initial take."
+        "text_pt": "obtenha esse tipo de abordagem inicial."
       },
       {
         "start": 147.44,
-        "end": 148.949,
-        "text_en": "get with this kind of initial take. So right away, we can see that we do get",
-        "text_pt": "get with this kind of initial take. So right away, we can see that we do get"
-      },
-      {
-        "start": 148.949,
-        "end": 148.959,
-        "text_en": "So right away, we can see that we do get",
-        "text_pt": "So right away, we can see that we do get"
-      },
-      {
-        "start": 148.959,
-        "end": 151.67000000000002,
-        "text_en": "So right away, we can see that we do get back some JSON, but it has unfortunately",
-        "text_pt": "So right away, we can see that we do get back some JSON, but it has unfortunately"
-      },
-      {
-        "start": 151.67000000000002,
         "end": 151.68,
+        "text_en": "So right away, we can see that we do get",
+        "text_pt": "Então, imediatamente, podemos ver que obtemos"
+      },
+      {
+        "start": 148.96,
+        "end": 153.56,
         "text_en": "back some JSON, but it has unfortunately",
-        "text_pt": "back some JSON, but it has unfortunately"
+        "text_pt": "de volta algum JSON, mas infelizmente"
       },
       {
         "start": 151.68,
-        "end": 153.55,
-        "text_en": "back some JSON, but it has unfortunately that little backtick backtick backtick",
-        "text_pt": "back some JSON, but it has unfortunately that little backtick backtick backtick"
-      },
-      {
-        "start": 153.55,
-        "end": 153.56,
-        "text_en": "that little backtick backtick backtick",
-        "text_pt": "that little backtick backtick backtick"
-      },
-      {
-        "start": 153.56,
-        "end": 155.15,
+        "end": 157.44,
         "text_en": "that little backtick backtick backtick backtick JSON right there and then a",
-        "text_pt": "that little backtick backtick backtick backtick JSON right there and then a"
-      },
-      {
-        "start": 155.15,
-        "end": 155.16,
-        "text_en": "backtick JSON right there and then a",
-        "text_pt": "backtick JSON right there and then a"
+        "text_pt": "aquele pequeno backtick backtick backtick backtick JSON ali mesmo e então um"
       },
       {
         "start": 155.16,
-        "end": 157.43,
-        "text_en": "backtick JSON right there and then a matching closing one over there. Now",
-        "text_pt": "backtick JSON right there and then a matching closing one over there. Now"
-      },
-      {
-        "start": 157.43,
-        "end": 157.44,
+        "end": 159.24,
         "text_en": "matching closing one over there. Now",
-        "text_pt": "matching closing one over there. Now"
+        "text_pt": "combinando fechando um ali. Agora"
       },
       {
         "start": 157.44,
-        "end": 159.23,
-        "text_en": "matching closing one over there. Now just to make sure it's super clear,",
-        "text_pt": "matching closing one over there. Now just to make sure it's super clear,"
-      },
-      {
-        "start": 159.23,
-        "end": 159.24,
-        "text_en": "just to make sure it's super clear,",
-        "text_pt": "just to make sure it's super clear,"
-      },
-      {
-        "start": 159.24,
-        "end": 161.23,
+        "end": 162.8,
         "text_en": "just to make sure it's super clear, these backticks are in place to format",
-        "text_pt": "just to make sure it's super clear, these backticks are in place to format"
-      },
-      {
-        "start": 161.23,
-        "end": 161.24,
-        "text_en": "these backticks are in place to format",
-        "text_pt": "these backticks are in place to format"
+        "text_pt": "só para ter certeza de que está bem claro, esses crases estão em vigor para formatar"
       },
       {
         "start": 161.24,
-        "end": 162.79,
-        "text_en": "these backticks are in place to format this all as markdown. So it gets",
-        "text_pt": "these backticks are in place to format this all as markdown. So it gets"
-      },
-      {
-        "start": 162.79,
-        "end": 162.8,
-        "text_en": "this all as markdown. So it gets",
-        "text_pt": "this all as markdown. So it gets"
-      },
-      {
-        "start": 162.8,
-        "end": 164.47,
+        "end": 167.08,
         "text_en": "this all as markdown. So it gets formatted very nicely if you were to",
-        "text_pt": "this all as markdown. So it gets formatted very nicely if you were to"
-      },
-      {
-        "start": 164.47,
-        "end": 164.48,
-        "text_en": "formatted very nicely if you were to",
-        "text_pt": "formatted very nicely if you were to"
+        "text_pt": "tudo isso como redução. Portanto, ele fica muito bem formatado se você"
       },
       {
         "start": 164.48,
-        "end": 167.07,
-        "text_en": "formatted very nicely if you were to render it as markdown text. But in our",
-        "text_pt": "formatted very nicely if you were to render it as markdown text. But in our"
-      },
-      {
-        "start": 167.07,
-        "end": 167.07999999999998,
-        "text_en": "render it as markdown text. But in our",
-        "text_pt": "render it as markdown text. But in our"
-      },
-      {
-        "start": 167.07999999999998,
-        "end": 168.71,
-        "text_en": "render it as markdown text. But in our case, we don't want any of those",
-        "text_pt": "render it as markdown text. But in our case, we don't want any of those"
-      },
-      {
-        "start": 168.71,
         "end": 168.72,
-        "text_en": "case, we don't want any of those",
-        "text_pt": "case, we don't want any of those"
+        "text_en": "render it as markdown text. But in our",
+        "text_pt": "renderize-o como texto de marcação. Mas em nosso"
       },
       {
-        "start": 168.72,
-        "end": 170.43,
+        "start": 167.08,
+        "end": 172.68,
         "text_en": "case, we don't want any of those additional characters. We want just the",
-        "text_pt": "case, we don't want any of those additional characters. We want just the"
-      },
-      {
-        "start": 170.43,
-        "end": 170.44,
-        "text_en": "additional characters. We want just the",
-        "text_pt": "additional characters. We want just the"
+        "text_pt": "caso, não queremos nenhum desses caracteres adicionais. Queremos apenas o"
       },
       {
         "start": 170.44,
-        "end": 172.67000000000002,
-        "text_en": "additional characters. We want just the raw JSON by itself.",
-        "text_pt": "additional characters. We want just the raw JSON by itself."
-      },
-      {
-        "start": 172.67000000000002,
-        "end": 172.68,
+        "end": 174.92,
         "text_en": "raw JSON by itself.",
-        "text_pt": "raw JSON by itself."
+        "text_pt": "JSON bruto por si só."
       },
       {
         "start": 172.68,
-        "end": 174.91,
-        "text_en": "raw JSON by itself. So to do so, we can do two things. We're",
-        "text_pt": "raw JSON by itself. So to do so, we can do two things. We're"
-      },
-      {
-        "start": 174.91,
-        "end": 174.92000000000002,
-        "text_en": "So to do so, we can do two things. We're",
-        "text_pt": "So to do so, we can do two things. We're"
-      },
-      {
-        "start": 174.92000000000002,
-        "end": 176.23,
+        "end": 178.36,
         "text_en": "So to do so, we can do two things. We're going to use both an assistant message",
-        "text_pt": "So to do so, we can do two things. We're going to use both an assistant message"
-      },
-      {
-        "start": 176.23,
-        "end": 176.24,
-        "text_en": "going to use both an assistant message",
-        "text_pt": "going to use both an assistant message"
+        "text_pt": "Então, para fazer isso, podemos fazer duas coisas. Vamos usar uma mensagem do assistente"
       },
       {
         "start": 176.24,
-        "end": 178.35,
-        "text_en": "going to use both an assistant message and a stop sequence. For right now,",
-        "text_pt": "going to use both an assistant message and a stop sequence. For right now,"
-      },
-      {
-        "start": 178.35,
-        "end": 178.36,
-        "text_en": "and a stop sequence. For right now,",
-        "text_pt": "and a stop sequence. For right now,"
-      },
-      {
-        "start": 178.36,
-        "end": 179.31,
+        "end": 180.4,
         "text_en": "and a stop sequence. For right now, we're just going to write out the code",
-        "text_pt": "and a stop sequence. For right now, we're just going to write out the code"
-      },
-      {
-        "start": 179.31,
-        "end": 179.32,
-        "text_en": "we're just going to write out the code",
-        "text_pt": "we're just going to write out the code"
+        "text_pt": "e uma sequência de parada. Por enquanto, vamos apenas escrever o código"
       },
       {
         "start": 179.32,
-        "end": 180.39,
-        "text_en": "we're just going to write out the code to do so and then I'll show you a",
-        "text_pt": "we're just going to write out the code to do so and then I'll show you a"
-      },
-      {
-        "start": 180.39,
-        "end": 180.4,
-        "text_en": "to do so and then I'll show you a",
-        "text_pt": "to do so and then I'll show you a"
-      },
-      {
-        "start": 180.4,
-        "end": 183.07,
+        "end": 184.48,
         "text_en": "to do so and then I'll show you a diagram that explains how it all works.",
-        "text_pt": "to do so and then I'll show you a diagram that explains how it all works."
-      },
-      {
-        "start": 183.07,
-        "end": 183.08,
-        "text_en": "diagram that explains how it all works.",
-        "text_pt": "diagram that explains how it all works."
+        "text_pt": "para fazer isso e depois mostrarei um diagrama que explica como tudo funciona."
       },
       {
         "start": 183.08,
-        "end": 184.47,
-        "text_en": "diagram that explains how it all works. First, I'm going to pre-fill an",
-        "text_pt": "diagram that explains how it all works. First, I'm going to pre-fill an"
-      },
-      {
-        "start": 184.47,
-        "end": 184.48,
-        "text_en": "First, I'm going to pre-fill an",
-        "text_pt": "First, I'm going to pre-fill an"
-      },
-      {
-        "start": 184.48,
-        "end": 186.31,
+        "end": 189.12,
         "text_en": "First, I'm going to pre-fill an assistant message. So I'll say add",
-        "text_pt": "First, I'm going to pre-fill an assistant message. So I'll say add"
-      },
-      {
-        "start": 186.31,
-        "end": 186.32,
-        "text_en": "assistant message. So I'll say add",
-        "text_pt": "assistant message. So I'll say add"
+        "text_pt": "Primeiro, vou preencher previamente uma mensagem do assistente. Então direi adicionar"
       },
       {
         "start": 186.32,
-        "end": 189.11,
-        "text_en": "assistant message. So I'll say add assistant message.",
-        "text_pt": "assistant message. So I'll say add assistant message."
-      },
-      {
-        "start": 189.11,
-        "end": 189.12,
+        "end": 190.92,
         "text_en": "assistant message.",
-        "text_pt": "assistant message."
+        "text_pt": "mensagem do assistente."
       },
       {
         "start": 189.12,
-        "end": 190.91,
-        "text_en": "assistant message. And my pre-filled message will be",
-        "text_pt": "assistant message. And my pre-filled message will be"
-      },
-      {
-        "start": 190.91,
-        "end": 190.92,
+        "end": 194.2,
         "text_en": "And my pre-filled message will be",
-        "text_pt": "And my pre-filled message will be"
+        "text_pt": "E minha mensagem pré-preenchida será"
       },
       {
         "start": 190.92,
-        "end": 194.19,
-        "text_en": "And my pre-filled message will be backtick backtick backtick JSON.",
-        "text_pt": "And my pre-filled message will be backtick backtick backtick JSON."
-      },
-      {
-        "start": 194.19,
-        "end": 194.2,
+        "end": 196.92,
         "text_en": "backtick backtick backtick JSON.",
-        "text_pt": "backtick backtick backtick JSON."
+        "text_pt": "crase crase crase JSON."
       },
       {
         "start": 194.2,
-        "end": 196.91,
-        "text_en": "backtick backtick backtick JSON. And then on my chat call, I'll add in",
-        "text_pt": "backtick backtick backtick JSON. And then on my chat call, I'll add in"
-      },
-      {
-        "start": 196.91,
-        "end": 196.92000000000002,
+        "end": 199.52,
         "text_en": "And then on my chat call, I'll add in",
         "text_pt": "E então, na minha chamada de chat, adicionarei"
       },
       {
-        "start": 196.92000000000002,
-        "end": 199.50900000000001,
-        "text_en": "And then on my chat call, I'll add in stop sequences.",
-        "text_pt": "And then on my chat call, I'll add in stop sequences."
-      },
-      {
-        "start": 199.50900000000001,
-        "end": 199.519,
-        "text_en": "stop sequences.",
-        "text_pt": "stop sequences."
-      },
-      {
-        "start": 199.519,
-        "end": 201.03,
-        "text_en": "stop sequences. And anytime",
-        "text_pt": "stop sequences. And anytime"
-      },
-      {
-        "start": 201.03,
+        "start": 196.92,
         "end": 201.04,
+        "text_en": "stop sequences.",
+        "text_pt": "parar sequências."
+      },
+      {
+        "start": 199.52,
+        "end": 203.64,
         "text_en": "And anytime",
-        "text_pt": "And anytime"
+        "text_pt": "E a qualquer hora"
       },
       {
         "start": 201.04,
-        "end": 203.63,
-        "text_en": "And anytime we see a backtick backtick backtick, I",
-        "text_pt": "And anytime we see a backtick backtick backtick, I"
-      },
-      {
-        "start": 203.63,
-        "end": 203.64,
+        "end": 206.32,
         "text_en": "we see a backtick backtick backtick, I",
-        "text_pt": "we see a backtick backtick backtick, I"
+        "text_pt": "vemos um backtick backtick, eu"
       },
       {
         "start": 203.64,
-        "end": 206.31,
-        "text_en": "we see a backtick backtick backtick, I want to immediately stop generation.",
-        "text_pt": "we see a backtick backtick backtick, I want to immediately stop generation."
-      },
-      {
-        "start": 206.31,
-        "end": 206.32,
+        "end": 207.84,
         "text_en": "want to immediately stop generation.",
-        "text_pt": "want to immediately stop generation."
+        "text_pt": "deseja interromper imediatamente a geração."
       },
       {
         "start": 206.32,
-        "end": 207.82999999999998,
-        "text_en": "want to immediately stop generation. So let's now run the cell and see what",
-        "text_pt": "want to immediately stop generation. So let's now run the cell and see what"
-      },
-      {
-        "start": 207.82999999999998,
-        "end": 207.84,
-        "text_en": "So let's now run the cell and see what",
-        "text_pt": "So let's now run the cell and see what"
-      },
-      {
-        "start": 207.84,
-        "end": 209.71,
+        "end": 211.68,
         "text_en": "So let's now run the cell and see what we get back.",
-        "text_pt": "So let's now run the cell and see what we get back."
-      },
-      {
-        "start": 209.71,
-        "end": 209.72,
-        "text_en": "we get back.",
-        "text_pt": "we get back."
+        "text_pt": "Então, vamos agora executar a célula e ver o que obtemos de volta."
       },
       {
         "start": 209.72,
-        "end": 211.67000000000002,
-        "text_en": "we get back. Okay, so now we get just the JSON by",
-        "text_pt": "we get back. Okay, so now we get just the JSON by"
-      },
-      {
-        "start": 211.67000000000002,
-        "end": 211.68,
-        "text_en": "Okay, so now we get just the JSON by",
-        "text_pt": "Okay, so now we get just the JSON by"
-      },
-      {
-        "start": 211.68,
-        "end": 213.39,
+        "end": 215.04,
         "text_en": "Okay, so now we get just the JSON by itself. You will notice that there are",
-        "text_pt": "Okay, so now we get just the JSON by itself. You will notice that there are"
-      },
-      {
-        "start": 213.39,
-        "end": 213.4,
-        "text_en": "itself. You will notice that there are",
-        "text_pt": "itself. You will notice that there are"
+        "text_pt": "Ok, agora obtemos apenas o JSON sozinho. Você notará que existem"
       },
       {
         "start": 213.4,
-        "end": 215.03,
-        "text_en": "itself. You will notice that there are some new line characters in here, but",
-        "text_pt": "itself. You will notice that there are some new line characters in here, but"
-      },
-      {
-        "start": 215.03,
-        "end": 215.04,
+        "end": 217.52,
         "text_en": "some new line characters in here, but",
-        "text_pt": "some new line characters in here, but"
+        "text_pt": "alguns novos caracteres de linha aqui, mas"
       },
       {
         "start": 215.04,
-        "end": 217.50900000000001,
-        "text_en": "some new line characters in here, but that's totally fine. We can very easily",
-        "text_pt": "some new line characters in here, but that's totally fine. We can very easily"
-      },
-      {
-        "start": 217.50900000000001,
-        "end": 217.519,
-        "text_en": "that's totally fine. We can very easily",
-        "text_pt": "that's totally fine. We can very easily"
-      },
-      {
-        "start": 217.519,
-        "end": 219.67000000000002,
-        "text_en": "that's totally fine. We can very easily remove those extra new lines by just",
-        "text_pt": "that's totally fine. We can very easily remove those extra new lines by just"
-      },
-      {
-        "start": 219.67000000000002,
         "end": 219.68,
+        "text_en": "that's totally fine. We can very easily",
+        "text_pt": "tudo bem. Podemos facilmente"
+      },
+      {
+        "start": 217.52,
+        "end": 222.24,
         "text_en": "remove those extra new lines by just",
-        "text_pt": "remove those extra new lines by just"
+        "text_pt": "remova essas novas linhas extras apenas"
       },
       {
         "start": 219.68,
-        "end": 222.22899999999998,
-        "text_en": "remove those extra new lines by just parsing the response as JSON or by doing",
-        "text_pt": "remove those extra new lines by just parsing the response as JSON or by doing"
-      },
-      {
-        "start": 222.22899999999998,
-        "end": 222.239,
-        "text_en": "parsing the response as JSON or by doing",
-        "text_pt": "parsing the response as JSON or by doing"
-      },
-      {
-        "start": 222.239,
-        "end": 225.47,
-        "text_en": "parsing the response as JSON or by doing a strip call. So I could say text is",
-        "text_pt": "parsing the response as JSON or by doing a strip call. So I could say text is"
-      },
-      {
-        "start": 225.47,
         "end": 225.48,
+        "text_en": "parsing the response as JSON or by doing",
+        "text_pt": "analisando a resposta como JSON ou fazendo"
+      },
+      {
+        "start": 222.24,
+        "end": 227.8,
         "text_en": "a strip call. So I could say text is",
-        "text_pt": "a strip call. So I could say text is"
+        "text_pt": "uma chamada de strip. Então eu poderia dizer que o texto é"
       },
       {
         "start": 225.48,
-        "end": 227.79,
-        "text_en": "a strip call. So I could say text is chat. I'll print out text.",
-        "text_pt": "a strip call. So I could say text is chat. I'll print out text."
-      },
-      {
-        "start": 227.79,
-        "end": 227.8,
+        "end": 230,
         "text_en": "chat. I'll print out text.",
-        "text_pt": "chat. I'll print out text."
+        "text_pt": "bater papo. Vou imprimir o texto."
       },
       {
         "start": 227.8,
-        "end": 229.99,
-        "text_en": "chat. I'll print out text. And then on the next cell down, I might",
-        "text_pt": "chat. I'll print out text. And then on the next cell down, I might"
-      },
-      {
-        "start": 229.99,
-        "end": 230,
+        "end": 232.64,
         "text_en": "And then on the next cell down, I might",
-        "text_pt": "And then on the next cell down, I might"
+        "text_pt": "E então, na próxima célula abaixo, eu poderia"
       },
       {
         "start": 230,
-        "end": 232.63,
-        "text_en": "And then on the next cell down, I might import JSON",
-        "text_pt": "And then on the next cell down, I might import JSON"
-      },
-      {
-        "start": 232.63,
-        "end": 232.64,
+        "end": 235.48,
         "text_en": "import JSON",
-        "text_pt": "import JSON"
+        "text_pt": "importar JSON"
       },
       {
         "start": 232.64,
-        "end": 235.47,
-        "text_en": "import JSON and do a JSON loads",
-        "text_pt": "import JSON and do a JSON loads"
-      },
-      {
-        "start": 235.47,
-        "end": 235.48,
+        "end": 237.12,
         "text_en": "and do a JSON loads",
-        "text_pt": "and do a JSON loads"
+        "text_pt": "e faça um carregamento JSON"
       },
       {
         "start": 235.48,
-        "end": 237.11,
-        "text_en": "and do a JSON loads with text",
-        "text_pt": "and do a JSON loads with text"
-      },
-      {
-        "start": 237.11,
-        "end": 237.12,
+        "end": 240.08,
         "text_en": "with text",
-        "text_pt": "with text"
+        "text_pt": "com texto"
       },
       {
         "start": 237.12,
-        "end": 240.07,
-        "text_en": "with text and strip on text as well.",
-        "text_pt": "with text and strip on text as well."
-      },
-      {
-        "start": 240.07,
-        "end": 240.08,
+        "end": 241.88,
         "text_en": "and strip on text as well.",
-        "text_pt": "and strip on text as well."
+        "text_pt": "e tire o texto também."
       },
       {
         "start": 240.08,
-        "end": 241.87,
-        "text_en": "and strip on text as well. And if I run that, yes, we definitely",
-        "text_pt": "and strip on text as well. And if I run that, yes, we definitely"
-      },
-      {
-        "start": 241.87,
-        "end": 241.88,
+        "end": 244.12,
         "text_en": "And if I run that, yes, we definitely",
-        "text_pt": "And if I run that, yes, we definitely"
+        "text_pt": "E se eu executar isso, sim, nós definitivamente"
       },
       {
         "start": 241.88,
-        "end": 244.11,
-        "text_en": "And if I run that, yes, we definitely get back some very well-formatted JSON",
-        "text_pt": "And if I run that, yes, we definitely get back some very well-formatted JSON"
-      },
-      {
-        "start": 244.11,
-        "end": 244.12,
-        "text_en": "get back some very well-formatted JSON",
-        "text_pt": "get back some very well-formatted JSON"
-      },
-      {
-        "start": 244.12,
-        "end": 245.71,
+        "end": 247.32,
         "text_en": "get back some very well-formatted JSON here that we can access in any way that",
-        "text_pt": "get back some very well-formatted JSON here that we can access in any way that"
-      },
-      {
-        "start": 245.71,
-        "end": 245.72,
-        "text_en": "here that we can access in any way that",
-        "text_pt": "here that we can access in any way that"
+        "text_pt": "receba aqui um JSON muito bem formatado que possamos acessar de qualquer maneira que"
       },
       {
         "start": 245.72,
-        "end": 247.31,
-        "text_en": "here that we can access in any way that we expect.",
-        "text_pt": "here that we can access in any way that we expect."
-      },
-      {
-        "start": 247.31,
-        "end": 247.32,
+        "end": 249.08,
         "text_en": "we expect.",
-        "text_pt": "we expect."
+        "text_pt": "esperamos."
       },
       {
         "start": 247.32,
-        "end": 249.07,
-        "text_en": "we expect. All right, so what exactly is going on",
-        "text_pt": "we expect. All right, so what exactly is going on"
-      },
-      {
-        "start": 249.07,
-        "end": 249.08,
-        "text_en": "All right, so what exactly is going on",
-        "text_pt": "All right, so what exactly is going on"
-      },
-      {
-        "start": 249.08,
-        "end": 250.83,
+        "end": 252.12,
         "text_en": "All right, so what exactly is going on with the assistant message and the stop",
-        "text_pt": "All right, so what exactly is going on with the assistant message and the stop"
-      },
-      {
-        "start": 250.83,
-        "end": 250.84,
-        "text_en": "with the assistant message and the stop",
-        "text_pt": "with the assistant message and the stop"
+        "text_pt": "Tudo bem, então o que exatamente está acontecendo com a mensagem do assistente e a parada"
       },
       {
         "start": 250.84,
-        "end": 252.11,
-        "text_en": "with the assistant message and the stop sequence? Well, let me show you a",
-        "text_pt": "with the assistant message and the stop sequence? Well, let me show you a"
-      },
-      {
-        "start": 252.11,
-        "end": 252.12,
-        "text_en": "sequence? Well, let me show you a",
-        "text_pt": "sequence? Well, let me show you a"
-      },
-      {
-        "start": 252.12,
-        "end": 253.71,
+        "end": 256.08,
         "text_en": "sequence? Well, let me show you a diagram just to break it all down and",
-        "text_pt": "sequence? Well, let me show you a diagram just to break it all down and"
-      },
-      {
-        "start": 253.71,
-        "end": 253.72,
-        "text_en": "diagram just to break it all down and",
-        "text_pt": "diagram just to break it all down and"
+        "text_pt": "sequência? Bem, deixe-me mostrar um diagrama apenas para detalhar tudo e"
       },
       {
         "start": 253.72,
-        "end": 256.069,
-        "text_en": "diagram just to break it all down and make sure it is super clear.",
-        "text_pt": "diagram just to break it all down and make sure it is super clear."
-      },
-      {
-        "start": 256.069,
-        "end": 256.079,
-        "text_en": "make sure it is super clear.",
-        "text_pt": "make sure it is super clear."
-      },
-      {
-        "start": 256.079,
-        "end": 257.59,
-        "text_en": "make sure it is super clear. So, once again, we are doing our user",
-        "text_pt": "make sure it is super clear. So, once again, we are doing our user"
-      },
-      {
-        "start": 257.59,
         "end": 257.6,
-        "text_en": "So, once again, we are doing our user",
-        "text_pt": "So, once again, we are doing our user"
+        "text_en": "make sure it is super clear.",
+        "text_pt": "certifique-se de que está super claro."
       },
       {
-        "start": 257.6,
-        "end": 259.509,
-        "text_en": "So, once again, we are doing our user message, we're providing a pre-filled",
-        "text_pt": "So, once again, we are doing our user message, we're providing a pre-filled"
-      },
-      {
-        "start": 259.509,
-        "end": 259.519,
-        "text_en": "message, we're providing a pre-filled",
-        "text_pt": "message, we're providing a pre-filled"
-      },
-      {
-        "start": 259.519,
-        "end": 262.31,
-        "text_en": "message, we're providing a pre-filled assistant and a stop sequence.",
-        "text_pt": "message, we're providing a pre-filled assistant and a stop sequence."
-      },
-      {
-        "start": 262.31,
+        "start": 256.08,
         "end": 262.32,
+        "text_en": "So, once again, we are doing our user message, we're providing a pre-filled",
+        "text_pt": "Então, mais uma vez, estamos transmitindo a mensagem do nosso usuário, fornecendo um"
+      },
+      {
+        "start": 259.52,
+        "end": 263.52,
         "text_en": "assistant and a stop sequence.",
-        "text_pt": "assistant and a stop sequence."
+        "text_pt": "pré-preenchido assistente e uma sequência de parada."
       },
       {
         "start": 262.32,
-        "end": 263.51,
-        "text_en": "assistant and a stop sequence. Claude is going to take a look at all",
-        "text_pt": "assistant and a stop sequence. Claude is going to take a look at all"
-      },
-      {
-        "start": 263.51,
-        "end": 263.52,
-        "text_en": "Claude is going to take a look at all",
-        "text_pt": "Claude is going to take a look at all"
-      },
-      {
-        "start": 263.52,
-        "end": 265.27,
+        "end": 266.36,
         "text_en": "Claude is going to take a look at all the different parts of this request.",
-        "text_pt": "Claude is going to take a look at all the different parts of this request."
-      },
-      {
-        "start": 265.27,
-        "end": 265.28,
-        "text_en": "the different parts of this request.",
-        "text_pt": "the different parts of this request."
+        "text_pt": "Claude vai dar uma olhada em todas as diferentes partes deste pedido."
       },
       {
         "start": 265.28,
-        "end": 266.35,
-        "text_en": "the different parts of this request. It's going to initially take a look at",
-        "text_pt": "the different parts of this request. It's going to initially take a look at"
-      },
-      {
-        "start": 266.35,
-        "end": 266.36,
-        "text_en": "It's going to initially take a look at",
-        "text_pt": "It's going to initially take a look at"
-      },
-      {
-        "start": 266.36,
-        "end": 268.39,
+        "end": 270.08,
         "text_en": "It's going to initially take a look at that user message content and say, \"All",
-        "text_pt": "It's going to initially take a look at that user message content and say, \"All"
-      },
-      {
-        "start": 268.39,
-        "end": 268.4,
-        "text_en": "that user message content and say, \"All",
-        "text_pt": "that user message content and say, \"All"
+        "text_pt": "Inicialmente, ele dará uma olhada no conteúdo da mensagem do usuário e dirá: \"Tudo"
       },
       {
         "start": 268.4,
-        "end": 270.07,
-        "text_en": "that user message content and say, \"All right, it's very clear that I need to",
-        "text_pt": "that user message content and say, \"All right, it's very clear that I need to"
-      },
-      {
-        "start": 270.07,
-        "end": 270.08,
-        "text_en": "right, it's very clear that I need to",
-        "text_pt": "right, it's very clear that I need to"
-      },
-      {
-        "start": 270.08,
-        "end": 272.11,
+        "end": 274.08,
         "text_en": "right, it's very clear that I need to write a full rule, and I should probably",
-        "text_pt": "right, it's very clear that I need to write a full rule, and I should probably"
-      },
-      {
-        "start": 272.11,
-        "end": 272.12,
-        "text_en": "write a full rule, and I should probably",
-        "text_pt": "write a full rule, and I should probably"
+        "text_pt": "certo, está muito claro que preciso escrever uma regra completa e provavelmente"
       },
       {
         "start": 272.12,
-        "end": 274.07,
-        "text_en": "write a full rule, and I should probably also describe it. So, maybe put on a",
-        "text_pt": "write a full rule, and I should probably also describe it. So, maybe put on a"
-      },
-      {
-        "start": 274.07,
-        "end": 274.08,
-        "text_en": "also describe it. So, maybe put on a",
-        "text_pt": "also describe it. So, maybe put on a"
-      },
-      {
-        "start": 274.08,
-        "end": 276.03,
+        "end": 278.12,
         "text_en": "also describe it. So, maybe put on a header and a footer.\" Cuz that's kind of",
-        "text_pt": "also describe it. So, maybe put on a header and a footer.\" Cuz that's kind of"
-      },
-      {
-        "start": 276.03,
-        "end": 276.04,
-        "text_en": "header and a footer.\" Cuz that's kind of",
-        "text_pt": "header and a footer.\" Cuz that's kind of"
+        "text_pt": "também descrevê-la. Então, talvez coloque um cabeçalho e um rodapé.\" Porque isso é meio"
       },
       {
         "start": 276.04,
-        "end": 278.11,
-        "text_en": "header and a footer.\" Cuz that's kind of what Claude naturally wants to do. It",
-        "text_pt": "header and a footer.\" Cuz that's kind of what Claude naturally wants to do. It"
-      },
-      {
-        "start": 278.11,
-        "end": 278.12,
-        "text_en": "what Claude naturally wants to do. It",
-        "text_pt": "what Claude naturally wants to do. It"
-      },
-      {
-        "start": 278.12,
-        "end": 279.51,
+        "end": 280.52,
         "text_en": "what Claude naturally wants to do. It wants to explain the work that it is",
-        "text_pt": "what Claude naturally wants to do. It wants to explain the work that it is"
-      },
-      {
-        "start": 279.51,
-        "end": 279.52,
-        "text_en": "wants to explain the work that it is",
-        "text_pt": "wants to explain the work that it is"
+        "text_pt": "o que Claude naturalmente quer fazer. Quer explicar o trabalho que é"
       },
       {
         "start": 279.52,
-        "end": 280.51,
-        "text_en": "wants to explain the work that it is doing.",
-        "text_pt": "wants to explain the work that it is doing."
-      },
-      {
-        "start": 280.51,
-        "end": 280.52,
+        "end": 281.8,
         "text_en": "doing.",
-        "text_pt": "doing."
+        "text_pt": "fazendo."
       },
       {
         "start": 280.52,
-        "end": 281.79,
-        "text_en": "doing. But then it's going to encounter that",
-        "text_pt": "doing. But then it's going to encounter that"
-      },
-      {
-        "start": 281.79,
-        "end": 281.8,
-        "text_en": "But then it's going to encounter that",
-        "text_pt": "But then it's going to encounter that"
-      },
-      {
-        "start": 281.8,
-        "end": 283.35,
+        "end": 285.04,
         "text_en": "But then it's going to encounter that assistant message. And just as we",
-        "text_pt": "But then it's going to encounter that assistant message. And just as we"
-      },
-      {
-        "start": 283.35,
-        "end": 283.36,
-        "text_en": "assistant message. And just as we",
-        "text_pt": "assistant message. And just as we"
+        "text_pt": "Mas então ele encontrará aquela mensagem do assistente. E assim como nós"
       },
       {
         "start": 283.36,
-        "end": 285.03,
-        "text_en": "assistant message. And just as we learned in the last video, Claude is",
-        "text_pt": "assistant message. And just as we learned in the last video, Claude is"
-      },
-      {
-        "start": 285.03,
-        "end": 285.04,
-        "text_en": "learned in the last video, Claude is",
-        "text_pt": "learned in the last video, Claude is"
-      },
-      {
-        "start": 285.04,
-        "end": 286.75,
+        "end": 288.68,
         "text_en": "learned in the last video, Claude is going to assume that it already wrote",
-        "text_pt": "learned in the last video, Claude is going to assume that it already wrote"
-      },
-      {
-        "start": 286.75,
-        "end": 286.76,
-        "text_en": "going to assume that it already wrote",
-        "text_pt": "going to assume that it already wrote"
+        "text_pt": "aprendido no último vídeo, Claude vai assumir que já escreveu"
       },
       {
         "start": 286.76,
-        "end": 288.67,
-        "text_en": "going to assume that it already wrote that out in its response. So, it's going",
-        "text_pt": "going to assume that it already wrote that out in its response. So, it's going"
-      },
-      {
-        "start": 288.67,
-        "end": 288.68,
+        "end": 290.76,
         "text_en": "that out in its response. So, it's going",
-        "text_pt": "that out in its response. So, it's going"
+        "text_pt": "isso em sua resposta. Então, vai"
       },
       {
         "start": 288.68,
-        "end": 290.75,
-        "text_en": "that out in its response. So, it's going to say, \"Oh, I've already started the",
-        "text_pt": "that out in its response. So, it's going to say, \"Oh, I've already started the"
-      },
-      {
-        "start": 290.75,
-        "end": 290.76,
+        "end": 293.16,
         "text_en": "to say, \"Oh, I've already started the",
-        "text_pt": "to say, \"Oh, I've already started the"
+        "text_pt": "dizer: \"Oh, eu já comecei o"
       },
       {
         "start": 290.76,
-        "end": 293.15,
-        "text_en": "to say, \"Oh, I've already started the JSON part. So, now all I have to do is",
-        "text_pt": "to say, \"Oh, I've already started the JSON part. So, now all I have to do is"
-      },
-      {
-        "start": 293.15,
-        "end": 293.15999999999997,
-        "text_en": "JSON part. So, now all I have to do is",
-        "text_pt": "JSON part. So, now all I have to do is"
-      },
-      {
-        "start": 293.15999999999997,
-        "end": 295.27,
-        "text_en": "JSON part. So, now all I have to do is write out the actual JSON.\"",
-        "text_pt": "JSON part. So, now all I have to do is write out the actual JSON.\""
-      },
-      {
-        "start": 295.27,
         "end": 295.28,
+        "text_en": "JSON part. So, now all I have to do is",
+        "text_pt": "Parte JSON. Então, agora tudo que tenho que fazer é"
+      },
+      {
+        "start": 293.16,
+        "end": 297.92,
         "text_en": "write out the actual JSON.\"",
-        "text_pt": "write out the actual JSON.\""
+        "text_pt": "escreva o JSON real.\""
       },
       {
         "start": 295.28,
-        "end": 297.909,
-        "text_en": "write out the actual JSON.\" It's then going to write out all of this",
-        "text_pt": "write out the actual JSON.\" It's then going to write out all of this"
-      },
-      {
-        "start": 297.909,
-        "end": 297.919,
-        "text_en": "It's then going to write out all of this",
-        "text_pt": "It's then going to write out all of this"
-      },
-      {
-        "start": 297.919,
-        "end": 300.07,
-        "text_en": "It's then going to write out all of this JSON in the response.",
-        "text_pt": "It's then going to write out all of this JSON in the response."
-      },
-      {
-        "start": 300.07,
         "end": 300.08,
+        "text_en": "It's then going to write out all of this",
+        "text_pt": "Então vai escrever tudo isso"
+      },
+      {
+        "start": 297.92,
+        "end": 301.6,
         "text_en": "JSON in the response.",
-        "text_pt": "JSON in the response."
+        "text_pt": "JSON na resposta."
       },
       {
         "start": 300.08,
-        "end": 301.59,
-        "text_en": "JSON in the response. And then as it gets to the very end,",
-        "text_pt": "JSON in the response. And then as it gets to the very end,"
-      },
-      {
-        "start": 301.59,
-        "end": 301.6,
-        "text_en": "And then as it gets to the very end,",
-        "text_pt": "And then as it gets to the very end,"
-      },
-      {
-        "start": 301.6,
-        "end": 303.67,
+        "end": 305.84,
         "text_en": "And then as it gets to the very end, it's going to naturally want to close",
-        "text_pt": "And then as it gets to the very end, it's going to naturally want to close"
-      },
-      {
-        "start": 303.67,
-        "end": 303.68,
-        "text_en": "it's going to naturally want to close",
-        "text_pt": "it's going to naturally want to close"
+        "text_pt": "E então, quando chegar ao fim, naturalmente vai querer fechar"
       },
       {
         "start": 303.68,
-        "end": 305.83,
-        "text_en": "it's going to naturally want to close off that markdown code block that it",
-        "text_pt": "it's going to naturally want to close off that markdown code block that it"
-      },
-      {
-        "start": 305.83,
-        "end": 305.84,
+        "end": 308,
         "text_en": "off that markdown code block that it",
-        "text_pt": "off that markdown code block that it"
+        "text_pt": "fora daquele bloco de código de remarcação que ele"
       },
       {
         "start": 305.84,
-        "end": 307.99,
-        "text_en": "off that markdown code block that it thought it created earlier. So, Claude",
-        "text_pt": "off that markdown code block that it thought it created earlier. So, Claude"
-      },
-      {
-        "start": 307.99,
-        "end": 308,
+        "end": 309.92,
         "text_en": "thought it created earlier. So, Claude",
-        "text_pt": "thought it created earlier. So, Claude"
+        "text_pt": "pensei que tivesse criado antes. Então, Cláudio"
       },
       {
         "start": 308,
-        "end": 309.909,
-        "text_en": "thought it created earlier. So, Claude is going to want to put in a closing",
-        "text_pt": "thought it created earlier. So, Claude is going to want to put in a closing"
-      },
-      {
-        "start": 309.909,
-        "end": 309.919,
-        "text_en": "is going to want to put in a closing",
-        "text_pt": "is going to want to put in a closing"
-      },
-      {
-        "start": 309.919,
-        "end": 312.03,
-        "text_en": "is going to want to put in a closing backtick backtick backtick. As soon as",
-        "text_pt": "is going to want to put in a closing backtick backtick backtick. As soon as"
-      },
-      {
-        "start": 312.03,
         "end": 312.04,
-        "text_en": "backtick backtick backtick. As soon as",
-        "text_pt": "backtick backtick backtick. As soon as"
+        "text_en": "is going to want to put in a closing",
+        "text_pt": "vai querer fechar"
       },
       {
-        "start": 312.04,
-        "end": 313.43,
+        "start": 309.92,
+        "end": 315.4,
         "text_en": "backtick backtick backtick. As soon as it does so, however, it's going to",
-        "text_pt": "backtick backtick backtick. As soon as it does so, however, it's going to"
-      },
-      {
-        "start": 313.43,
-        "end": 313.44,
-        "text_en": "it does so, however, it's going to",
-        "text_pt": "it does so, however, it's going to"
+        "text_pt": "backtick backtick backtick. Assim que isso acontecer, no entanto, vai"
       },
       {
         "start": 313.44,
-        "end": 315.39,
-        "text_en": "it does so, however, it's going to encounter the stop sequence, which stops",
-        "text_pt": "it does so, however, it's going to encounter the stop sequence, which stops"
-      },
-      {
-        "start": 315.39,
-        "end": 315.4,
-        "text_en": "encounter the stop sequence, which stops",
-        "text_pt": "encounter the stop sequence, which stops"
-      },
-      {
-        "start": 315.4,
-        "end": 317.07,
+        "end": 319.04,
         "text_en": "encounter the stop sequence, which stops the generation entirely and immediately",
-        "text_pt": "encounter the stop sequence, which stops the generation entirely and immediately"
-      },
-      {
-        "start": 317.07,
-        "end": 317.08,
-        "text_en": "the generation entirely and immediately",
-        "text_pt": "the generation entirely and immediately"
+        "text_pt": "encontrar a sequência de parada, que interrompe a geração total e imediatamente"
       },
       {
         "start": 317.08,
-        "end": 319.03,
-        "text_en": "the generation entirely and immediately sends us back the response.",
-        "text_pt": "the generation entirely and immediately sends us back the response."
-      },
-      {
-        "start": 319.03,
-        "end": 319.04,
+        "end": 320.48,
         "text_en": "sends us back the response.",
-        "text_pt": "sends us back the response."
+        "text_pt": "nos envia de volta a resposta."
       },
       {
         "start": 319.04,
-        "end": 320.47,
-        "text_en": "sends us back the response. So, you can really imagine that what's",
-        "text_pt": "sends us back the response. So, you can really imagine that what's"
-      },
-      {
-        "start": 320.47,
-        "end": 320.48,
-        "text_en": "So, you can really imagine that what's",
-        "text_pt": "So, you can really imagine that what's"
-      },
-      {
-        "start": 320.48,
-        "end": 321.71,
+        "end": 325.44,
         "text_en": "So, you can really imagine that what's really going on here is we're kind of",
-        "text_pt": "So, you can really imagine that what's really going on here is we're kind of"
-      },
-      {
-        "start": 321.71,
-        "end": 321.72,
-        "text_en": "really going on here is we're kind of",
-        "text_pt": "really going on here is we're kind of"
+        "text_pt": "Então, você pode realmente imaginar que o que realmente está acontecendo aqui é que estamos meio que"
       },
       {
         "start": 321.72,
-        "end": 325.43,
-        "text_en": "really going on here is we're kind of saying, \"Start with this, end with that,",
-        "text_pt": "really going on here is we're kind of saying, \"Start with this, end with that,"
-      },
-      {
-        "start": 325.43,
-        "end": 325.44,
+        "end": 327.48,
         "text_en": "saying, \"Start with this, end with that,",
-        "text_pt": "saying, \"Start with this, end with that,"
+        "text_pt": "dizendo: \"Comece com isso, termine com aquilo,"
       },
       {
         "start": 325.44,
-        "end": 327.47,
-        "text_en": "saying, \"Start with this, end with that, and just give us everything in between.\"",
-        "text_pt": "saying, \"Start with this, end with that, and just give us everything in between.\""
-      },
-      {
-        "start": 327.47,
-        "end": 327.48,
-        "text_en": "and just give us everything in between.\"",
-        "text_pt": "and just give us everything in between.\""
-      },
-      {
-        "start": 327.48,
-        "end": 329.19,
+        "end": 330.96,
         "text_en": "and just give us everything in between.\" And that results in us just getting back",
-        "text_pt": "and just give us everything in between.\" And that results in us just getting back"
-      },
-      {
-        "start": 329.19,
-        "end": 329.2,
-        "text_en": "And that results in us just getting back",
-        "text_pt": "And that results in us just getting back"
+        "text_pt": "e apenas nos dê tudo o que estiver no meio.\" E isso resulta em voltarmos"
       },
       {
         "start": 329.2,
-        "end": 330.95,
-        "text_en": "And that results in us just getting back the part we really care about, just the",
-        "text_pt": "And that results in us just getting back the part we really care about, just the"
-      },
-      {
-        "start": 330.95,
-        "end": 330.96,
-        "text_en": "the part we really care about, just the",
-        "text_pt": "the part we really care about, just the"
-      },
-      {
-        "start": 330.96,
-        "end": 332.95,
+        "end": 334.4,
         "text_en": "the part we really care about, just the JSON by itself.",
-        "text_pt": "the part we really care about, just the JSON by itself."
-      },
-      {
-        "start": 332.95,
-        "end": 332.96,
-        "text_en": "JSON by itself.",
-        "text_pt": "JSON by itself."
+        "text_pt": "a parte que realmente nos importa, apenas o JSON por si só."
       },
       {
         "start": 332.96,
-        "end": 334.39,
-        "text_en": "JSON by itself. And like I mentioned, this is a really",
-        "text_pt": "JSON by itself. And like I mentioned, this is a really"
-      },
-      {
-        "start": 334.39,
-        "end": 334.4,
-        "text_en": "And like I mentioned, this is a really",
-        "text_pt": "And like I mentioned, this is a really"
-      },
-      {
-        "start": 334.4,
-        "end": 335.67,
+        "end": 337.6,
         "text_en": "And like I mentioned, this is a really powerful technique that we're going to",
-        "text_pt": "And like I mentioned, this is a really powerful technique that we're going to"
-      },
-      {
-        "start": 335.67,
-        "end": 335.68,
-        "text_en": "powerful technique that we're going to",
-        "text_pt": "powerful technique that we're going to"
+        "text_pt": "E como mencionei, esta é uma técnica realmente poderosa que iremos"
       },
       {
         "start": 335.68,
-        "end": 337.59000000000003,
-        "text_en": "powerful technique that we're going to use very often anytime we want to",
-        "text_pt": "powerful technique that we're going to use very often anytime we want to"
-      },
-      {
-        "start": 337.59000000000003,
-        "end": 337.6,
-        "text_en": "use very often anytime we want to",
-        "text_pt": "use very often anytime we want to"
-      },
-      {
-        "start": 337.6,
-        "end": 339.63,
+        "end": 341.88,
         "text_en": "use very often anytime we want to generate some kind of structured data",
-        "text_pt": "use very often anytime we want to generate some kind of structured data"
-      },
-      {
-        "start": 339.63,
-        "end": 339.64,
-        "text_en": "generate some kind of structured data",
-        "text_pt": "generate some kind of structured data"
+        "text_pt": "usamos com muita frequência sempre que queremos gerar algum tipo de dado estruturado"
       },
       {
         "start": 339.64,
-        "end": 341.87,
-        "text_en": "generate some kind of structured data and get just that data with nothing else",
-        "text_pt": "generate some kind of structured data and get just that data with nothing else"
-      },
-      {
-        "start": 341.87,
-        "end": 341.88,
+        "end": 344.04,
         "text_en": "and get just that data with nothing else",
-        "text_pt": "and get just that data with nothing else"
+        "text_pt": "e obter apenas esses dados sem mais nada"
       },
       {
         "start": 341.88,
-        "end": 344.03,
-        "text_en": "and get just that data with nothing else besides it. And remember, this technique",
-        "text_pt": "and get just that data with nothing else besides it. And remember, this technique"
-      },
-      {
-        "start": 344.03,
-        "end": 344.04,
-        "text_en": "besides it. And remember, this technique",
-        "text_pt": "besides it. And remember, this technique"
-      },
-      {
-        "start": 344.04,
-        "end": 345.59000000000003,
+        "end": 348.08,
         "text_en": "besides it. And remember, this technique can be used for any kind of structured",
-        "text_pt": "besides it. And remember, this technique can be used for any kind of structured"
-      },
-      {
-        "start": 345.59000000000003,
-        "end": 345.6,
-        "text_en": "can be used for any kind of structured",
-        "text_pt": "can be used for any kind of structured"
+        "text_pt": "além disso. E lembre-se, esta técnica pode ser usada para qualquer tipo de estrutura"
       },
       {
         "start": 345.6,
-        "end": 348.07,
-        "text_en": "can be used for any kind of structured data. It is not limited just being used",
-        "text_pt": "can be used for any kind of structured data. It is not limited just being used"
-      },
-      {
-        "start": 348.07,
-        "end": 348.08,
+        "end": 350.08,
         "text_en": "data. It is not limited just being used",
-        "text_pt": "data. It is not limited just being used"
+        "text_pt": "dados. Não se limita apenas a ser usado"
       },
       {
         "start": 348.08,
-        "end": 350.07,
-        "text_en": "data. It is not limited just being used on JSON. So, anytime we have any kind of",
-        "text_pt": "data. It is not limited just being used on JSON. So, anytime we have any kind of"
-      },
-      {
-        "start": 350.07,
-        "end": 350.08,
-        "text_en": "on JSON. So, anytime we have any kind of",
-        "text_pt": "on JSON. So, anytime we have any kind of"
-      },
-      {
-        "start": 350.08,
-        "end": 351.35,
+        "end": 353.4,
         "text_en": "on JSON. So, anytime we have any kind of very specific content we want to",
-        "text_pt": "on JSON. So, anytime we have any kind of very specific content we want to"
-      },
-      {
-        "start": 351.35,
-        "end": 351.36,
-        "text_en": "very specific content we want to",
-        "text_pt": "very specific content we want to"
+        "text_pt": "em JSON. Então, sempre que tivermos algum tipo de conteúdo bem específico queremos"
       },
       {
         "start": 351.36,
-        "end": 353.39,
-        "text_en": "very specific content we want to generate and get just that content with",
-        "text_pt": "very specific content we want to generate and get just that content with"
-      },
-      {
-        "start": 353.39,
-        "end": 353.4,
-        "text_en": "generate and get just that content with",
-        "text_pt": "generate and get just that content with"
-      },
-      {
-        "start": 353.4,
-        "end": 354.99,
+        "end": 356.88,
         "text_en": "generate and get just that content with no additional commentary on it, we're",
-        "text_pt": "generate and get just that content with no additional commentary on it, we're"
-      },
-      {
-        "start": 354.99,
-        "end": 355,
-        "text_en": "no additional commentary on it, we're",
-        "text_pt": "no additional commentary on it, we're"
+        "text_pt": "gerar e obter apenas esse conteúdo sem comentários adicionais sobre ele, estamos"
       },
       {
         "start": 355,
-        "end": 356.87,
-        "text_en": "no additional commentary on it, we're going to take a look at using assistant",
-        "text_pt": "no additional commentary on it, we're going to take a look at using assistant"
-      },
-      {
-        "start": 356.87,
-        "end": 356.88,
-        "text_en": "going to take a look at using assistant",
-        "text_pt": "going to take a look at using assistant"
-      },
-      {
-        "start": 356.88,
-        "end": 358.51,
+        "end": 361.24,
         "text_en": "going to take a look at using assistant message pre-filling along with stop",
-        "text_pt": "going to take a look at using assistant message pre-filling along with stop"
-      },
-      {
-        "start": 358.51,
-        "end": 358.52,
-        "text_en": "message pre-filling along with stop",
-        "text_pt": "message pre-filling along with stop"
+        "text_pt": "vamos dar uma olhada no uso do pré-preenchimento de mensagens do assistente junto com stop"
       },
       {
         "start": 358.52,
         "end": 361.24,
-        "text_en": "message pre-filling along with stop sequences.",
-        "text_pt": "message pre-filling along with stop sequences."
+        "text_en": "sequences.",
+        "text_pt": "sequências."
       }
     ],
-    "createdAt": "2026-10-15T12:30:10.465Z",
-    "updatedAt": "2026-10-15T12:30:10.465Z"
+    "createdAt": "2026-10-15T19:45:46.712Z",
+    "updatedAt": "2026-10-15T19:45:46.712Z"
   },
   {
     "id": "jNQXAC9IVRw",

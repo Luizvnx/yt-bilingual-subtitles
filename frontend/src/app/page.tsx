@@ -50,7 +50,7 @@ export default function HomePage() {
         const data = await res.json();
         setHistory(data.videos || []);
       }
-    } catch {}
+    } catch { }
   };
 
   // Carrega usuário atual e histórico ao montar a página
@@ -61,7 +61,7 @@ export default function HomePage() {
       .then((data) => {
         if (data?.user) setUser(data.user);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // 2. Carrega histórico de vídeos
     fetchHistory();
@@ -99,50 +99,91 @@ export default function HomePage() {
 
     const es = new EventSource(streamUrl);
     eventSourceRef.current = es;
+    let isCompleted = false;
 
     es.addEventListener("progress", (event) => {
       try {
         const data = JSON.parse(event.data);
         setProgressStage(data.stage || 50);
         setProgressStatus(data.message || "Processando vídeo...");
-      } catch {}
+      } catch { }
     });
 
     es.addEventListener("complete", (event) => {
       try {
+        isCompleted = true;
         const data = JSON.parse(event.data);
+
+        // Fecha a conexão do stream imediatamente para evitar que o navegador dispare onerror no fechamento
+        es.close();
+        eventSourceRef.current = null;
+
         setProgressStage(100);
         setProgressStatus(data.message || "Estúdio pronto!");
+        setErrorMessage("");
+        setCurrentVideo(data.video);
+        setCurrentTime(0);
+        fetchHistory();
+        setLoading(false);
 
+        // Scroll suave até o estúdio de estudo
         setTimeout(() => {
-          setCurrentVideo(data.video);
-          setCurrentTime(0);
-          fetchHistory();
-          setLoading(false);
-          es.close();
-          eventSourceRef.current = null;
-
-          // Scroll suave até o estúdio de estudo
           document.getElementById("studio-section")?.scrollIntoView({
             behavior: "smooth",
           });
-        }, 400);
-      } catch {}
+        }, 150);
+      } catch { }
     });
 
-    es.addEventListener("error", (event: any) => {
+    es.addEventListener("error", async (event: any) => {
+      // Se o processamento já concluiu com sucesso, ignora evento de encerramento
+      if (isCompleted) return;
+
+      es.close();
+      eventSourceRef.current = null;
+
       try {
         if (event.data) {
           const data = JSON.parse(event.data);
           setErrorMessage(data.error || "Erro no processamento.");
-        } else {
-          setErrorMessage("Falha de conexão com o servidor de legendas.");
+          setLoading(false);
+          return;
         }
-      } catch {
-        setErrorMessage("Falha ao processar o vídeo.");
-      }
-      es.close();
-      eventSourceRef.current = null;
+      } catch { }
+
+      // Se foi desconexão transitória do streaming, tenta recuperar diretamente via endpoint REST
+      setProgressStatus("Sincronizando estúdio com o servidor...");
+      try {
+        const fallbackRes = await fetch("/api/subtitles/process", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: url.trim(), model }),
+        });
+        const fallbackData = await fallbackRes.json();
+
+        if (fallbackRes.ok && fallbackData.video) {
+          isCompleted = true;
+          setProgressStage(100);
+          setProgressStatus("Estúdio pronto!");
+          setErrorMessage("");
+          setCurrentVideo(fallbackData.video);
+          setCurrentTime(0);
+          fetchHistory();
+          setLoading(false);
+          setTimeout(() => {
+            document.getElementById("studio-section")?.scrollIntoView({
+              behavior: "smooth",
+            });
+          }, 150);
+          return;
+        } else if (fallbackData.error) {
+          setErrorMessage(fallbackData.error);
+          setLoading(false);
+          return;
+        }
+      } catch { }
+
+      setErrorMessage("Falha de conexão com o servidor de legendas. Tente novamente.");
       setLoading(false);
     });
   };
@@ -162,7 +203,7 @@ export default function HomePage() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setUser(null);
-    } catch {}
+    } catch { }
   };
 
   const handleDeleteHistory = async (id: string, e: React.MouseEvent) => {
@@ -177,7 +218,7 @@ export default function HomePage() {
         }
         fetchHistory();
       }
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -396,7 +437,7 @@ export default function HomePage() {
       {/* Rodapé */}
       <footer className="border-t border-white/10 bg-black/40 py-6 text-center text-xs text-zinc-500">
         <p>
-          YT Bilingual Subtitles SaaS • Estudo de Idiomas por Imersão com
+          YT Bilingual Subtitles • Estudo de Idiomas por Imersão com
           Inteligência Artificial
         </p>
       </footer>

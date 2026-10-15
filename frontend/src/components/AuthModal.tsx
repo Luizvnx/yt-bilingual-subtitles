@@ -78,7 +78,7 @@ export function AuthModal({
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
-            {isRegister ? "Criar Conta no SaaS" : "Acessar Minha Conta"}
+            {isRegister ? "Criar Conta" : "Acessar Minha Conta"}
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
             {initialMessage ||
