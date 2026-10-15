@@ -58,8 +58,9 @@ export async function POST(request: NextRequest) {
     if (error?.message?.includes("já está cadastrado")) {
       return NextResponse.json({ error: error.message }, { status: 409 });
     }
+    console.error("Register error:", error);
     return NextResponse.json(
-      { error: "Erro interno no servidor." },
+      { error: error?.message || "Erro interno no servidor." },
       { status: 500 }
     );
   }
