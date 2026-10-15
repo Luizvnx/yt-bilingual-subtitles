@@ -11,9 +11,19 @@ export abstract class BaseRepository<T extends { id: string }> {
   protected filepath: string;
 
   constructor(filename: string) {
-    const dataDir = path.join(process.cwd(), "..", "data");
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    let dataDir = path.join(process.cwd(), "data");
+    try {
+      const parentData = path.join(process.cwd(), "..", "data");
+      if (fs.existsSync(parentData)) {
+        dataDir = parentData;
+      } else if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+    } catch {
+      dataDir = path.join(process.cwd(), "data");
+      try {
+        fs.mkdirSync(dataDir, { recursive: true });
+      } catch {}
     }
     this.filepath = path.join(dataDir, filename);
   }
