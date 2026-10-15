@@ -7,6 +7,7 @@ import { SubtitleStudio } from "@/components/SubtitleStudio";
 import { WordPopover } from "@/components/WordPopover";
 import { AuthModal } from "@/components/AuthModal";
 import { VocabularyModal } from "@/components/VocabularyModal";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { VideoRecord } from "@/lib/security";
 import {
@@ -15,6 +16,9 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
+  Crown,
+  Zap,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -34,9 +38,16 @@ export default function HomePage() {
     null
   );
 
-  // Estado de Autenticação e Modais
+  // Estado de Autenticação, Quotas e Modais
   const [user, setUser] = useState<any>(null);
+  const [usage, setUsage] = useState<{
+    videosUsed: number;
+    videosLimit: number;
+    minutesUsed: number;
+    month: string;
+  } | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [vocabModalOpen, setVocabModalOpen] = useState(false);
 
@@ -53,18 +64,46 @@ export default function HomePage() {
     } catch { }
   };
 
-  // Carrega usuário atual e histórico ao montar a página
-  useEffect(() => {
-    // 1. Checa sessão atual (via Cookie HTTP-Only)
-    fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+  const fetchUserAndUsage = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
         if (data?.user) setUser(data.user);
-      })
-      .catch(() => { });
+        if (data?.usage) setUsage(data.usage);
+      }
+    } catch { }
+  };
+
+  // Carrega usuário atual, quotas e histórico ao montar a página
+  useEffect(() => {
+    // 1. Checa sessão e quotas atuais (via Cookie HTTP-Only)
+    fetchUserAndUsage();
 
     // 2. Carrega histórico de vídeos
     fetchHistory();
+
+    // 3. Checa parâmetros de retorno na URL (erros ou notificações de autenticação/pagamento)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const authErr = params.get("auth_error");
+      const billingStatus = params.get("billing");
+
+      if (authErr) {
+        if (authErr === "google_credentials_missing") {
+          setAuthMessage(
+            "Para conectar sua conta real do Google com foto e nome, insira suas credenciais GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no arquivo .env.local da aplicação."
+          );
+        } else {
+          setAuthMessage(`Não foi possível autenticar com o Google: ${authErr}`);
+        }
+        setAuthModalOpen(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (billingStatus === "success") {
+        fetchUserAndUsage();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
   }, []);
 
   // Referência para conexão de streaming Server-Sent Events (SSE)
@@ -124,6 +163,7 @@ export default function HomePage() {
         setCurrentVideo(data.video);
         setCurrentTime(0);
         fetchHistory();
+        fetchUserAndUsage();
         setLoading(false);
 
         // Scroll suave até o estúdio de estudo
@@ -146,6 +186,9 @@ export default function HomePage() {
         if (event.data) {
           const data = JSON.parse(event.data);
           setErrorMessage(data.error || "Erro no processamento.");
+          if (data.requireUpgrade || data.code === "QUOTA_EXCEEDED" || data.code === "DURATION_EXCEEDED") {
+            setUpgradeModalOpen(true);
+          }
           setLoading(false);
           return;
         }
@@ -169,6 +212,7 @@ export default function HomePage() {
           setCurrentVideo(fallbackData.video);
           setCurrentTime(0);
           fetchHistory();
+          fetchUserAndUsage();
           setLoading(false);
           setTimeout(() => {
             document.getElementById("studio-section")?.scrollIntoView({
@@ -178,6 +222,11 @@ export default function HomePage() {
           return;
         } else if (fallbackData.error) {
           setErrorMessage(fallbackData.error);
+          if (fallbackData.requireUpgrade || fallbackData.code === "QUOTA_EXCEEDED" || fallbackData.code === "DURATION_EXCEEDED") {
+            setUpgradeModalOpen(true);
+          } else if (fallbackData.requireAuth) {
+            setAuthModalOpen(true);
+          }
           setLoading(false);
           return;
         }
@@ -241,14 +290,15 @@ export default function HomePage() {
             setVocabModalOpen(true);
           }
         }}
+        onOpenUpgrade={() => setUpgradeModalOpen(true)}
       />
 
       {/* Conteúdo Principal */}
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
         {/* Hero Section */}
         <section className="text-center space-y-4 max-w-3xl mx-auto pt-4 sm:pt-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-400">
-            <Sparkles className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1 text-xs font-medium text-zinc-300 backdrop-blur-md shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             <span>Estudo de Inglês com Vídeos Reais</span>
           </div>
 
@@ -280,15 +330,18 @@ export default function HomePage() {
               />
 
               <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 px-2 pb-2 sm:p-0">
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="rounded-xl border border-white/10 bg-zinc-900 px-3 py-2.5 text-xs font-semibold text-zinc-300 focus:outline-none"
-                >
-                  <option value="base">Whisper Base (Rápido)</option>
-                  <option value="tiny">Whisper Tiny (Ultra-rápido)</option>
-                  <option value="small">Whisper Small (Mais preciso)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="appearance-none rounded-xl border border-white/10 bg-zinc-900/90 hover:bg-zinc-800/90 py-2.5 pl-3.5 pr-8 text-xs font-medium text-zinc-200 focus:border-zinc-700 focus:outline-none cursor-pointer transition-colors"
+                  >
+                    <option value="base"> Recomendada (Equilibrado)</option>
+                    <option value="small">Alta Precisão (Sotaques e gírias)</option>
+                    <option value="tiny">Modo Expresso (Ultra-rápido)</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-3 h-3.5 w-3.5 text-zinc-400" />
+                </div>
 
                 <button
                   type="submit"
@@ -310,6 +363,66 @@ export default function HomePage() {
               </div>
             </div>
           </form>
+
+          {/* Indicador de Quota e Status de Uso (Fase 5 do Roadmap) */}
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-zinc-400">
+            {user ? (
+              user.tier === "pro" ? (
+                <div className="flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-3.5 py-1 text-amber-300 shadow-sm">
+                  <Crown className="h-3.5 w-3.5 text-amber-400" />
+                  <span className="font-semibold">Plano PRO Ativo</span>
+                  <span className="text-amber-400/60">•</span>
+                  <span>Vídeos novos ilimitados de até 60 minutos</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1 text-zinc-300 shadow-sm">
+                  <span>
+                    Vídeos gratuitos este mês:{" "}
+                    <strong className="text-white font-semibold">
+                      {usage ? usage.videosUsed : 0} de 3
+                    </strong>
+                  </span>
+                  {/* Barrinhas visuais de 3 slots */}
+                  <div className="flex items-center gap-1">
+                    {[0, 1, 2].map((idx) => {
+                      const isFilled = (usage ? usage.videosUsed : 0) > idx;
+                      return (
+                        <div
+                          key={idx}
+                          className={`h-1.5 w-3 rounded-full transition-all ${
+                            isFilled ? "bg-indigo-400" : "bg-zinc-700"
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setUpgradeModalOpen(true)}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 hover:underline ml-1 cursor-pointer"
+                  >
+                    <Crown className="h-3 w-3" />
+                    <span>Desbloquear ilimitado</span>
+                  </button>
+                </div>
+              )
+            ) : (
+              <div className="flex items-center gap-2 rounded-full border border-zinc-800/80 bg-zinc-900/60 px-3.5 py-1 text-zinc-400 shadow-sm">
+                <span>Experimente vídeos gratuitamente ou</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMessage("");
+                    setAuthModalOpen(true);
+                  }}
+                  className="font-semibold text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
+                >
+                  conecte sua conta
+                </button>
+                <span>para salvar seu histórico</span>
+              </div>
+            )}
+          </div>
 
           {/* Barra de Progresso e Status em Tempo Real */}
           {loading && (
@@ -333,9 +446,19 @@ export default function HomePage() {
           )}
 
           {errorMessage && (
-            <div className="flex items-center justify-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span>{errorMessage}</span>
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-left">
+              <div className="flex items-center gap-2.5">
+                <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUpgradeModalOpen(true)}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-3 py-1.5 transition-colors shadow-sm cursor-pointer"
+              >
+                <Crown className="h-3.5 w-3.5" />
+                <span>Conhecer o Plano PRO</span>
+              </button>
             </div>
           )}
         </section>
@@ -432,6 +555,22 @@ export default function HomePage() {
         isOpen={vocabModalOpen}
         onClose={() => setVocabModalOpen(false)}
         user={user}
+      />
+
+      {/* Modal de Planos e Assinatura PRO (Fase 5 do Roadmap) */}
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        onUpgradeSuccess={(newTier) => {
+          if (user) setUser({ ...user, tier: newTier });
+          fetchUserAndUsage();
+        }}
+        currentTier={user?.tier || "free"}
+        isAuthenticated={!!user}
+        onOpenAuth={() => {
+          setAuthMessage("Faça login ou crie sua conta para assinar o Plano PRO.");
+          setAuthModalOpen(true);
+        }}
       />
 
       {/* Rodapé */}

@@ -19,17 +19,21 @@ export async function GET(request: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
-  // Se as credenciais do Google estiverem configuradas, direciona para o consentimento oficial
-  if (clientId) {
+  // Se as credenciais do Google estiverem configuradas, direciona para a tela oficial de consentimento do Google
+  if (clientId && clientId.trim()) {
     const scope = encodeURIComponent("openid email profile");
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+      clientId.trim()
+    )}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}&response_type=code&scope=${scope}&access_type=offline&prompt=select_account`;
     return NextResponse.redirect(googleAuthUrl);
   }
 
-  // Fallback transparente para ambiente de desenvolvimento local
-  return NextResponse.redirect(`${baseUrl}/api/auth/google/callback?mock=true`);
+  // Se as credenciais não foram configuradas no .env.local, redireciona avisando claramente
+  return NextResponse.redirect(
+    `${baseUrl}/?auth_error=google_credentials_missing`
+  );
 }
 
 /**

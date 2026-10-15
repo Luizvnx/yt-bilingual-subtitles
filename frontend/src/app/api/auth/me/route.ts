@@ -4,6 +4,7 @@ import {
   CryptoService,
   userRepository,
   paymentRepository,
+  usageRepository,
 } from "@/lib/security";
 
 export async function GET() {
@@ -35,5 +36,16 @@ export async function GET() {
   const activeTier = paymentRepository.getActiveSubscriptionTier(user.id);
   user.tier = activeTier;
 
-  return NextResponse.json({ user });
+  // Carrega métricas de quota do mês atual
+  const usage = usageRepository.getUsage(user.id);
+
+  return NextResponse.json({
+    user,
+    usage: {
+      videosUsed: usage.videosProcessedIds.length,
+      videosLimit: user.tier === "pro" ? 9999 : 3,
+      minutesUsed: usage.minutesProcessed,
+      month: usage.monthYear,
+    },
+  });
 }
