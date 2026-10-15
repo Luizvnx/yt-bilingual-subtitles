@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Banco de Dados Relacional PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: yt_subtitles_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secure_pass_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-yt_bilingual_subtitles}
+    ports:
+      # Porta 5433 mapeada no host para evitar colisão com o PostgreSQL do bot de WhatsApp (5432)
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - yt_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-yt_bilingual_subtitles}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yt_network
+
+  # Aplicação Web Next.js Standalone
+  app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: yt_subtitles_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      # Porta 3000 exposta (ou alterável via .env caso já ocupada na VPS)
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_pass_2026}@postgres:5432/${POSTGRES_DB:-yt_bilingual_subtitles}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-secret_jwt_subtitles_saas_production_2026}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    networks:
+      - yt_network
+
+volumes:
+  yt_postgres_data:
+    driver: local
+
+networks:
+  yt_network:
+    driver: bridge

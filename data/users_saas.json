@@ -71,9 +71,9 @@
     "email": "estudante@exemplo.com",
     "passwordHash": "$2b$10$jwgH6JDy1B6.zE1gjwXkp.Qm9fJVjWxhCaGi/xJ3XDITlZ721RUNK",
     "role": "user",
-    "tier": "free",
+    "tier": "pro",
     "isActive": true,
     "createdAt": "2026-10-15T22:06:36.813Z",
-    "updatedAt": "2026-10-15T22:06:36.813Z"
+    "updatedAt": "2026-10-15T22:40:24.256Z"
   }
 ]

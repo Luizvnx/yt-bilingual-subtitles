@@ -1,0 +1,14 @@
+[
+  {
+    "id": "sub_aa0554997301",
+    "userId": "usr_300a941a53f6",
+    "gateway": "mercadopago",
+    "gatewayCustomerId": "cus_sim_usr_300a941a53f6",
+    "gatewaySubscriptionId": "sub_sim_1792104024220",
+    "planTier": "pro",
+    "status": "active",
+    "expiresAt": "2026-11-14T22:40:24.213Z",
+    "createdAt": "2026-10-15T22:40:24.220Z",
+    "updatedAt": "2026-10-15T22:40:24.220Z"
+  }
+]
