@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     let email = "";
     let name = "";
+    let avatar = "";
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -66,8 +67,8 @@ export async function GET(request: NextRequest) {
       const profile = await userRes.json();
       email = (profile.email || "").trim().toLowerCase();
       name = profile.name || profile.given_name || "Usuário Google";
-    } else if (isMock || !clientId) {
-      // 2. Modo de Desenvolvimento / Teste Local (Simulação de Consentimento)
+      avatar = profile.picture || "";
+    } else if (isMock) {
       email = "usuario.google@gmail.com";
       name = "Estudante Google";
     } else {
@@ -87,8 +88,12 @@ export async function GET(request: NextRequest) {
         email,
         randomPassword,
         "user",
-        "free"
+        "free",
+        avatar
       );
+    } else if (avatar && (!user.avatar || user.avatar !== avatar)) {
+      const updated = await userRepository.updateProfile(user.id, { avatar, name });
+      if (updated) user = updated;
     }
 
     // Emite token JWT assinado

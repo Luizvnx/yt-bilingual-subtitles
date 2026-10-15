@@ -64,5 +64,16 @@
     "isActive": true,
     "createdAt": "2026-10-15T14:24:19.619Z",
     "updatedAt": "2026-10-15T14:24:19.619Z"
+  },
+  {
+    "id": "usr_300a941a53f6",
+    "name": "Estudante Exemplo",
+    "email": "estudante@exemplo.com",
+    "passwordHash": "$2b$10$jwgH6JDy1B6.zE1gjwXkp.Qm9fJVjWxhCaGi/xJ3XDITlZ721RUNK",
+    "role": "user",
+    "tier": "free",
+    "isActive": true,
+    "createdAt": "2026-10-15T22:06:36.813Z",
+    "updatedAt": "2026-10-15T22:06:36.813Z"
   }
 ]

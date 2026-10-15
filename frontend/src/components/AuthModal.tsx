@@ -81,12 +81,17 @@ export function AuthModal({
             {isRegister ? "Criar Conta" : "Acessar Minha Conta"}
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
-            {initialMessage ||
-              (isRegister
-                ? "Salve seu progresso, histórico e vocabulário na nuvem."
-                : "Acesse seu histórico e caderno de estudos.")}
+            {isRegister
+              ? "Salve seu progresso, histórico e vocabulário na nuvem."
+              : "Acesse seu histórico e caderno de estudos."}
           </p>
         </div>
+
+        {initialMessage && (
+          <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 leading-relaxed">
+            {initialMessage}
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">

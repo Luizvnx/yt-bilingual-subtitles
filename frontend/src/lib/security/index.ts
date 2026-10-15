@@ -7,3 +7,4 @@ export * from "./repositories/userRepository";
 export * from "./repositories/paymentRepository";
 export * from "./repositories/videoRepository";
 export * from "./repositories/vocabularyRepository";
+export * from "./repositories/usageRepository";

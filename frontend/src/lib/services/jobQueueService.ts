@@ -1,4 +1,4 @@
-import { videoRepository, VideoRecord } from "../security";
+import { videoRepository, VideoRecord, usageRepository } from "../security";
 import { YouTubeService } from "./youtubeService";
 
 export type JobStatus = "pending" | "processing" | "completed" | "error";
@@ -103,7 +103,8 @@ class JobQueueServiceSingleton {
    */
   public async processVideo(
     videoId: string,
-    userId?: string
+    userId?: string,
+    userTier: "free" | "pro" = "free"
   ): Promise<VideoRecord> {
     // 1. Verifica cache no repositório (com validação de qualidade de tradução)
     const existing = videoRepository.getById(videoId);
@@ -157,6 +158,17 @@ class JobQueueServiceSingleton {
     try {
       const metadata = await YouTubeService.getMetadata(videoId);
 
+      // Validação de Quota e Duração (Fase 5 do Roadmap)
+      const quotaCheck = usageRepository.checkQuota(
+        userId,
+        userTier,
+        videoId,
+        metadata.duration
+      );
+      if (!quotaCheck.canProcess) {
+        throw new Error(quotaCheck.reason || "Limite de uso mensal atingido.");
+      }
+
       this.notify(videoId, {
         stage: 30,
         message: `Vídeo: "${metadata.title.slice(0, 45)}...". Extraindo falas...`,
@@ -206,6 +218,11 @@ class JobQueueServiceSingleton {
         segments,
         userId,
       });
+
+      // Registra métrica de consumo para o usuário
+      if (userId) {
+        usageRepository.recordVideoUsage(userId, videoId, metadata.duration);
+      }
 
       this.notify(videoId, {
         stage: 100,
