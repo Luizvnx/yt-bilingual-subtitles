@@ -6,6 +6,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { SubtitleStudio } from "@/components/SubtitleStudio";
 import { WordPopover } from "@/components/WordPopover";
 import { AuthModal } from "@/components/AuthModal";
+import { VocabularyModal } from "@/components/VocabularyModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { VideoRecord } from "@/lib/security";
 import {
@@ -13,14 +14,15 @@ import {
   Play,
   Loader2,
   AlertCircle,
-  HelpCircle,
-  CheckCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function HomePage() {
   const [url, setUrl] = useState("");
   const [model, setModel] = useState("base");
   const [loading, setLoading] = useState(false);
+  const [progressStage, setProgressStage] = useState(0);
+  const [progressStatus, setProgressStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [currentVideo, setCurrentVideo] = useState<VideoRecord | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -32,12 +34,24 @@ export default function HomePage() {
     null
   );
 
-  // Estado de Autenticação
+  // Estado de Autenticação e Modais
   const [user, setUser] = useState<any>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
+  const [vocabModalOpen, setVocabModalOpen] = useState(false);
 
   // Referência para o player do YouTube
   const playerRef = useRef<any>(null);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch("/api/subtitles/history");
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data.videos || []);
+      }
+    } catch {}
+  };
 
   // Carrega usuário atual e histórico ao montar a página
   useEffect(() => {
@@ -53,51 +67,84 @@ export default function HomePage() {
     fetchHistory();
   }, []);
 
-  const fetchHistory = async () => {
-    try {
-      const res = await fetch("/api/subtitles/history");
-      if (res.ok) {
-        const data = await res.json();
-        setHistory(data.videos || []);
+  // Referência para conexão de streaming Server-Sent Events (SSE)
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  // Fecha conexão SSE ao desmontar
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
       }
-    } catch {}
-  };
+    };
+  }, []);
 
   const handleProcess = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
 
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
     setLoading(true);
     setErrorMessage("");
+    setProgressStage(5);
+    setProgressStatus("Iniciando canal de streaming com o YouTube...");
 
-    try {
-      const res = await fetch("/api/subtitles/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), model }),
-      });
+    const streamUrl = `/api/subtitles/stream?url=${encodeURIComponent(
+      url.trim()
+    )}&model=${encodeURIComponent(model)}`;
 
-      const data = await res.json();
+    const es = new EventSource(streamUrl);
+    eventSourceRef.current = es;
 
-      if (!res.ok) {
-        throw new Error(data.error || "Falha ao processar o vídeo.");
+    es.addEventListener("progress", (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setProgressStage(data.stage || 50);
+        setProgressStatus(data.message || "Processando vídeo...");
+      } catch {}
+    });
+
+    es.addEventListener("complete", (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setProgressStage(100);
+        setProgressStatus(data.message || "Estúdio pronto!");
+
+        setTimeout(() => {
+          setCurrentVideo(data.video);
+          setCurrentTime(0);
+          fetchHistory();
+          setLoading(false);
+          es.close();
+          eventSourceRef.current = null;
+
+          // Scroll suave até o estúdio de estudo
+          document.getElementById("studio-section")?.scrollIntoView({
+            behavior: "smooth",
+          });
+        }, 400);
+      } catch {}
+    });
+
+    es.addEventListener("error", (event: any) => {
+      try {
+        if (event.data) {
+          const data = JSON.parse(event.data);
+          setErrorMessage(data.error || "Erro no processamento.");
+        } else {
+          setErrorMessage("Falha de conexão com o servidor de legendas.");
+        }
+      } catch {
+        setErrorMessage("Falha ao processar o vídeo.");
       }
-
-      setCurrentVideo(data.video);
-      setCurrentTime(0);
-      fetchHistory();
-
-      // Scroll suave até o estúdio de estudo
-      setTimeout(() => {
-        document.getElementById("studio-section")?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 200);
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Ocorreu um erro ao processar o vídeo.");
-    } finally {
+      es.close();
+      eventSourceRef.current = null;
       setLoading(false);
-    }
+    });
   };
 
   const handleSeek = (seconds: number) => {
@@ -138,8 +185,21 @@ export default function HomePage() {
       {/* Navbar Superior */}
       <Navbar
         user={user}
-        onOpenAuth={() => setAuthModalOpen(true)}
+        onOpenAuth={() => {
+          setAuthMessage("");
+          setAuthModalOpen(true);
+        }}
         onLogout={handleLogout}
+        onOpenVocabulary={() => {
+          if (!user) {
+            setAuthMessage(
+              "Faça login ou crie sua conta para acessar seu caderno de vocabulário."
+            );
+            setAuthModalOpen(true);
+          } else {
+            setVocabModalOpen(true);
+          }
+        }}
       />
 
       {/* Conteúdo Principal */}
@@ -160,8 +220,7 @@ export default function HomePage() {
 
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto">
             Cole o link de qualquer vídeo do YouTube. Obtenha legendas bilíngues
-            sincronizadas, dicionário instantâneo com pronúncia nativa e treino
-            de fala com IA.
+            sincronizadas, dicionário instantâneo com pronúncia nativa e caderno de vocabulário.
           </p>
 
           {/* Prompt Box de Entrada estilo Gemini / Perplexity */}
@@ -210,6 +269,27 @@ export default function HomePage() {
               </div>
             </div>
           </form>
+
+          {/* Barra de Progresso e Status em Tempo Real */}
+          {loading && (
+            <div className="mt-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 text-left space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-indigo-300 flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
+                  {progressStatus}
+                </span>
+                <span className="font-mono font-bold text-indigo-400">
+                  {progressStage}%
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                  style={{ width: `${progressStage}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {errorMessage && (
             <div className="flex items-center justify-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
@@ -265,6 +345,13 @@ export default function HomePage() {
             word={popoverWord}
             position={popoverPos}
             onClose={() => setPopoverWord(null)}
+            user={user}
+            onRequireLogin={() => {
+              setAuthMessage(
+                "Faça login ou crie sua conta para salvar palavras no seu vocabulário pessoal."
+              );
+              setAuthModalOpen(true);
+            }}
           />
         )}
 
@@ -291,11 +378,19 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Modal de Autenticação */}
+      {/* Modal de Autenticação com suporte a Google */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         onSuccess={(loggedUser) => setUser(loggedUser)}
+        initialMessage={authMessage}
+      />
+
+      {/* Modal do Caderno de Vocabulário */}
+      <VocabularyModal
+        isOpen={vocabModalOpen}
+        onClose={() => setVocabModalOpen(false)}
+        user={user}
       />
 
       {/* Rodapé */}

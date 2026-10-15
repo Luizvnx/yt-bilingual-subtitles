@@ -30,9 +30,6 @@ export function YouTubePlayer({
   const [subMode, setSubMode] = useState<"bilingual" | "en" | "pt" | "none">(
     "bilingual"
   );
-  const [activeSegment, setActiveSegment] = useState<SubtitleSegment | null>(
-    null
-  );
 
   // Carrega a API do YouTube IFrame sob demanda
   useEffect(() => {
@@ -102,17 +99,10 @@ export function YouTubePlayer({
     };
   }, [videoId]);
 
-  // Atualiza o segmento de legenda ativo com base no tempo atual
-  useEffect(() => {
-    if (!segments || !segments.length) {
-      setActiveSegment(null);
-      return;
-    }
-    const current = segments.find(
-      (s) => currentTime >= s.start && currentTime <= s.end
-    );
-    setActiveSegment(current || null);
-  }, [currentTime, segments]);
+  // Deriva o segmento de legenda ativo com base no tempo atual
+  const activeSegment =
+    segments?.find((s) => currentTime >= s.start && currentTime <= s.end) ||
+    null;
 
   return (
     <div className="relative flex flex-col rounded-3xl border border-white/10 bg-zinc-950 overflow-hidden shadow-2xl">
