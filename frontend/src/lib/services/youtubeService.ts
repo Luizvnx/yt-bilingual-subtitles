@@ -467,7 +467,59 @@ export class YouTubeService {
     onProgress?.(35, "Consultando legendas e transcrição do YouTube...");
 
     try {
-      // 1. Provedor Primário: YouTube InnerTube Player API (iOS / Android Client)
+      // 1. Provedor Primário: Script Python yt_dlp (VisionOS/Mobile) com signed timedtext JSON3
+      try {
+        const scriptCandidates = [
+          path.join(process.cwd(), "scripts", "extract_subs.py"),
+          path.join(process.cwd(), "frontend", "scripts", "extract_subs.py"),
+          "/app/scripts/extract_subs.py",
+        ];
+        const scriptPath = scriptCandidates.find((p) => fs.existsSync(p));
+
+        if (scriptPath) {
+          const pyCandidates = ["/opt/venv/bin/python3", "python3", "python"];
+          for (const pyBin of pyCandidates) {
+            try {
+              const res = await execAsync(`"${pyBin}" "${scriptPath}" "${videoId}"`, {
+                timeout: 30000,
+                maxBuffer: 15 * 1024 * 1024,
+              });
+              if (res.stdout && res.stdout.trim().startsWith("{")) {
+                const parsedData = JSON.parse(res.stdout.trim());
+                const rawSegments = YouTubeService.parseJson3Content(parsedData);
+                if (rawSegments.length > 0) {
+                  onProgress?.(
+                    60,
+                    `Identificadas ${rawSegments.length} falas do vídeo. Agrupando frases naturais...`
+                  );
+                  const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
+                  onProgress?.(
+                    75,
+                    `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+                  );
+                  const englishTexts = mergedSegments.map((s) => s.text_en);
+                  const portugueseTexts = await YouTubeService.translateBatch(
+                    englishTexts,
+                    "en",
+                    "pt"
+                  );
+                  onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
+                  return mergedSegments.map((seg, idx) => ({
+                    ...seg,
+                    text_pt: portugueseTexts[idx] || seg.text_en,
+                  }));
+                }
+              }
+            } catch (err: any) {
+              console.warn(`[YouTubeService] Falha com ${pyBin}:`, err?.message);
+            }
+          }
+        }
+      } catch (err: any) {
+        console.warn("[YouTubeService] Erro no extrator python:", err?.message);
+      }
+
+      // 2. Provedor Secundário: YouTube InnerTube Player API (iOS / Android Client)
       // 100% Nativo em Node.js (fetch), sem subprocessos, sem Python, 0 dependências de sistema, ultra-rápido (< 500ms)
       try {
         const innertubeSegments = await YouTubeService.fetchInnerTubeSubtitles(videoId);
