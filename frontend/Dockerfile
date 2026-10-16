@@ -32,16 +32,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Instala ferramentas essenciais para legendas e áudio: python3, ffmpeg e yt-dlp
+# Instala ferramentas essenciais para legendas e áudio: python3, ffmpeg, quickjs e yt-dlp
 RUN apk add --no-cache \
     python3 \
     py3-pip \
     ffmpeg \
     curl \
-    ca-certificates && \
+    ca-certificates \
+    quickjs && \
     python3 -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir --upgrade pip yt-dlp youtube-transcript-api && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip "yt-dlp[default]" youtube-transcript-api pysocks requests[socks] && \
     chmod -R 755 /opt/venv && \
+    ln -sf /usr/bin/qjs /usr/local/bin/quickjs && \
+    ln -sf /usr/bin/qjs /usr/local/bin/qjs && \
     ln -sf /opt/venv/bin/youtube_transcript_api /usr/local/bin/youtube_transcript_api && \
     ln -sf /opt/venv/bin/yt-dlp /usr/local/bin/yt-dlp && \
     ln -sf /opt/venv/bin/python3 /usr/local/bin/python3 && \

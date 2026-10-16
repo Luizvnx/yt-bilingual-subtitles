@@ -6,10 +6,12 @@ __pycache__/
 venv/
 ENV/
 
-# Environment variables
+# Environment variables & secrets
 .env
 .env.*
 !.env.example
+cookies.txt
+*cookies*.txt
 
 # Logs
 logs
