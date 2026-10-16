@@ -1,4 +1,5 @@
 import sys
+import os
 import json
 import urllib.request
 
@@ -9,10 +10,48 @@ def main():
 
     video_id = sys.argv[1].strip()
     
-    # 1. Tenta extrair legendas via yt_dlp (usa cliente visionos / mobile oficial)
+    # Procura arquivo cookies.txt para contornar bloqueio de bot em Datacenters (Oracle, AWS, etc.)
+    cookie_file = None
+    cookie_candidates = [
+        "/app/cookies.txt",
+        "/app/data/cookies.txt",
+        os.path.join(os.getcwd(), "cookies.txt"),
+        os.path.join(os.getcwd(), "data", "cookies.txt"),
+        os.path.expanduser("~/cookies.txt"),
+        "/tmp/cookies.txt"
+    ]
+    
+    for cpath in cookie_candidates:
+        if os.path.exists(cpath) and os.path.getsize(cpath) > 10:
+            cookie_file = cpath
+            break
+            
+    # Se cookies foram injetados via variável de ambiente YOUTUBE_COOKIES
+    if not cookie_file and os.environ.get("YOUTUBE_COOKIES"):
+        try:
+            with open("/tmp/cookies.txt", "w", encoding="utf-8") as f:
+                f.write(os.environ.get("YOUTUBE_COOKIES", ""))
+            cookie_file = "/tmp/cookies.txt"
+        except Exception:
+            pass
+
+    # 1. Tenta extrair legendas via yt_dlp
     try:
         import yt_dlp
-        ydl = yt_dlp.YoutubeDL({'skip_download': True, 'quiet': True, 'no_warnings': True})
+        ydl_opts = {
+            'skip_download': True,
+            'quiet': True,
+            'no_warnings': True,
+        }
+        
+        if cookie_file:
+            ydl_opts['cookiefile'] = cookie_file
+            
+        proxy = os.environ.get("YOUTUBE_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+        if proxy:
+            ydl_opts['proxy'] = proxy
+            
+        ydl = yt_dlp.YoutubeDL(ydl_opts)
         info = ydl.extract_info(f'https://www.youtube.com/watch?v={video_id}', download=False)
         subs = info.get('subtitles') or {}
         auto = info.get('automatic_captions') or {}
@@ -41,7 +80,6 @@ def main():
             req = urllib.request.Request(track_url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=15) as r:
                 content = r.read().decode('utf-8')
-                # Valida que é JSON válido
                 parsed = json.loads(content)
                 if 'events' in parsed:
                     print(content)
