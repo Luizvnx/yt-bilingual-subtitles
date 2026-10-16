@@ -99,9 +99,11 @@ export async function POST(request: NextRequest) {
 
     // 3. Extrai legendas diretamente do YouTube e traduz de forma autônoma
     let segments = await YouTubeService.extractSubtitles(videoId);
+    console.log(`[ProcessRoute] Extração para ${videoId}: ${segments.length} segmentos bilíngues obtidos.`);
 
     // Se o vídeo não possui legendas no YouTube, gera segmento inicial com metadados
     if (!segments.length) {
+      console.warn(`[ProcessRoute] Nenhuma legenda extraída para ${videoId}. Gerando segmento de fallback com metadados.`);
       const ptTitle = (
         await YouTubeService.translateBatch([metadata.title], "en", "pt")
       )[0] || metadata.title;
