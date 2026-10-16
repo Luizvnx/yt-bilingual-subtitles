@@ -7,12 +7,12 @@ set -e
 
 echo "🚀 Iniciando Deploy do YT Bilingual Subtitles..."
 
-# 1. Puxa as alterações mais recentes do GitHub (sincronização garantida sem travas)
+# 1. Puxa as alterações mais recentes do GitHub
 echo "📥 Atualizando código com 'git fetch' e 'git reset'..."
 git fetch origin main
 git reset --hard origin/main
 
-# 2. Garante diretório data
+# 2. Garante diretórios essenciais no host
 mkdir -p data
 
 # 3. Se o .env não existir na VPS, copia o .env.example
@@ -24,23 +24,16 @@ else
   echo "✅ Arquivo .env já existe no servidor."
 fi
 
-# 4. Configuração automática do Cloudflare WARP (se instalado no host)
-if command -v warp-cli >/dev/null 2>&1; then
-  echo "🛡️ Cloudflare WARP detectado. Ativando modo Proxy SOCKS5 (porta 40000)..."
-  warp-cli --accept-tos mode proxy 2>/dev/null || true
-  warp-cli --accept-tos proxy port 40000 2>/dev/null || true
-  warp-cli --accept-tos connect 2>/dev/null || true
-fi
-
-# 3. Reinicia e recompila os containers
-echo "🐳 Reconstruindo container da aplicação Next.js..."
+# 4. Baixa e recompila os containers (Postgres + Cloudflare WARP + Next.js)
+echo "🐳 Baixando e reconstruindo containers com proxy WARP automático..."
 docker compose down
+docker compose pull warp || true
 docker compose build --no-cache app
 docker compose up -d
 
-# 4. Checagem de status
+# 5. Checagem de status
 echo "⏳ Aguardando inicialização dos serviços..."
-sleep 5
+sleep 6
 
 docker compose ps
 

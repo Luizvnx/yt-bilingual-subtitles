@@ -1,8 +1,8 @@
 import sys
 import os
 import json
-import urllib.request
 import shutil
+import requests
 
 def main():
     if len(sys.argv) < 2:
@@ -15,6 +15,7 @@ def main():
     cookie_file = None
     cookie_candidates = [
         "/app/data/cookies.txt",
+        "/app/host_data/cookies.txt",
         "/app/cookies.txt",
         "/tmp/cookies.txt",
         os.path.join(os.getcwd(), "data", "cookies.txt"),
@@ -36,6 +37,18 @@ def main():
             pass
 
     proxy = os.environ.get("YOUTUBE_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    
+    # Valida rapidamente se o proxy está acessível antes de travar requisições
+    active_proxy = None
+    if proxy:
+        try:
+            # Testa conectividade com o proxy em 1.5s
+            test_proxies = {'http': proxy, 'https': proxy}
+            requests.get("https://www.cloudflare.com/cdn-cgi/trace", proxies=test_proxies, timeout=1.8)
+            active_proxy = proxy
+        except Exception as pe:
+            sys.stderr.write(f"[extract_subs] Proxy {proxy} inacessivel ({pe}), usando conexao direta.\n")
+            active_proxy = None
 
     # 1. Tenta extrair legendas via yt_dlp
     try:
@@ -57,11 +70,22 @@ def main():
         if cookie_file:
             ydl_opts['cookiefile'] = cookie_file
             
-        if proxy:
-            ydl_opts['proxy'] = proxy
+        if active_proxy:
+            ydl_opts['proxy'] = active_proxy
             
         ydl = yt_dlp.YoutubeDL(ydl_opts)
-        info = ydl.extract_info(f'https://www.youtube.com/watch?v={video_id}', download=False)
+        try:
+            info = ydl.extract_info(f'https://www.youtube.com/watch?v={video_id}', download=False)
+        except Exception as ye:
+            # Se falhou com proxy, tenta mais uma vez direto
+            if active_proxy:
+                sys.stderr.write(f"[extract_subs] yt_dlp falhou com proxy ({ye}), tentando direto...\n")
+                ydl_opts_direct = {k: v for k, v in ydl_opts.items() if k != 'proxy'}
+                ydl = yt_dlp.YoutubeDL(ydl_opts_direct)
+                info = ydl.extract_info(f'https://www.youtube.com/watch?v={video_id}', download=False)
+            else:
+                raise ye
+
         subs = info.get('subtitles') or {}
         auto = info.get('automatic_captions') or {}
         
@@ -84,12 +108,23 @@ def main():
                     break
                     
         if track_url:
-            req = urllib.request.Request(track_url, headers={'User-Agent': 'Mozilla/5.0'})
-            opener = urllib.request.build_opener()
-            if proxy:
-                opener.add_handler(urllib.request.ProxyHandler({'http': proxy, 'https': proxy}))
-            with opener.open(req, timeout=15) as r:
-                content = r.read().decode('utf-8')
+            # Baixa o conteúdo usando requests com suporte nativo a socks5 e fallback
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            content = None
+            if active_proxy:
+                try:
+                    r = requests.get(track_url, proxies={'http': active_proxy, 'https': active_proxy}, headers=headers, timeout=12)
+                    if r.status_code == 200:
+                        content = r.text
+                except Exception:
+                    pass
+                    
+            if not content:
+                r = requests.get(track_url, headers=headers, timeout=12)
+                if r.status_code == 200:
+                    content = r.text
+                    
+            if content:
                 parsed = json.loads(content)
                 if 'events' in parsed and len(parsed.get('events', [])) > 0:
                     print(content)
@@ -100,28 +135,32 @@ def main():
     # 2. Fallback via youtube_transcript_api
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-        import requests
         
-        session = requests.Session()
-        session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
-        if proxy:
-            session.proxies = {'http': proxy, 'https': proxy}
-        if cookie_file:
-            try:
-                import http.cookiejar
-                jar = http.cookiejar.MozillaCookieJar(cookie_file)
-                jar.load(ignore_discard=True, ignore_expires=True)
-                session.cookies = jar
-            except Exception:
-                pass
-                
         raw_items = None
-        try:
-            api = YouTubeTranscriptApi(http_client=session)
-            transcript_obj = api.fetch(video_id, languages=['en', 'en-US', 'en-GB', 'pt'])
-            raw_items = transcript_obj.to_raw_data()
-        except AttributeError:
-            raw_items = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'en-US', 'en-GB', 'pt'])
+        
+        # Tenta com proxy se ativo
+        if active_proxy:
+            try:
+                session = requests.Session()
+                session.proxies = {'http': active_proxy, 'https': active_proxy}
+                session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                api = YouTubeTranscriptApi(http_client=session)
+                transcript_obj = api.fetch(video_id, languages=['en', 'en-US', 'en-GB', 'pt'])
+                raw_items = transcript_obj.to_raw_data()
+            except Exception as pe:
+                sys.stderr.write(f"[extract_subs] transcript_api com proxy falhou: {pe}\n")
+
+        # Se falhou ou sem proxy, tenta direto
+        if not raw_items:
+            try:
+                api = YouTubeTranscriptApi()
+                try:
+                    transcript_obj = api.fetch(video_id, languages=['en', 'en-US', 'en-GB', 'pt'])
+                    raw_items = transcript_obj.to_raw_data()
+                except AttributeError:
+                    raw_items = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'en-US', 'en-GB', 'pt'])
+            except Exception as de:
+                sys.stderr.write(f"[extract_subs] transcript_api direto falhou: {de}\n")
 
         if raw_items and len(raw_items) > 0:
             events = []

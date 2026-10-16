@@ -48,8 +48,9 @@ export class YouTubeService {
 
     // 1. Tenta extrair metadados via yt-dlp com cliente Android/Web (anti-bloqueio de datacenter)
     try {
+      const proxyFlag = process.env.YOUTUBE_PROXY ? `--proxy "${process.env.YOUTUBE_PROXY}"` : "";
       const { stdout } = await execAsync(
-        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 --dump-json --skip-download --extractor-args "youtube:player_client=android,ios,web" "${canonicalUrl}"`,
+        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 ${proxyFlag} --dump-json --skip-download --extractor-args "youtube:player_client=android,ios,web" "${canonicalUrl}"`,
         { maxBuffer: 10 * 1024 * 1024, timeout: 15000 }
       );
       const data = JSON.parse(stdout);
