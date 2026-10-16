@@ -23,6 +23,27 @@ services:
     networks:
       - yt_network
 
+  # Cloudflare WARP SOCKS5 Proxy Isolado (Bypass 100% automático de IP de Datacenter)
+  warp:
+    image: caomingjun/warp:latest
+    container_name: yt_subtitles_warp
+    restart: unless-stopped
+    device_cgroup_rules:
+      - 'c 10:200 rwm'
+    environment:
+      - WARP_SLEEP=2
+    cap_add:
+      - MKNOD
+      - AUDIT_WRITE
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - yt_warp_data:/var/lib/cloudflare-warp
+    networks:
+      - yt_network
+
   # Aplicação Web Next.js Standalone
   app:
     build:
@@ -33,6 +54,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      warp:
+        condition: service_started
     ports:
       # Porta 3000 exposta (ou alterável via .env caso já ocupada na VPS)
       - "${APP_PORT:-3000}:3000"
@@ -50,9 +73,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
       YOUTUBE_COOKIES: ${YOUTUBE_COOKIES:-}
-      YOUTUBE_PROXY: ${YOUTUBE_PROXY:-socks5://host.docker.internal:40000}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      YOUTUBE_PROXY: ${YOUTUBE_PROXY:-socks5://warp:1080}
     volumes:
       - yt_app_data:/app/data
       - ./data:/app/host_data:ro
@@ -63,6 +84,8 @@ volumes:
   yt_postgres_data:
     driver: local
   yt_app_data:
+    driver: local
+  yt_warp_data:
     driver: local
 
 networks:
