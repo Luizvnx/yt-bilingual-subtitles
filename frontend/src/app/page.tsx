@@ -8,6 +8,7 @@ import { WordPopover } from "@/components/WordPopover";
 import { AuthModal } from "@/components/AuthModal";
 import { VocabularyModal } from "@/components/VocabularyModal";
 import { UpgradeModal } from "@/components/UpgradeModal";
+import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { VideoRecord } from "@/lib/security";
 import {
@@ -50,6 +51,8 @@ export default function HomePage() {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [vocabModalOpen, setVocabModalOpen] = useState(false);
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState<LegalModalTab>("terms");
 
   // Referência para o player do YouTube
   const playerRef = useRef<any>(null);
@@ -329,24 +332,11 @@ export default function HomePage() {
                 className="w-full flex-1 rounded-xl bg-transparent px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none"
               />
 
-              <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 px-2 pb-2 sm:p-0">
-                <div className="relative">
-                  <select
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className="appearance-none rounded-xl border border-white/10 bg-zinc-900/90 hover:bg-zinc-800/90 py-2.5 pl-3.5 pr-8 text-xs font-medium text-zinc-200 focus:border-zinc-700 focus:outline-none cursor-pointer transition-colors"
-                  >
-                    <option value="base"> Recomendada (Equilibrado)</option>
-                    <option value="small">Alta Precisão (Sotaques e gírias)</option>
-                    <option value="tiny">Modo Expresso (Ultra-rápido)</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-2.5 top-3 h-3.5 w-3.5 text-zinc-400" />
-                </div>
-
+              <div className="flex w-full sm:w-auto items-center justify-end px-2 pb-2 sm:p-0">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -450,14 +440,16 @@ export default function HomePage() {
                 <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
                 <span>{errorMessage}</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setUpgradeModalOpen(true)}
-                className="flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-3 py-1.5 transition-colors shadow-sm cursor-pointer"
-              >
-                <Crown className="h-3.5 w-3.5" />
-                <span>Conhecer o Plano PRO</span>
-              </button>
+              {/(plano pro|quota|limite|minutos|upgrade)/i.test(errorMessage) && (
+                <button
+                  type="button"
+                  onClick={() => setUpgradeModalOpen(true)}
+                  className="flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-3 py-1.5 transition-colors shadow-sm cursor-pointer"
+                >
+                  <Crown className="h-3.5 w-3.5" />
+                  <span>Conhecer o Plano PRO</span>
+                </button>
+              )}
             </div>
           )}
         </section>
@@ -572,12 +564,69 @@ export default function HomePage() {
         }}
       />
 
-      {/* Rodapé */}
-      <footer className="border-t border-white/10 bg-black/40 py-6 text-center text-xs text-zinc-500">
-        <p>
-          YT Bilingual Subtitles • Estudo de Idiomas por Imersão com
-          Inteligência Artificial
-        </p>
+      {/* Modal de Informações Legais, Termos e Suporte */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        onClose={() => setLegalModalOpen(false)}
+        initialTab={legalModalTab}
+      />
+
+      {/* Rodapé Confiável e Profissional */}
+      <footer className="border-t border-white/10 bg-black/60 py-10 text-xs text-zinc-500">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+              <p className="font-semibold text-zinc-300 text-sm">
+                YT Bilingual Subtitles
+              </p>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                Plataforma de Imersão e Estudo Ativo com Vídeos Reais do YouTube
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-400">
+              <button
+                type="button"
+                onClick={() => {
+                  setLegalModalTab("terms");
+                  setLegalModalOpen(true);
+                }}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Termos de Uso
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLegalModalTab("privacy");
+                  setLegalModalOpen(true);
+                }}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Privacidade (LGPD)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLegalModalTab("support");
+                  setLegalModalOpen(true);
+                }}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Dúvidas & Suporte
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-500 text-center sm:text-left">
+            <p>
+              © 2026 YT Bilingual Subtitles. Todos os direitos reservados.
+            </p>
+            <p className="text-[10px] text-zinc-600 max-w-md">
+              Não afiliado ao Google LLC ou YouTube. As marcas, áudios e vídeos pertencem aos seus respectivos proprietários.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

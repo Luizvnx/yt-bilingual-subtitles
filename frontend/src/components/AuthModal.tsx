@@ -20,6 +20,9 @@ export function AuthModal({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(true);
+  const [showForgotInfo, setShowForgotInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +33,19 @@ export function AuthModal({
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (isRegister) {
+      if (password !== confirmPassword) {
+        setError("As senhas não coincidem. Digite a mesma senha nos dois campos.");
+        setLoading(false);
+        return;
+      }
+      if (!acceptTerms) {
+        setError("É necessário concordar com os Termos de Uso para criar uma conta.");
+        setLoading(false);
+        return;
+      }
+    }
 
     const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
     const payload = isRegister ? { name, email, password } : { email, password };
@@ -180,37 +196,90 @@ export function AuthModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">
-              Senha (mínimo 8 caracteres)
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-              <input
-                type="password"
-                required
-                minLength={8}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-medium text-zinc-300">
+                Senha (mínimo 8 caracteres)
+              </label>
+              {!isRegister && (
+                <button
+                  type="button"
+                  onClick={() => setShowForgotInfo(!showForgotInfo)}
+                  className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                >
+                  Esqueci minha senha
+                </button>
+              )}
             </div>
-          </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading || googleLoading}
-            className="w-full mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-3 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 hover:brightness-110 active:scale-98 disabled:opacity-50 transition-all"
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : isRegister ? (
-              "Cadastrar e Começar Grátis"
-            ) : (
-              "Acessar Minha Conta"
+            {/* Informações de recuperação de senha */}
+            {showForgotInfo && !isRegister && (
+              <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-[11px] text-indigo-200 leading-relaxed animate-in fade-in">
+                Caso tenha esquecido sua senha, você pode fazer login usando sua <strong>Conta do Google</strong> ou enviar um e-mail para <span className="underline font-mono">suporte@ytbilingualsubtitles.com</span> para redefinir seu acesso.
+              </div>
             )}
-          </button>
-        </form>
+
+            {isRegister && (
+              <>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Confirmar Senha
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      placeholder="Repita sua senha"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 pt-1 text-[11px] text-zinc-400">
+                  <input
+                    type="checkbox"
+                    id="terms-check"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="mt-0.5 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="terms-check" className="cursor-pointer leading-tight">
+                    Li e concordo com os Termos de Uso e Política de Privacidade.
+                  </label>
+                </div>
+              </>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || googleLoading}
+              className="w-full mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-3 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 hover:brightness-110 active:scale-98 disabled:opacity-50 transition-all cursor-pointer"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isRegister ? (
+                "Cadastrar e Começar Grátis"
+              ) : (
+                "Acessar Minha Conta"
+              )}
+            </button>
+          </form>
 
         <div className="mt-5 text-center text-xs text-zinc-400">
           {isRegister ? "Já possui uma conta?" : "Ainda não tem conta?"}{" "}
