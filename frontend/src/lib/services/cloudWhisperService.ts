@@ -55,7 +55,7 @@ export class CloudWhisperService {
 
       // Baixa apenas o áudio compactado (bitrate leve 48k/64k) em 1 a 3 segundos
       await execAsync(
-        `yt-dlp -x --audio-format m4a --audio-quality 8 -o "${audioPath}" "${canonicalUrl}"`,
+        `yt-dlp -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,web" -o "${audioPath}" "${canonicalUrl}"`,
         { timeout: 35000 }
       );
 
