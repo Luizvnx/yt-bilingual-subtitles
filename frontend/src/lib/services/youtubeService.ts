@@ -3,6 +3,7 @@ import { promisify } from "util";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import crypto from "crypto";
 import { validateAndExtractYouTubeId } from "../security";
 import { CloudWhisperService } from "./cloudWhisperService";
 
@@ -352,31 +353,121 @@ export class YouTubeService {
   }
 
   /**
-   * Provedor Nativo Ultra-Rápido: YouTube InnerTube Player API (iOS / Android)
+   * Extrai cookies e gera cabeçalhos de autenticação oficiais (SAPISIDHASH)
+   */
+  static getYoutubeAuth(): { cookieHeader: string; authHeader: string } {
+    let cookieHeader = "";
+    let authHeader = "";
+    const cookieCandidates = [
+      "/app/data/cookies.txt",
+      "/app/cookies.txt",
+      "/tmp/cookies.txt",
+      path.join(process.cwd(), "data", "cookies.txt"),
+      path.join(process.cwd(), "cookies.txt"),
+      path.join(process.cwd(), "..", "data", "cookies.txt"),
+      path.join(process.cwd(), "..", "cookies.txt"),
+    ];
+
+    let rawCookies = "";
+    for (const cpath of cookieCandidates) {
+      if (fs.existsSync(cpath)) {
+        try {
+          rawCookies = fs.readFileSync(cpath, "utf-8");
+          if (rawCookies.length > 20) break;
+        } catch {}
+      }
+    }
+
+    if (!rawCookies && process.env.YOUTUBE_COOKIES) {
+      rawCookies = process.env.YOUTUBE_COOKIES;
+    }
+
+    if (rawCookies) {
+      const cookies: string[] = [];
+      let sapisid = "";
+      for (const line of rawCookies.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const parts = trimmed.split("\t");
+        if (parts.length >= 7) {
+          cookies.push(`${parts[5]}=${parts[6]}`);
+          if (parts[5] === "SAPISID" || parts[5] === "__Secure-3PAPISID") {
+            sapisid = parts[6];
+          }
+        }
+      }
+      cookieHeader = cookies.join("; ");
+      if (sapisid) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const toHash = `${timestamp} ${sapisid} https://www.youtube.com`;
+        const hash = crypto.createHash("sha1").update(toHash).digest("hex");
+        authHeader = `SAPISIDHASH ${timestamp}_${hash}`;
+      }
+    }
+
+    return { cookieHeader, authHeader };
+  }
+
+  /**
+   * Provedor Nativo Ultra-Rápido: YouTube InnerTube Player API com suporte a Cookies/SAPISID
    * 100% JavaScript (fetch), 0 subprocessos, sem dependência de Python ou yt-dlp.
    * Funciona diretamente no container Docker e em servidores de produção.
    */
   static async fetchInnerTubeSubtitles(
     videoId: string
   ): Promise<Omit<SubtitleItem, "text_pt">[]> {
+    const { cookieHeader, authHeader } = YouTubeService.getYoutubeAuth();
     const clients = [
-      { clientName: "IOS", clientVersion: "20.10.4", hl: "en", gl: "US" },
-      { clientName: "ANDROID", clientVersion: "19.29.37", androidSdkVersion: 30, hl: "en", gl: "US" },
+      {
+        clientName: "WEB",
+        clientVersion: "2.20240408.01.00",
+        withAuth: true,
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+      {
+        clientName: "IOS",
+        clientVersion: "20.10.4",
+        withAuth: false,
+        userAgent:
+          "com.google.ios.youtube/20.10.4 (iPhone; CPU iPhone OS 17_4 like Mac OS X)",
+      },
+      {
+        clientName: "ANDROID",
+        clientVersion: "19.29.37",
+        withAuth: false,
+        userAgent:
+          "com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US)",
+      },
     ];
 
     for (const client of clients) {
       try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          "User-Agent": client.userAgent,
+        };
+
+        if (client.withAuth && cookieHeader) {
+          headers["Cookie"] = cookieHeader;
+          headers["Origin"] = "https://www.youtube.com";
+          headers["Referer"] = `https://www.youtube.com/watch?v=${videoId}`;
+          headers["X-Origin"] = "https://www.youtube.com";
+          if (authHeader) headers["Authorization"] = authHeader;
+        }
+
         const res = await fetch("https://www.youtube.com/youtubei/v1/player", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "User-Agent":
-              client.clientName === "IOS"
-                ? "com.google.ios.youtube/20.10.4 (iPhone; CPU iPhone OS 17_4 like Mac OS X)"
-                : "com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US)",
-          },
+          headers,
           body: JSON.stringify({
-            context: { client },
+            context: {
+              client: {
+                clientName: client.clientName,
+                clientVersion: client.clientVersion,
+                hl: "en",
+                gl: "US",
+              },
+            },
             videoId,
           }),
           signal: AbortSignal.timeout(10000),
