@@ -372,7 +372,7 @@ export default function HomePage() {
                   <Crown className="h-3.5 w-3.5 text-amber-400" />
                   <span className="font-semibold">Plano PRO Ativo</span>
                   <span className="text-amber-400/60">•</span>
-                  <span>Vídeos novos ilimitados de até 60 minutos</span>
+                  <span>Vídeos ilimitados de até 60 minutos</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1 text-zinc-300 shadow-sm">
@@ -389,9 +389,8 @@ export default function HomePage() {
                       return (
                         <div
                           key={idx}
-                          className={`h-1.5 w-3 rounded-full transition-all ${
-                            isFilled ? "bg-indigo-400" : "bg-zinc-700"
-                          }`}
+                          className={`h-1.5 w-3 rounded-full transition-all ${isFilled ? "bg-indigo-400" : "bg-zinc-700"
+                            }`}
                         />
                       );
                     })}
