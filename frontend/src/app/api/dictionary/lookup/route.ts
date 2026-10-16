@@ -7,7 +7,7 @@ const DICT_CACHE = new Map<string, any>();
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const rawWord = searchParams.get("word") || "";
-  const word = rawWord.trim().toLowerCase().replace(/[^a-zA-Z'-]/g, "");
+  const word = rawWord.trim().toLowerCase().replace(/[^\p{L}'-]/gu, "");
 
   if (!word) {
     return NextResponse.json(

@@ -76,6 +76,7 @@ export function validateAndExtractYouTubeId(inputUrl: string): string {
     } else if (
       parsed.pathname.startsWith("/embed/") ||
       parsed.pathname.startsWith("/shorts/") ||
+      parsed.pathname.startsWith("/live/") ||
       parsed.pathname.startsWith("/v/")
     ) {
       const parts = parsed.pathname.split("/").filter(Boolean);
