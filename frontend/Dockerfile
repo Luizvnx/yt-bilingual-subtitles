@@ -40,7 +40,9 @@ RUN apk add --no-cache \
     curl \
     ca-certificates && \
     python3 -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir yt-dlp
+    /opt/venv/bin/pip install --no-cache-dir yt-dlp youtube-transcript-api && \
+    ln -s /opt/venv/bin/youtube_transcript_api /usr/local/bin/youtube_transcript_api && \
+    ln -s /opt/venv/bin/yt-dlp /usr/local/bin/yt-dlp
 
 ENV PATH="/opt/venv/bin:$PATH"
 

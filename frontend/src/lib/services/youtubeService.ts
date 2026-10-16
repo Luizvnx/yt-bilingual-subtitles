@@ -368,10 +368,78 @@ export class YouTubeService {
 
     const tempPrefix = path.join(tempDir, `sub_${videoId}`);
     const ytdlpBase = `yt-dlp --no-cache-dir --no-warnings --force-ipv4 --extractor-args "youtube:player_client=android,ios,web"`;
-    onProgress?.(40, "Consultando eventos de legendas sincronizadas do YouTube...");
+    onProgress?.(35, "Consultando legendas e transcrição do YouTube...");
 
     try {
-      // 1. Tenta baixar em formato json3 (formato de eventos limpos sem repetição)
+      // 1. Provedor Primário: youtube_transcript_api (Direto, leve e imune a bloqueios de IP de datacenter)
+      try {
+        let stdout = "";
+        try {
+          const res = await execAsync(
+            `youtube_transcript_api "${videoId}" --format json`,
+            { timeout: 25000, maxBuffer: 10 * 1024 * 1024 }
+          );
+          stdout = res.stdout;
+        } catch {
+          const res = await execAsync(
+            `python3 -m youtube_transcript_api "${videoId}" --format json`,
+            { timeout: 25000, maxBuffer: 10 * 1024 * 1024 }
+          );
+          stdout = res.stdout;
+        }
+
+        if (stdout && stdout.trim().startsWith("[")) {
+          const rawItems = JSON.parse(stdout.trim());
+          if (Array.isArray(rawItems) && rawItems.length > 0) {
+            const rawSegments = rawItems
+              .map((item: any) => ({
+                start: Math.round(Number(item.start || 0) * 100) / 100,
+                end:
+                  Math.round(
+                    (Number(item.start || 0) + Number(item.duration || 2)) * 100
+                  ) / 100,
+                text_en: String(item.text || "")
+                  .replace(/\n/g, " ")
+                  .replace(/\s+/g, " ")
+                  .trim(),
+              }))
+              .filter((s: any) => s.text_en && s.text_en.length > 0);
+
+            if (rawSegments.length > 0) {
+              onProgress?.(
+                60,
+                `Identificadas ${rawSegments.length} falas sincronizadas. Agrupando frases naturais...`
+              );
+              const mergedSegments =
+                YouTubeService.mergeNaturalSentences(rawSegments);
+
+              onProgress?.(
+                75,
+                `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+              );
+              const englishTexts = mergedSegments.map((s) => s.text_en);
+              const portugueseTexts = await YouTubeService.translateBatch(
+                englishTexts,
+                "en",
+                "pt"
+              );
+
+              onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
+              return mergedSegments.map((seg, idx) => ({
+                ...seg,
+                text_pt: portugueseTexts[idx] || seg.text_en,
+              }));
+            }
+          }
+        }
+      } catch (err: any) {
+        console.warn(
+          "[YouTubeService] youtube_transcript_api indisponível, acionando fallback yt-dlp:",
+          err?.message
+        );
+      }
+
+      // 2. Provedor Secundário: Tenta baixar em formato json3 via yt-dlp
       try {
         await execAsync(
           `${ytdlpBase} --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format json3 -o "${tempPrefix}" "${canonicalUrl}"`,
