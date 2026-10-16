@@ -66,9 +66,11 @@ export class UserRepository extends BaseRepository<UserRecord> {
     const passwordHash = await CryptoService.hashPassword(rawPassword);
     const nowIso = new Date().toISOString();
 
+    const cleanName = name.replace(/<[^>]*>?/gm, "").trim() || "Usuário";
+
     const newUser: UserRecord = {
       id: `usr_${crypto.randomBytes(6).toString("hex")}`,
-      name: name.trim(),
+      name: cleanName,
       email: cleanEmail,
       passwordHash,
       avatar: avatar?.trim() || undefined,
