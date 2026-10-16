@@ -10,6 +10,8 @@ import {
   Lock,
 } from "lucide-react";
 
+import { speakInEnglish } from "@/lib/tts";
+
 interface WordPopoverProps {
   word: string;
   position: { x: number; y: number } | null;
@@ -33,15 +35,9 @@ export function WordPopover({
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
 
-  // Pronúncia imediata via Web Speech API nativa (0ms)
+  // Pronúncia imediata garantindo voz nativa em inglês
   const speakImmediate = (text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    }
+    speakInEnglish(text);
   };
 
   useEffect(() => {

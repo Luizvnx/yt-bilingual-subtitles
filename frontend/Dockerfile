@@ -44,9 +44,13 @@ RUN apk add --no-cache \
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Cria usuário não-root por segurança
+# Cria usuário não-root por segurança com home próprio
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 -h /home/nextjs nextjs && \
+    mkdir -p /home/nextjs/.cache && \
+    chown -R nextjs:nodejs /home/nextjs
+
+ENV HOME=/home/nextjs
 
 # Copia arquivos estáticos e standalone do build
 COPY --from=builder /app/public ./public
@@ -54,7 +58,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data && chmod 777 /app/data
 
 USER nextjs
 

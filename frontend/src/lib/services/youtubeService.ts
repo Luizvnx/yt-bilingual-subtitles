@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { validateAndExtractYouTubeId } from "../security";
 import { CloudWhisperService } from "./cloudWhisperService";
 
@@ -47,7 +48,7 @@ export class YouTubeService {
     // 1. Tenta extrair metadados via yt-dlp com cliente Android/Web (anti-bloqueio de datacenter)
     try {
       const { stdout } = await execAsync(
-        `yt-dlp --dump-json --skip-download --extractor-args "youtube:player_client=android,web" "${canonicalUrl}"`,
+        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 --dump-json --skip-download --extractor-args "youtube:player_client=android,ios,web" "${canonicalUrl}"`,
         { maxBuffer: 10 * 1024 * 1024, timeout: 15000 }
       );
       const data = JSON.parse(stdout);
@@ -358,27 +359,27 @@ export class YouTubeService {
     onProgress?: (progress: number, message: string) => void
   ): Promise<SubtitleItem[]> {
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const baseDataDir = fs.existsSync(path.join(process.cwd(), "data"))
-      ? path.join(process.cwd(), "data")
-      : fs.existsSync(path.join(process.cwd(), "..", "data"))
-      ? path.join(process.cwd(), "..", "data")
-      : path.join(process.cwd(), "data");
-    const tempDir = path.join(baseDataDir, "temp_subs");
+    const tempDir = path.join(os.tmpdir(), "yt_subs");
     if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
+      try {
+        fs.mkdirSync(tempDir, { recursive: true });
+      } catch {}
     }
 
     const tempPrefix = path.join(tempDir, `sub_${videoId}`);
+    const ytdlpBase = `yt-dlp --no-cache-dir --no-warnings --force-ipv4 --extractor-args "youtube:player_client=android,ios,web"`;
     onProgress?.(40, "Consultando eventos de legendas sincronizadas do YouTube...");
 
     try {
       // 1. Tenta baixar em formato json3 (formato de eventos limpos sem repetição)
       try {
         await execAsync(
-          `yt-dlp --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format json3 --extractor-args "youtube:player_client=android,web" -o "${tempPrefix}" "${canonicalUrl}"`,
-          { timeout: 30000 }
+          `${ytdlpBase} --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format json3 -o "${tempPrefix}" "${canonicalUrl}"`,
+          { timeout: 35000 }
         );
-      } catch {}
+      } catch (err: any) {
+        console.warn("[YouTubeService] Falha ao extrair json3:", err?.message);
+      }
 
       // Procura arquivos json3 gerados
       const files = fs.existsSync(tempDir) ? fs.readdirSync(tempDir) : [];
@@ -427,10 +428,12 @@ export class YouTubeService {
       onProgress?.(50, "Tentando formato alternativo de legendas...");
       try {
         await execAsync(
-          `yt-dlp --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format vtt --extractor-args "youtube:player_client=android,web" -o "${tempPrefix}" "${canonicalUrl}"`,
-          { timeout: 30000 }
+          `${ytdlpBase} --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format vtt -o "${tempPrefix}" "${canonicalUrl}"`,
+          { timeout: 35000 }
         );
-      } catch {}
+      } catch (err: any) {
+        console.warn("[YouTubeService] Falha ao extrair vtt:", err?.message);
+      }
 
       const filesVtt = fs.existsSync(tempDir) ? fs.readdirSync(tempDir) : [];
       const vttFiles = filesVtt.filter(

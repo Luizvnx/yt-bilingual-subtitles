@@ -92,7 +92,7 @@ export default function HomePage() {
       if (authErr) {
         if (authErr === "google_credentials_missing") {
           setAuthMessage(
-            "Para conectar sua conta real do Google com foto e nome, insira suas credenciais GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no arquivo .env.local da aplicação."
+            "Para conectar sua conta real do Google com foto e nome, insira suas credenciais GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no arquivo .env da sua VPS/aplicação."
           );
         } else {
           setAuthMessage(`Não foi possível autenticar com o Google: ${authErr}`);

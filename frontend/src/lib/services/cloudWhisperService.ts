@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { exec } from "child_process";
 import { promisify } from "util";
 
@@ -35,14 +36,11 @@ export class CloudWhisperService {
     }
 
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const baseDataDir = fs.existsSync(path.join(process.cwd(), "data"))
-      ? path.join(process.cwd(), "data")
-      : fs.existsSync(path.join(process.cwd(), "..", "data"))
-      ? path.join(process.cwd(), "..", "data")
-      : path.join(process.cwd(), "data");
-    const tempDir = path.join(baseDataDir, "temp_audio");
+    const tempDir = path.join(os.tmpdir(), "yt_audio");
     if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
+      try {
+        fs.mkdirSync(tempDir, { recursive: true });
+      } catch {}
     }
 
     const audioPath = path.join(tempDir, `audio_${videoId}.m4a`);
@@ -55,7 +53,7 @@ export class CloudWhisperService {
 
       // Baixa apenas o áudio compactado (bitrate leve 48k/64k) em 1 a 3 segundos
       await execAsync(
-        `yt-dlp -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,web" -o "${audioPath}" "${canonicalUrl}"`,
+        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,ios,web" -o "${audioPath}" "${canonicalUrl}"`,
         { timeout: 35000 }
       );
 

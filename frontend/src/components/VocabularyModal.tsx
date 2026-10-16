@@ -11,6 +11,7 @@ import {
   Download,
   Check,
 } from "lucide-react";
+import { speakInEnglish } from "@/lib/tts";
 
 interface VocabularyModalProps {
   isOpen: boolean;
@@ -44,12 +45,7 @@ export function VocabularyModal({
   if (!isOpen) return null;
 
   const playWord = (word: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(word);
-      u.lang = "en-US";
-      window.speechSynthesis.speak(u);
-    }
+    speakInEnglish(word);
   };
 
   const handleDelete = async (id: string) => {
