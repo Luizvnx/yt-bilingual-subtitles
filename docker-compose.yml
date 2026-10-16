@@ -45,11 +45,15 @@ services:
       NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    volumes:
+      - yt_app_data:/app/data
     networks:
       - yt_network
 
 volumes:
   yt_postgres_data:
+    driver: local
+  yt_app_data:
     driver: local
 
 networks:

@@ -19,26 +19,22 @@ export async function POST(request: NextRequest) {
 
     let event: any = null;
 
-    if (webhookSecret && stripeKey && signature) {
-      try {
-        const Stripe = (await import("stripe")).default;
-        const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" as any });
-        event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-      } catch (err: any) {
-        return NextResponse.json(
-          { error: `Webhook signature verification failed: ${err.message}` },
-          { status: 400 }
-        );
-      }
-    } else {
-      try {
-        event = JSON.parse(rawBody);
-      } catch {
-        return NextResponse.json(
-          { error: "Payload JSON inválido." },
-          { status: 400 }
-        );
-      }
+    if (!signature || !webhookSecret || !stripeKey) {
+      return NextResponse.json(
+        { error: "Assinatura do webhook ausente ou chaves não configuradas no servidor." },
+        { status: 401 }
+      );
+    }
+
+    try {
+      const Stripe = (await import("stripe")).default;
+      const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" as any });
+      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    } catch (err: any) {
+      return NextResponse.json(
+        { error: `Webhook signature verification failed: ${err.message}` },
+        { status: 400 }
+      );
     }
 
     const eventType = event.type || event.event;

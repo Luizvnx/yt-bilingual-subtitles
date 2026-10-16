@@ -305,7 +305,12 @@ export class YouTubeService {
     onProgress?: (progress: number, message: string) => void
   ): Promise<SubtitleItem[]> {
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const tempDir = path.join(process.cwd(), "..", "data", "temp_subs");
+    const baseDataDir = fs.existsSync(path.join(process.cwd(), "data"))
+      ? path.join(process.cwd(), "data")
+      : fs.existsSync(path.join(process.cwd(), "..", "data"))
+      ? path.join(process.cwd(), "..", "data")
+      : path.join(process.cwd(), "data");
+    const tempDir = path.join(baseDataDir, "temp_subs");
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }

@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       email = (profile.email || "").trim().toLowerCase();
       name = profile.name || profile.given_name || "Usuário Google";
       avatar = profile.picture || "";
-    } else if (isMock) {
+    } else if (isMock && process.env.NODE_ENV === "development") {
       email = "usuario.google@gmail.com";
       name = "Estudante Google";
     } else {

@@ -36,49 +36,10 @@ export async function GET(request: NextRequest) {
   );
 }
 
-/**
- * POST /api/auth/google
- * Autenticação via Google programática (chamada direta pelo modal)
- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json().catch(() => ({}));
-    const email = (body.email || "").trim().toLowerCase();
-    const name = (body.name || "").trim() || "Usuário Google";
-
-    const targetEmail =
-      email || `google.user.${crypto.randomBytes(3).toString("hex")}@gmail.com`;
-
-    let user = await userRepository.findByEmail(targetEmail);
-
-    if (!user) {
-      const randomPassword = crypto.randomBytes(16).toString("hex");
-      user = await userRepository.createUser(
-        name,
-        targetEmail,
-        randomPassword,
-        "user",
-        "free"
-      );
-    }
-
-    const token = await CryptoService.generateAuthToken(
-      user.id,
-      user.role,
-      user.tier
-    );
-
-    const response = NextResponse.json({
-      success: true,
-      message: "Autenticação via Google realizada com sucesso!",
-      user,
-    });
-
-    return setAuthCookieOnResponse(response, token);
-  } catch {
-    return NextResponse.json(
-      { error: "Erro na autenticação com o Google." },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: "Método não permitido. Utilize o fluxo OAuth2 padrão via GET." },
+    { status: 405 }
+  );
 }
+

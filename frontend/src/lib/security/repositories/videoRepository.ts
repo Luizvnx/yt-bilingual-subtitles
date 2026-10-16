@@ -76,8 +76,10 @@ export class VideoRepository extends BaseRepository<VideoRecord> {
     if (!target) return false;
 
     // Se o vídeo pertence a um usuário específico, valida permissão
-    if (target.userId && userId) {
-      BaseRepository.enforceTenantScope(target.userId, userId);
+    if (target.userId) {
+      if (!userId || target.userId !== userId) {
+        throw new Error("Permissão negada. Você só pode remover vídeos do seu próprio histórico.");
+      }
     }
 
     const filtered = videos.filter((v) => v.id !== id && v.videoId !== id);

@@ -11,6 +11,13 @@ import {
  * permitindo testar o comportamento visual, cotas e limites sem burocracia.
  */
 export async function POST(request: NextRequest) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Endpoint indisponível em ambiente de produção." },
+      { status: 404 }
+    );
+  }
+
   const token = await getAuthTokenFromCookies();
   if (!token) {
     return NextResponse.json(
