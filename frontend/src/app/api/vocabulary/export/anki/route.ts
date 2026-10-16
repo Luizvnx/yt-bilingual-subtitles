@@ -42,8 +42,10 @@ export async function GET() {
     const wasmFilename = `sql-${ext}.${ext}`;
 
     const candidates = [
-      path.join(process.cwd(), "frontend", "node_modules", "sql.js", "dist", wasmFilename),
+      path.join(process.cwd(), "public", wasmFilename),
+      path.join(process.cwd(), "frontend", "public", wasmFilename),
       path.join(process.cwd(), "node_modules", "sql.js", "dist", wasmFilename),
+      path.join(process.cwd(), "frontend", "node_modules", "sql.js", "dist", wasmFilename),
     ];
 
     const validPath = candidates.find((p) => fs.existsSync(p));

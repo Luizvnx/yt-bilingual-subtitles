@@ -5,11 +5,12 @@ import {
   CryptoService,
   setAuthCookieOnResponse,
   checkRateLimit,
+  getClientIp,
 } from "@/lib/security";
 
 export async function POST(request: NextRequest) {
   // Rate limiting: máx 5 cadastros por minuto por IP
-  const ip = request.headers.get("x-forwarded-for") || "unknown-ip";
+  const ip = getClientIp(request);
   const { allowed, retryAfter } = checkRateLimit(`register:${ip}`, 5, 60);
   if (!allowed) {
     return NextResponse.json(
@@ -21,8 +22,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let body: any;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Corpo da requisição JSON inválido ou vazio." },
+      { status: 400 }
+    );
+  }
+
+  try {
     const validated = UserRegisterSchema.parse(body);
 
     const user = await userRepository.createUser(

@@ -5,11 +5,12 @@ import {
   CryptoService,
   setAuthCookieOnResponse,
   checkRateLimit,
+  getClientIp,
 } from "@/lib/security";
 
 export async function POST(request: NextRequest) {
   // Rate limiting anti-força bruta: máx 5 tentativas por minuto por IP
-  const ip = request.headers.get("x-forwarded-for") || "unknown-ip";
+  const ip = getClientIp(request);
   const { allowed, retryAfter } = checkRateLimit(`login:${ip}`, 5, 60);
   if (!allowed) {
     return NextResponse.json(
@@ -21,8 +22,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let body: any;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Corpo da requisição JSON inválido ou vazio." },
+      { status: 400 }
+    );
+  }
+
+  try {
     const validated = UserLoginSchema.parse(body);
 
     const user = await userRepository.verifyCredentials(

@@ -1,34 +1,49 @@
-echo "__pycache__/
+# Python
+__pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-*.so
-.env
+*$py.class
 .venv/
 venv/
 ENV/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs
 *.log
-*.sqlite3
-teste.py
-instance/
-*.db
-.vscode/
-.idea/
-*.swp
-*.swo
-*.egg
-*.egg-info/
-dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node / Next.js
+node_modules/
+.next/
+out/
 build/
-.eggs/
-*.manifest
-*.spec
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Temporary media & subtitles downloads
 downloads/
 media/
-subtitles/
+data/temp_subs/
+data/temp_audio/
 *.part
 *.temp
 *.webm
 *.mp4
 *.mp3
-/docker-data/" > .gitignore
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-data/

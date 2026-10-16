@@ -56,3 +56,22 @@ export function checkRateLimit(
 ): { allowed: boolean; retryAfter: number } {
   return rateLimiter.isAllowed(key, limit, periodSeconds);
 }
+
+export function getClientIp(request: { headers: { get: (name: string) => string | null } }): string {
+  const xForwardedFor = request.headers.get("x-forwarded-for");
+  if (xForwardedFor) {
+    const parts = xForwardedFor.split(",").map((p) => p.trim()).filter(Boolean);
+    if (parts.length > 0) {
+      const candidate = parts[0];
+      if (/^[a-fA-F0-9:.]+$/.test(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp && /^[a-fA-F0-9:.]+$/.test(realIp.trim())) {
+    return realIp.trim();
+  }
+  return "127.0.0.1";
+}
+
