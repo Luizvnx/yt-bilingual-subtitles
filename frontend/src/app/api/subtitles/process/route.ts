@@ -46,7 +46,12 @@ export async function POST(request: NextRequest) {
 
     // 1. Verifica se o vídeo já foi processado anteriormente (Cache Instantâneo)
     const existing = videoRepository.getById(videoId);
-    if (existing && existing.segments && existing.segments.length > 0) {
+    if (
+      existing &&
+      existing.title !== "Vídeo do YouTube" &&
+      existing.segments &&
+      existing.segments.length > 1
+    ) {
       const checkable = existing.segments.filter(
         (s) => s.text_en && s.text_en.trim().length > 6
       );
@@ -56,8 +61,7 @@ export async function POST(request: NextRequest) {
           s.text_pt.trim().toLowerCase() !== s.text_en.trim().toLowerCase()
       ).length;
       const isActuallyTranslated =
-        checkable.length === 0 ||
-        (translatedCount / checkable.length) >= 0.85;
+        checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
       if (isActuallyTranslated) {
         return NextResponse.json({

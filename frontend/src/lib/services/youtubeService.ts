@@ -37,33 +37,86 @@ export class YouTubeService {
   static async getMetadata(urlOrId: string): Promise<YouTubeMetadata> {
     const videoId = validateAndExtractYouTubeId(urlOrId);
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const defaultThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
+    let title = "Vídeo do YouTube";
+    let uploader = "Canal do YouTube";
+    let duration = 0;
+    let thumbnail = defaultThumbnail;
+
+    // 1. Tenta extrair metadados via yt-dlp com cliente Android/Web (anti-bloqueio de datacenter)
     try {
       const { stdout } = await execAsync(
-        `yt-dlp --dump-json --skip-download "${canonicalUrl}"`,
+        `yt-dlp --dump-json --skip-download --extractor-args "youtube:player_client=android,web" "${canonicalUrl}"`,
         { maxBuffer: 10 * 1024 * 1024, timeout: 15000 }
       );
       const data = JSON.parse(stdout);
-      return {
-        videoId,
-        title: data.title || "Vídeo do YouTube",
-        uploader: data.uploader || data.channel || "",
-        duration: Math.round(data.duration || 0),
-        thumbnail:
-          data.thumbnail ||
-          `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-        url: canonicalUrl,
-      };
+      if (data.title) title = data.title;
+      if (data.uploader || data.channel) uploader = data.uploader || data.channel;
+      if (data.duration) duration = Math.round(data.duration);
+      if (data.thumbnail) thumbnail = data.thumbnail;
+
+      return { videoId, title, uploader, duration, thumbnail, url: canonicalUrl };
     } catch {
-      return {
-        videoId,
-        title: "Vídeo do YouTube",
-        uploader: "Canal do YouTube",
-        duration: 0,
-        thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-        url: canonicalUrl,
-      };
+      // Segue para os fallbacks resilientes
     }
+
+    // 2. Fallback oficial: YouTube Data API v3 (se YOUTUBE_API_KEY estiver configurada)
+    const ytApiKey = process.env.YOUTUBE_API_KEY;
+    if (ytApiKey) {
+      try {
+        const ytRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${ytApiKey}`,
+          { signal: AbortSignal.timeout(4500) }
+        );
+        if (ytRes.ok) {
+          const ytData = await ytRes.json();
+          if (ytData.items && ytData.items.length > 0) {
+            const item = ytData.items[0];
+            title = item.snippet?.title || title;
+            uploader = item.snippet?.channelTitle || uploader;
+            thumbnail =
+              item.snippet?.thumbnails?.high?.url ||
+              item.snippet?.thumbnails?.default?.url ||
+              thumbnail;
+
+            const iso = item.contentDetails?.duration || "";
+            const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            if (match) {
+              const h = parseInt(match[1] || "0", 10);
+              const m = parseInt(match[2] || "0", 10);
+              const s = parseInt(match[3] || "0", 10);
+              duration = h * 3600 + m * 60 + s;
+            }
+
+            return { videoId, title, uploader, duration, thumbnail, url: canonicalUrl };
+          }
+        }
+      } catch {}
+    }
+
+    // 3. Fallback universal instantâneo: YouTube oEmbed (sempre funciona, sem API key, 0 bloqueios)
+    try {
+      const oembedRes = await fetch(
+        `https://www.youtube.com/oembed?url=${encodeURIComponent(canonicalUrl)}&format=json`,
+        { signal: AbortSignal.timeout(4500) }
+      );
+      if (oembedRes.ok) {
+        const oembedData = await oembedRes.json();
+        title = oembedData.title || title;
+        uploader = oembedData.author_name || uploader;
+        thumbnail = oembedData.thumbnail_url || thumbnail;
+      }
+    } catch {}
+
+    return {
+      videoId,
+      title,
+      uploader,
+      duration,
+      thumbnail,
+      url: canonicalUrl,
+    };
   }
 
   /**
@@ -320,23 +373,30 @@ export class YouTubeService {
 
     try {
       // 1. Tenta baixar em formato json3 (formato de eventos limpos sem repetição)
-      await execAsync(
-        `yt-dlp --write-auto-sub --write-sub --sub-lang en --skip-download --sub-format json3 -o "${tempPrefix}" "${canonicalUrl}"`,
-        { timeout: 25000 }
-      );
+      try {
+        await execAsync(
+          `yt-dlp --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format json3 --extractor-args "youtube:player_client=android,web" -o "${tempPrefix}" "${canonicalUrl}"`,
+          { timeout: 30000 }
+        );
+      } catch {}
 
-      // Procura arquivo json3
-      const files = fs.readdirSync(tempDir);
-      const json3Match = files.find(
+      // Procura arquivos json3 gerados
+      const files = fs.existsSync(tempDir) ? fs.readdirSync(tempDir) : [];
+      const json3Files = files.filter(
         (f) => f.startsWith(`sub_${videoId}`) && f.endsWith(".json3")
       );
 
-      if (json3Match) {
-        const json3Path = path.join(tempDir, json3Match);
+      if (json3Files.length > 0) {
+        json3Files.sort((a, b) => {
+          const sA = fs.statSync(path.join(tempDir, a)).size;
+          const sB = fs.statSync(path.join(tempDir, b)).size;
+          return sB - sA;
+        });
+        const json3Path = path.join(tempDir, json3Files[0]);
         const jsonContent = fs.readFileSync(json3Path, "utf-8");
-        try {
-          fs.unlinkSync(json3Path);
-        } catch {}
+        json3Files.forEach((f) => {
+          try { fs.unlinkSync(path.join(tempDir, f)); } catch {}
+        });
 
         const parsedJson = JSON.parse(jsonContent);
         const rawSegments = YouTubeService.parseJson3Content(parsedJson);
@@ -365,22 +425,29 @@ export class YouTubeService {
 
       // 2. Fallback para VTT caso json3 não esteja disponível
       onProgress?.(50, "Tentando formato alternativo de legendas...");
-      await execAsync(
-        `yt-dlp --write-auto-sub --write-sub --sub-lang en --skip-download --sub-format vtt -o "${tempPrefix}" "${canonicalUrl}"`,
-        { timeout: 25000 }
-      );
+      try {
+        await execAsync(
+          `yt-dlp --write-auto-sub --write-sub --sub-lang "en.*,en,en-orig,en-US" --skip-download --sub-format vtt --extractor-args "youtube:player_client=android,web" -o "${tempPrefix}" "${canonicalUrl}"`,
+          { timeout: 30000 }
+        );
+      } catch {}
 
-      const filesVtt = fs.readdirSync(tempDir);
-      const vttMatch = filesVtt.find(
+      const filesVtt = fs.existsSync(tempDir) ? fs.readdirSync(tempDir) : [];
+      const vttFiles = filesVtt.filter(
         (f) => f.startsWith(`sub_${videoId}`) && f.endsWith(".vtt")
       );
 
-      if (vttMatch) {
-        const vttPath = path.join(tempDir, vttMatch);
+      if (vttFiles.length > 0) {
+        vttFiles.sort((a, b) => {
+          const sA = fs.statSync(path.join(tempDir, a)).size;
+          const sB = fs.statSync(path.join(tempDir, b)).size;
+          return sB - sA;
+        });
+        const vttPath = path.join(tempDir, vttFiles[0]);
         const vttContent = fs.readFileSync(vttPath, "utf-8");
-        try {
-          fs.unlinkSync(vttPath);
-        } catch {}
+        vttFiles.forEach((f) => {
+          try { fs.unlinkSync(path.join(tempDir, f)); } catch {}
+        });
 
         const rawSegments = YouTubeService.parseVttContent(vttContent);
         if (rawSegments.length > 0) {
