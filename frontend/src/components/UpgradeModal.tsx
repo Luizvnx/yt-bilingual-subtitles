@@ -244,7 +244,7 @@ export function UpgradeModal({
                 Exportação Oficial para o Anki:
               </span>{" "}
               <span className="text-zinc-400">
-                Baixe pacotes `.apkg` ilimitados para revisão espaçada offline.
+                Baixe pacotes .apkg ilimitados para revisão espaçada offline.
               </span>
             </div>
           </div>
