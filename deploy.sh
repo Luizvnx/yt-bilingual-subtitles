@@ -7,9 +7,10 @@ set -e
 
 echo "🚀 Iniciando Deploy do YT Bilingual Subtitles..."
 
-# 1. Puxa as alterações mais recentes do GitHub
-echo "📥 Atualizando código com 'git pull'..."
-git pull origin main
+# 1. Puxa as alterações mais recentes do GitHub (sincronização garantida sem travas)
+echo "📥 Atualizando código com 'git fetch' e 'git reset'..."
+git fetch origin main
+git reset --hard origin/main
 
 # 2. Se o .env não existir na VPS, copia o .env.example
 if [ ! -f .env ]; then

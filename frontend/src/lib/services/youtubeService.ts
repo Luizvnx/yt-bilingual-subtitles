@@ -352,7 +352,103 @@ export class YouTubeService {
   }
 
   /**
-   * Extrai e formata legendas do YouTube em segundos, utilizando o formato json3 limpo.
+   * Provedor Nativo Ultra-Rápido: YouTube InnerTube Player API (iOS / Android)
+   * 100% JavaScript (fetch), 0 subprocessos, sem dependência de Python ou yt-dlp.
+   * Funciona diretamente no container Docker e em servidores de produção.
+   */
+  static async fetchInnerTubeSubtitles(
+    videoId: string
+  ): Promise<Omit<SubtitleItem, "text_pt">[]> {
+    const clients = [
+      { clientName: "IOS", clientVersion: "20.10.4", hl: "en", gl: "US" },
+      { clientName: "ANDROID", clientVersion: "19.29.37", androidSdkVersion: 30, hl: "en", gl: "US" },
+    ];
+
+    for (const client of clients) {
+      try {
+        const res = await fetch("https://www.youtube.com/youtubei/v1/player", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent":
+              client.clientName === "IOS"
+                ? "com.google.ios.youtube/20.10.4 (iPhone; CPU iPhone OS 17_4 like Mac OS X)"
+                : "com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US)",
+          },
+          body: JSON.stringify({
+            context: { client },
+            videoId,
+          }),
+          signal: AbortSignal.timeout(10000),
+        });
+
+        if (!res.ok) continue;
+
+        const data = await res.json();
+        const captionTracks =
+          data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+
+        if (Array.isArray(captionTracks) && captionTracks.length > 0) {
+          // Seleciona a melhor trilha (preferência: inglês manual > inglês auto > qualquer trilha)
+          const selectedTrack =
+            captionTracks.find(
+              (t: any) => t.languageCode?.startsWith("en") && !t.kind
+            ) ||
+            captionTracks.find((t: any) => t.languageCode?.startsWith("en")) ||
+            captionTracks.find((t: any) => t.languageCode?.startsWith("pt")) ||
+            captionTracks[0];
+
+          if (selectedTrack?.baseUrl) {
+            // Tenta formato json3 primeiro
+            const jsonUrl = selectedTrack.baseUrl.includes("&fmt=")
+              ? selectedTrack.baseUrl
+              : `${selectedTrack.baseUrl}&fmt=json3`;
+
+            try {
+              const subRes = await fetch(jsonUrl, {
+                headers: { "User-Agent": "Mozilla/5.0" },
+                signal: AbortSignal.timeout(12000),
+              });
+
+              if (subRes.ok) {
+                const text = await subRes.text();
+                if (text.trim().startsWith("{")) {
+                  const subJson = JSON.parse(text);
+                  const parsed = YouTubeService.parseJson3Content(subJson);
+                  if (parsed.length > 0) return parsed;
+                } else if (text.includes("<transcript>") || text.includes("<text")) {
+                  const parsed = YouTubeService.parseTimedTextXml(text);
+                  if (parsed.length > 0) return parsed;
+                }
+              }
+            } catch (err: any) {
+              console.warn("[YouTubeService] Falha ao baixar json3 da trilha:", err?.message);
+            }
+
+            // Fallback para baixar XML da URL original
+            try {
+              const xmlRes = await fetch(selectedTrack.baseUrl, {
+                headers: { "User-Agent": "Mozilla/5.0" },
+                signal: AbortSignal.timeout(12000),
+              });
+              if (xmlRes.ok) {
+                const xmlText = await xmlRes.text();
+                const parsed = YouTubeService.parseTimedTextXml(xmlText);
+                if (parsed.length > 0) return parsed;
+              }
+            } catch {}
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[YouTubeService] Erro no client ${client.clientName}:`, err?.message);
+      }
+    }
+
+    return [];
+  }
+
+  /**
+   * Extrai e formata legendas do YouTube em segundos com cadeia multi-camadas resiliente.
    */
   static async extractSubtitles(
     videoId: string,
@@ -371,27 +467,67 @@ export class YouTubeService {
     onProgress?.(35, "Consultando legendas e transcrição do YouTube...");
 
     try {
-      // 1. Provedor Primário: youtube_transcript_api (Direto, leve e imune a bloqueios de IP de datacenter)
+      // 1. Provedor Primário: YouTube InnerTube Player API (iOS / Android Client)
+      // 100% Nativo em Node.js (fetch), sem subprocessos, sem Python, 0 dependências de sistema, ultra-rápido (< 500ms)
+      try {
+        const innertubeSegments = await YouTubeService.fetchInnerTubeSubtitles(videoId);
+        if (innertubeSegments.length > 0) {
+          onProgress?.(
+            60,
+            `Identificadas ${innertubeSegments.length} falas nativas do YouTube. Agrupando frases naturais...`
+          );
+          const mergedSegments = YouTubeService.mergeNaturalSentences(innertubeSegments);
+          onProgress?.(
+            75,
+            `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+          );
+          const englishTexts = mergedSegments.map((s) => s.text_en);
+          const portugueseTexts = await YouTubeService.translateBatch(
+            englishTexts,
+            "en",
+            "pt"
+          );
+
+          onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
+          return mergedSegments.map((seg, idx) => ({
+            ...seg,
+            text_pt: portugueseTexts[idx] || seg.text_en,
+          }));
+        }
+      } catch (err: any) {
+        console.warn("[YouTubeService] InnerTube API falhou, tentando CLI:", err?.message);
+      }
+
+      // 2. Provedor Secundário: youtube_transcript_api (CLI Python com caminhos absolutos e array flattening)
       try {
         let stdout = "";
-        try {
-          const res = await execAsync(
-            `youtube_transcript_api "${videoId}" --format json`,
-            { timeout: 25000, maxBuffer: 10 * 1024 * 1024 }
-          );
-          stdout = res.stdout;
-        } catch {
-          const res = await execAsync(
-            `python3 -m youtube_transcript_api "${videoId}" --format json`,
-            { timeout: 25000, maxBuffer: 10 * 1024 * 1024 }
-          );
-          stdout = res.stdout;
+        const commands = [
+          `/opt/venv/bin/youtube_transcript_api "${videoId}" --format json`,
+          `youtube_transcript_api "${videoId}" --format json`,
+          `/opt/venv/bin/python3 -m youtube_transcript_api "${videoId}" --format json`,
+          `python3 -m youtube_transcript_api "${videoId}" --format json`,
+          `python -m youtube_transcript_api "${videoId}" --format json`,
+        ];
+
+        for (const cmd of commands) {
+          try {
+            const res = await execAsync(cmd, {
+              timeout: 25000,
+              maxBuffer: 10 * 1024 * 1024,
+            });
+            if (res.stdout && res.stdout.trim().startsWith("[")) {
+              stdout = res.stdout;
+              break;
+            }
+          } catch {}
         }
 
         if (stdout && stdout.trim().startsWith("[")) {
           const rawItems = JSON.parse(stdout.trim());
           if (Array.isArray(rawItems) && rawItems.length > 0) {
-            const rawSegments = rawItems
+            // FIX CRÍTICO: youtube_transcript_api retorna array bidimensional [[{text, start, duration}]]
+            const flatItems: any[] = Array.isArray(rawItems[0]) ? rawItems[0] : rawItems;
+            const rawSegments = flatItems
               .map((item: any) => ({
                 start: Math.round(Number(item.start || 0) * 100) / 100,
                 end:
@@ -612,6 +748,37 @@ export class YouTubeService {
       });
     }
 
+    return segments;
+  }
+
+  /**
+   * Parser universal e resiliente de XML TimedText do YouTube.
+   */
+  static parseTimedTextXml(xml: string): Omit<SubtitleItem, "text_pt">[] {
+    const segments: Omit<SubtitleItem, "text_pt">[] = [];
+    const regex = /<text\s+start="([\d.]+)"(?:\s+dur="([\d.]+)")?[^>]*>([\s\S]*?)<\/text>/gi;
+    let match;
+    while ((match = regex.exec(xml)) !== null) {
+      const start = parseFloat(match[1]);
+      const duration = match[2] ? parseFloat(match[2]) : 3;
+      let text = match[3]
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/<[^>]+>/g, "")
+        .replace(/\n/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text) {
+        segments.push({
+          start: Math.round(start * 100) / 100,
+          end: Math.round((start + duration) * 100) / 100,
+          text_en: text,
+        });
+      }
+    }
     return segments;
   }
 
