@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "YT Bilingual Subtitles | Estudo de Idiomas com YouTube",
   description:
     "Plataforma de estudos para aprendizado interativo de inglês com vídeos do YouTube, legendas bilíngues sincronizadas, dicionário instantâneo e repetição de pronúncia.",
+  referrer: "strict-origin-when-cross-origin",
 };
 
 export default function RootLayout({

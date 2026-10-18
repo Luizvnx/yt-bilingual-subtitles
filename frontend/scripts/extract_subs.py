@@ -90,14 +90,34 @@ def main():
         auto = info.get('automatic_captions') or {}
         
         track_url = None
-        for lang in ['en', 'en-US', 'en-GB', 'en-orig', 'pt', 'pt-BR']:
-            for s in (subs.get(lang) or auto.get(lang) or []):
-                if s.get('ext') == 'json3':
-                    track_url = s.get('url')
-                    break
+        # 1. Prioriza faixas em inglês (qualquer variante: en, en-US, en-nP7-..., etc.)
+        for src in [subs, auto]:
+            for k, items in src.items():
+                if k.lower().startswith(('en-', 'en_', 'en')):
+                    for s in (items or []):
+                        if s.get('ext') == 'json3':
+                            track_url = s.get('url')
+                            break
+                    if track_url:
+                        break
             if track_url:
                 break
-                
+
+        # 2. Se não houver inglês, tenta português
+        if not track_url:
+            for src in [subs, auto]:
+                for k, items in src.items():
+                    if k.lower().startswith(('pt-', 'pt_', 'pt')):
+                        for s in (items or []):
+                            if s.get('ext') == 'json3':
+                                track_url = s.get('url')
+                                break
+                        if track_url:
+                            break
+                if track_url:
+                    break
+
+        # 3. Fallback genérico para qualquer outra faixa json3
         if not track_url:
             for lang, items in {**subs, **auto}.items():
                 for s in (items or []):
