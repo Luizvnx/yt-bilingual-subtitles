@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
     "Permissions-Policy",
-    "microphone=(self), camera=(), geolocation=()"
+    "microphone=*, camera=(), geolocation=()"
   );
 
   // 2. Content-Security-Policy (CSP) otimizado para o YouTube IFrame Player

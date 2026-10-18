@@ -14,6 +14,9 @@ import {
   Mic,
   Square,
   X,
+  Loader2,
+  ShieldAlert,
+  AlertCircle,
 } from "lucide-react";
 
 interface SubtitleStudioProps {
@@ -38,6 +41,7 @@ export function SubtitleStudio({
   // Estados para Shadowing e Gravação de Voz (Fase 4.5)
   const [activeShadowingIndex, setActiveShadowingIndex] = useState<number | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [isRequestingMic, setIsRequestingMic] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordedAudios, setRecordedAudios] = useState<{ [index: number]: string }>({});
   const [isPlayingUserAudio, setIsPlayingUserAudio] = useState<number | null>(null);
@@ -97,15 +101,59 @@ export function SubtitleStudio({
   // Inicia gravação de voz para treino de Shadowing
   const startRecording = async (index: number) => {
     setMicError("");
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Seu navegador não suporta gravação de áudio nativa.");
-      }
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // 1. Verificação de Contexto Seguro (HTTPS / Localhost)
+    const isLocal =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+
+    const isInsecure =
+      typeof window !== "undefined" && !window.isSecureContext && !isLocal;
+
+    if (isInsecure) {
+      setMicError("INSECURE_CONTEXT");
+      return;
+    }
+
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
+      setMicError(
+        "Seu navegador não possui suporte nativo para captura de áudio."
+      );
+      return;
+    }
+
+    try {
+      setIsRequestingMic(true);
+
+      // Dispara solicitação nativa de microfone ao navegador
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+
+      setIsRequestingMic(false);
       audioChunksRef.current = [];
 
-      const recorder = new MediaRecorder(stream);
+      const mimeType =
+        typeof MediaRecorder !== "undefined" &&
+        MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : typeof MediaRecorder !== "undefined" &&
+            MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : "";
+
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
 
       recorder.ondataavailable = (event) => {
@@ -121,11 +169,12 @@ export function SubtitleStudio({
         const audioUrl = URL.createObjectURL(audioBlob);
         setRecordedAudios((prev) => ({ ...prev, [index]: audioUrl }));
         setIsRecording(false);
+        setIsRequestingMic(false);
         setRecordingSeconds(0);
         stream.getTracks().forEach((track) => track.stop());
       };
 
-      recorder.start();
+      recorder.start(250);
       setIsRecording(true);
       setRecordingSeconds(0);
 
@@ -133,16 +182,43 @@ export function SubtitleStudio({
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     } catch (err: any) {
-      console.error("Erro ao acessar microfone:", err);
-      setMicError(
-        "Permissão de microfone negada. Conceda permissão no navegador para treinar sua pronúncia."
-      );
+      console.warn("Erro ao obter acesso ao microfone:", err);
+      setIsRequestingMic(false);
       setIsRecording(false);
+
+      if (
+        err.name === "NotAllowedError" ||
+        err.name === "PermissionDeniedError"
+      ) {
+        setMicError(
+          "Permissão de microfone negada. Clique no ícone de opções/cadeado à esquerda da barra de endereços (URL) para permitir o microfone nesta página."
+        );
+      } else if (
+        err.name === "NotFoundError" ||
+        err.name === "DevicesNotFoundError"
+      ) {
+        setMicError(
+          "Nenhum microfone encontrado. Conecte um microfone ou fone de ouvido para treinar sua pronúncia."
+        );
+      } else if (
+        err.name === "NotReadableError" ||
+        err.name === "TrackStartError"
+      ) {
+        setMicError(
+          "O microfone está em uso por outro aplicativo ou aba (Meet, Discord, Zoom). Feche-os e tente novamente."
+        );
+      } else {
+        setMicError(
+          err.message ||
+            "Não foi possível acessar o microfone. Verifique as permissões do seu navegador."
+        );
+      }
     }
   };
 
   // Para a gravação atual
   const stopRecording = () => {
+    setIsRequestingMic(false);
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -399,9 +475,42 @@ export function SubtitleStudio({
                       </button>
                     </div>
 
-                    {micError && (
-                      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-2 text-[11px] text-red-300">
-                        {micError}
+                    {/* Aviso de Contexto Inseguro (HTTP sem SSL) */}
+                    {micError === "INSECURE_CONTEXT" ? (
+                      <div className="rounded-xl border border-amber-500/30 bg-amber-950/40 p-3 space-y-2 text-xs">
+                        <div className="flex items-center gap-2 text-amber-300 font-semibold">
+                          <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" />
+                          <span>Navegador bloqueou o microfone em conexão HTTP</span>
+                        </div>
+                        <p className="text-[11px] text-zinc-300 leading-relaxed">
+                          Por segurança, navegadores modernos (Chrome, Edge e Safari) não exibem a janela de permissão do microfone em endereços IP sem certificado SSL (HTTPS).
+                        </p>
+                        <div className="rounded-lg bg-black/60 p-2.5 text-[10px] text-zinc-300 space-y-1 font-mono">
+                          <p className="text-amber-400 font-sans font-semibold">💡 Como liberar no Chrome agora para testar nesta VPS:</p>
+                          <p>1. Abra uma nova aba e acesse: <span className="text-white select-all">chrome://flags/#unsafely-treat-insecure-origin-as-secure</span></p>
+                          <p>2. No campo de texto, adicione: <span className="text-emerald-400 font-bold select-all">{typeof window !== "undefined" ? window.location.origin : "http://137.131.164.202"}</span></p>
+                          <p>3. Altere o seletor para <strong className="text-white">Enabled</strong> e clique em <strong className="text-white">Relaunch</strong>.</p>
+                        </div>
+                      </div>
+                    ) : micError ? (
+                      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-2.5 text-[11px] text-red-300 flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+                        <span className="leading-normal">{micError}</span>
+                      </div>
+                    ) : null}
+
+                    {/* Banner de Aguardando Permissão no Navegador */}
+                    {isRequestingMic && (
+                      <div className="flex items-center gap-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-amber-200 animate-pulse">
+                        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" />
+                        <div>
+                          <p className="font-semibold text-xs text-amber-300">
+                            Aguardando autorização no navegador...
+                          </p>
+                          <p className="text-[11px] text-amber-200/80 leading-tight mt-0.5">
+                            Clique em <strong>&quot;Permitir&quot;</strong> na janela que o navegador abriu no topo para liberar o microfone.
+                          </p>
+                        </div>
                       </div>
                     )}
 
@@ -463,11 +572,16 @@ export function SubtitleStudio({
                           {/* Botão Regravar */}
                           <button
                             type="button"
+                            disabled={isRequestingMic}
                             onClick={() => startRecording(idx)}
-                            className="flex items-center gap-1.5 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-700/60 px-2.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors ml-auto"
+                            className="flex items-center gap-1.5 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-700/60 px-2.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors ml-auto disabled:opacity-50"
                             title="Gravar novamente"
                           >
-                            <RotateCcw className="h-3 w-3" />
+                            {isRequestingMic ? (
+                              <Loader2 className="h-3 w-3 animate-spin text-indigo-400" />
+                            ) : (
+                              <RotateCcw className="h-3 w-3" />
+                            )}
                             <span>Regravar</span>
                           </button>
                         </div>
@@ -483,14 +597,25 @@ export function SubtitleStudio({
                           Ouça o nativo no vídeo e repita para calibrar sua fala.
                         </p>
 
-                        <button
-                          type="button"
-                          onClick={() => startRecording(idx)}
-                          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110 active:scale-95 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 transition-all"
-                        >
-                          <span className="h-2 w-2 rounded-full bg-red-400" />
-                          <span>Gravar Pronúncia</span>
-                        </button>
+                        {isRequestingMic ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="flex items-center gap-2 rounded-lg bg-indigo-700/60 px-3 py-1.5 text-xs font-semibold text-indigo-200 cursor-wait opacity-80"
+                          >
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <span>Aguardando você permitir...</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => startRecording(idx)}
+                            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110 active:scale-95 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 transition-all"
+                          >
+                            <span className="h-2 w-2 rounded-full bg-red-400" />
+                            <span>Gravar Pronúncia</span>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

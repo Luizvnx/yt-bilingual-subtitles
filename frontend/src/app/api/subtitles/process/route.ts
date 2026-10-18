@@ -104,19 +104,32 @@ export async function POST(request: NextRequest) {
     // Se o vídeo não possui legendas no YouTube, gera segmento inicial com metadados
     if (!segments.length) {
       console.warn(`[ProcessRoute] Nenhuma legenda extraída para ${videoId}. Gerando segmento de fallback com metadados.`);
-      const ptTitle = (
-        await YouTubeService.translateBatch([metadata.title], "en", "pt")
-      )[0] || metadata.title;
+      const isPtTitle = YouTubeService.detectLanguage(metadata.title) === "pt";
+      let enTitle = metadata.title;
+      let ptTitle = metadata.title;
+
+      if (isPtTitle) {
+        enTitle =
+          (await YouTubeService.translateBatch([metadata.title], "pt", "en"))[0] ||
+          metadata.title;
+      } else {
+        ptTitle =
+          (await YouTubeService.translateBatch([metadata.title], "en", "pt"))[0] ||
+          metadata.title;
+      }
 
       segments = [
         {
           start: 0,
           end: Math.max(5, Math.min(metadata.duration, 15)),
-          text_en: metadata.title,
+          text_en: enTitle,
           text_pt: ptTitle,
         },
       ];
+      (segments as any).detectedLang = isPtTitle ? "pt" : "en";
     }
+
+    const detectedLang = (segments as any).detectedLang || "en";
 
     // 4. Salva no repositório de vídeos
     const savedRecord = videoRepository.saveVideo({
@@ -127,7 +140,7 @@ export async function POST(request: NextRequest) {
       duration: metadata.duration,
       thumbnail: metadata.thumbnail,
       url: metadata.url,
-      detectedLang: "en",
+      detectedLang,
       segmentsCount: segments.length,
       segments,
       userId,

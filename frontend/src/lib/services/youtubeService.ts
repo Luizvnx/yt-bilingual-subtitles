@@ -507,10 +507,16 @@ export class YouTubeService {
                 if (text.trim().startsWith("{")) {
                   const subJson = JSON.parse(text);
                   const parsed = YouTubeService.parseJson3Content(subJson);
-                  if (parsed.length > 0) return parsed;
+                  if (parsed.length > 0) {
+                    (parsed as any).track_lang = selectedTrack.languageCode || "en";
+                    return parsed;
+                  }
                 } else if (text.includes("<transcript>") || text.includes("<text")) {
                   const parsed = YouTubeService.parseTimedTextXml(text);
-                  if (parsed.length > 0) return parsed;
+                  if (parsed.length > 0) {
+                    (parsed as any).track_lang = selectedTrack.languageCode || "en";
+                    return parsed;
+                  }
                 }
               }
             } catch (err: any) {
@@ -526,7 +532,10 @@ export class YouTubeService {
               if (xmlRes.ok) {
                 const xmlText = await xmlRes.text();
                 const parsed = YouTubeService.parseTimedTextXml(xmlText);
-                if (parsed.length > 0) return parsed;
+                if (parsed.length > 0) {
+                  (parsed as any).track_lang = selectedTrack.languageCode || "en";
+                  return parsed;
+                }
               }
             } catch {}
           }
@@ -585,21 +594,11 @@ export class YouTubeService {
                     `Identificadas ${rawSegments.length} falas do vídeo. Agrupando frases naturais...`
                   );
                   const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
-                  onProgress?.(
-                    75,
-                    `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+                  return await YouTubeService.enrichBilingualSegments(
+                    mergedSegments,
+                    (rawSegments as any).track_lang,
+                    onProgress
                   );
-                  const englishTexts = mergedSegments.map((s) => s.text_en);
-                  const portugueseTexts = await YouTubeService.translateBatch(
-                    englishTexts,
-                    "en",
-                    "pt"
-                  );
-                  onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
-                  return mergedSegments.map((seg, idx) => ({
-                    ...seg,
-                    text_pt: portugueseTexts[idx] || seg.text_en,
-                  }));
                 }
               }
             } catch (err: any) {
@@ -621,22 +620,11 @@ export class YouTubeService {
             `Identificadas ${innertubeSegments.length} falas nativas do YouTube. Agrupando frases naturais...`
           );
           const mergedSegments = YouTubeService.mergeNaturalSentences(innertubeSegments);
-          onProgress?.(
-            75,
-            `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+          return await YouTubeService.enrichBilingualSegments(
+            mergedSegments,
+            (innertubeSegments as any).track_lang,
+            onProgress
           );
-          const englishTexts = mergedSegments.map((s) => s.text_en);
-          const portugueseTexts = await YouTubeService.translateBatch(
-            englishTexts,
-            "en",
-            "pt"
-          );
-
-          onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
-          return mergedSegments.map((seg, idx) => ({
-            ...seg,
-            text_pt: portugueseTexts[idx] || seg.text_en,
-          }));
         }
       } catch (err: any) {
         console.warn("[YouTubeService] InnerTube API falhou, tentando CLI:", err?.message);
@@ -692,23 +680,11 @@ export class YouTubeService {
               );
               const mergedSegments =
                 YouTubeService.mergeNaturalSentences(rawSegments);
-
-              onProgress?.(
-                75,
-                `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`
+              return await YouTubeService.enrichBilingualSegments(
+                mergedSegments,
+                undefined,
+                onProgress
               );
-              const englishTexts = mergedSegments.map((s) => s.text_en);
-              const portugueseTexts = await YouTubeService.translateBatch(
-                englishTexts,
-                "en",
-                "pt"
-              );
-
-              onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
-              return mergedSegments.map((seg, idx) => ({
-                ...seg,
-                text_pt: portugueseTexts[idx] || seg.text_en,
-              }));
             }
           }
         }
@@ -752,23 +728,12 @@ export class YouTubeService {
 
         if (rawSegments.length > 0) {
           onProgress?.(60, `Identificadas ${rawSegments.length} falas. Agrupando frases naturais...`);
-          // Agrupa pequenos fragmentos em frases naturais completas (mínimo 2.5s)
           const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
-
-          // Tradução em lote rápida
-          onProgress?.(75, `Traduzindo ${mergedSegments.length} frases bilíngues com IA...`);
-          const englishTexts = mergedSegments.map((s) => s.text_en);
-          const portugueseTexts = await YouTubeService.translateBatch(
-            englishTexts,
-            "en",
-            "pt"
+          return await YouTubeService.enrichBilingualSegments(
+            mergedSegments,
+            (rawSegments as any).track_lang,
+            onProgress
           );
-
-          onProgress?.(92, "Sincronizando minutagem e estúdio bilíngue...");
-          return mergedSegments.map((seg, idx) => ({
-            ...seg,
-            text_pt: portugueseTexts[idx] || seg.text_en,
-          }));
         }
       }
 
@@ -804,19 +769,11 @@ export class YouTubeService {
         if (rawSegments.length > 0) {
           onProgress?.(65, `Agrupando ${rawSegments.length} falas em frases completas...`);
           const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
-          const englishTexts = mergedSegments.map((s) => s.text_en);
-          onProgress?.(80, `Traduzindo ${mergedSegments.length} frases em lote...`);
-          const portugueseTexts = await YouTubeService.translateBatch(
-            englishTexts,
-            "en",
-            "pt"
+          return await YouTubeService.enrichBilingualSegments(
+            mergedSegments,
+            undefined,
+            onProgress
           );
-
-          onProgress?.(92, "Sincronizando minutagem e estúdio bilíngue...");
-          return mergedSegments.map((seg, idx) => ({
-            ...seg,
-            text_pt: portugueseTexts[idx] || seg.text_en,
-          }));
         }
       }
 
@@ -837,22 +794,11 @@ export class YouTubeService {
           text_en: s.text,
         }));
         const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
-        const englishTexts = mergedSegments.map((s) => s.text_en);
-        onProgress?.(
-          85,
-          `Traduzindo ${mergedSegments.length} frases da IA para o português...`
-        );
-        const portugueseTexts = await YouTubeService.translateBatch(
-          englishTexts,
+        return await YouTubeService.enrichBilingualSegments(
+          mergedSegments,
           "en",
-          "pt"
+          onProgress
         );
-
-        onProgress?.(95, "Sincronizando estúdio bilíngue...");
-        return mergedSegments.map((seg, idx) => ({
-          ...seg,
-          text_pt: portugueseTexts[idx] || seg.text_en,
-        }));
       }
 
       return [];
@@ -890,6 +836,10 @@ export class YouTubeService {
         end: Math.max(end, start + 0.5),
         text_en: text,
       });
+    }
+
+    if (data?.track_lang || data?.detected_lang) {
+      (segments as any).track_lang = data.track_lang || data.detected_lang;
     }
 
     return segments;
@@ -954,7 +904,118 @@ export class YouTubeService {
       }
     }
     merged.push(current);
+
+    if ((raw as any).track_lang) {
+      (merged as any).track_lang = (raw as any).track_lang;
+    }
+
     return merged;
+  }
+
+  /**
+   * Detector heurístico ultrarrápido (0ms) e resiliente para Português vs Inglês.
+   * Analisa stopwords e acentuações características de cada idioma.
+   */
+  static detectLanguage(text: string): "pt" | "en" {
+    if (!text || text.trim().length === 0) return "en";
+    const lower = text.toLowerCase();
+
+    // 1. Caracteres e acentuações exclusivas/típicas do Português
+    const ptSpecificChars = (lower.match(/[áàâãéêíóôõúç]/g) || []).length;
+
+    // 2. Stopwords do Português com word boundary
+    const ptStopwordsRegex =
+      /\b(o|a|os|as|um|uma|uns|umas|de|do|da|dos|das|em|no|na|nos|nas|por|pelo|pela|pelos|pelas|para|pra|com|sem|sob|sobre|que|quem|quando|onde|como|porque|porquê|se|mas|e|ou|não|sim|já|muito|muita|mais|menos|também|isso|isto|aquilo|esse|essa|este|esta|você|vocês|ele|ela|eles|elas|nós|aqui|ali|lá|então|bem|fazer|está|estou|estão|estava|tem|temos|têm|tinha|vai|vamos|vão|foi|ser|era|são|sou)\b/gi;
+    const ptMatches = (lower.match(ptStopwordsRegex) || []).length;
+
+    // 3. Stopwords do Inglês com word boundary
+    const enStopwordsRegex =
+      /\b(the|and|is|are|was|were|be|been|being|have|has|had|do|does|did|will|would|shall|should|can|could|may|might|must|to|of|in|for|on|with|at|by|from|up|about|into|over|after|that|this|these|those|then|than|what|which|who|whom|whose|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|too|very|just|where|there|when|you|your|yours|he|him|his|she|her|hers|it|its|we|us|our|ours|they|them|their|theirs)\b/gi;
+    const enMatches = (lower.match(enStopwordsRegex) || []).length;
+
+    const ptScore = ptMatches * 1.5 + ptSpecificChars * 2.0;
+    const enScore = enMatches * 1.5;
+
+    if (ptScore > enScore && ptScore >= 2) {
+      return "pt";
+    }
+    if (enScore > ptScore && enScore >= 2) {
+      return "en";
+    }
+    if (ptSpecificChars > 0 && enScore === 0) {
+      return "pt";
+    }
+    return "en";
+  }
+
+  /**
+   * Enriquecimento bilíngue bidirecional inteligente:
+   * - Detecta com precisão se a fala original do vídeo é Inglês ou Português.
+   * - Se o vídeo for em Português: preserva o áudio/fala original em 'text_pt' e traduz para 'text_en' (Inglês).
+   * - Se o vídeo for em Inglês: preserva a fala original em 'text_en' e traduz para 'text_pt' (Português).
+   * - Garante que o par bilíngue seja sempre 100% bilíngue (EN + PT) sem duplicação de idiomas.
+   */
+  static async enrichBilingualSegments(
+    mergedSegments: Omit<SubtitleItem, "text_pt">[],
+    trackLangHint?: string,
+    onProgress?: (stage: number, message: string) => void
+  ): Promise<SubtitleItem[]> {
+    if (!mergedSegments.length) return [];
+
+    // Amostra textual dos primeiros 25 blocos
+    const sampleText = mergedSegments
+      .slice(0, 25)
+      .map((s) => s.text_en)
+      .join(" ");
+
+    const detected = YouTubeService.detectLanguage(sampleText);
+    const isPortuguese =
+      trackLangHint?.toLowerCase().startsWith("pt") ||
+      (detected === "pt" && !trackLangHint?.toLowerCase().startsWith("en"));
+
+    const originalTexts = mergedSegments.map((s) => s.text_en);
+
+    if (isPortuguese) {
+      onProgress?.(
+        75,
+        `Vídeo em Português identificado. Traduzindo ${mergedSegments.length} frases para Inglês...`
+      );
+      const englishTexts = await YouTubeService.translateBatch(
+        originalTexts,
+        "pt",
+        "en"
+      );
+      onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
+
+      const result: SubtitleItem[] = mergedSegments.map((seg, idx) => ({
+        start: seg.start,
+        end: seg.end,
+        text_en: englishTexts[idx] || seg.text_en,
+        text_pt: seg.text_en, // Fala original em português
+      }));
+      (result as any).detectedLang = "pt";
+      return result;
+    } else {
+      onProgress?.(
+        75,
+        `Vídeo em Inglês identificado. Traduzindo ${mergedSegments.length} frases para Português...`
+      );
+      const portugueseTexts = await YouTubeService.translateBatch(
+        originalTexts,
+        "en",
+        "pt"
+      );
+      onProgress?.(95, "Sincronizando minutagem e estúdio bilíngue...");
+
+      const result: SubtitleItem[] = mergedSegments.map((seg, idx) => ({
+        start: seg.start,
+        end: seg.end,
+        text_en: seg.text_en, // Fala original em inglês
+        text_pt: portugueseTexts[idx] || seg.text_en,
+      }));
+      (result as any).detectedLang = "en";
+      return result;
+    }
   }
 
   /**
