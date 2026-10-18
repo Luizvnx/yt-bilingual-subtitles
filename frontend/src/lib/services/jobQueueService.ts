@@ -190,24 +190,37 @@ class JobQueueServiceSingleton {
           stage: 80,
           message: "Gerando segmento inicial contextual...",
         });
-        const ptTitle =
-          (await YouTubeService.translateBatch([metadata.title], "en", "pt"))[0] ||
-          metadata.title;
+        const isPtTitle = YouTubeService.detectLanguage(metadata.title) === "pt";
+        let enTitle = metadata.title;
+        let ptTitle = metadata.title;
+
+        if (isPtTitle) {
+          enTitle =
+            (await YouTubeService.translateBatch([metadata.title], "pt", "en"))[0] ||
+            metadata.title;
+        } else {
+          ptTitle =
+            (await YouTubeService.translateBatch([metadata.title], "en", "pt"))[0] ||
+            metadata.title;
+        }
 
         segments = [
           {
             start: 0,
             end: Math.max(5, Math.min(metadata.duration, 15)),
-            text_en: metadata.title,
+            text_en: enTitle,
             text_pt: ptTitle,
           },
         ];
+        (segments as any).detectedLang = isPtTitle ? "pt" : "en";
       }
 
       this.notify(videoId, {
         stage: 95,
         message: "Gravando estúdio bilíngue na biblioteca...",
       });
+
+      const detectedLang = (segments as any).detectedLang || "en";
 
       const saved = videoRepository.saveVideo({
         id: videoId,
@@ -217,7 +230,7 @@ class JobQueueServiceSingleton {
         duration: metadata.duration,
         thumbnail: metadata.thumbnail,
         url: metadata.url,
-        detectedLang: "en",
+        detectedLang,
         segmentsCount: segments.length,
         segments,
         userId,

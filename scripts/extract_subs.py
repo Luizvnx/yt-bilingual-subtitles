@@ -90,6 +90,7 @@ def main():
         auto = info.get('automatic_captions') or {}
         
         track_url = None
+        track_lang = "en"
         # 1. Prioriza faixas em inglês (qualquer variante: en, en-US, en-nP7-..., etc.)
         for src in [subs, auto]:
             for k, items in src.items():
@@ -97,6 +98,7 @@ def main():
                     for s in (items or []):
                         if s.get('ext') == 'json3':
                             track_url = s.get('url')
+                            track_lang = "en"
                             break
                     if track_url:
                         break
@@ -111,6 +113,7 @@ def main():
                         for s in (items or []):
                             if s.get('ext') == 'json3':
                                 track_url = s.get('url')
+                                track_lang = "pt"
                                 break
                         if track_url:
                             break
@@ -123,6 +126,7 @@ def main():
                 for s in (items or []):
                     if s.get('ext') == 'json3':
                         track_url = s.get('url')
+                        track_lang = lang.lower()[:2]
                         break
                 if track_url:
                     break
@@ -147,7 +151,9 @@ def main():
             if content:
                 parsed = json.loads(content)
                 if 'events' in parsed and len(parsed.get('events', [])) > 0:
-                    print(content)
+                    parsed['track_lang'] = track_lang
+                    parsed['detected_lang'] = track_lang
+                    print(json.dumps(parsed))
                     return
     except Exception as e:
         sys.stderr.write(f"[extract_subs] yt_dlp error: {str(e)}\n")
