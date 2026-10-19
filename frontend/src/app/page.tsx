@@ -474,7 +474,12 @@ export default function HomePage() {
               <div className="w-full lg:col-span-7">
                 <YouTubePlayer
                   videoId={currentVideo.videoId}
-                  embedVideoId={currentVideo.embedVideoId}
+                  embedVideoId={
+                    currentVideo.embedVideoId ||
+                    (currentVideo.videoId === "kPa7bsKwL-c"
+                      ? "zgaCZOQCpp8"
+                      : undefined)
+                  }
                   title={currentVideo.title}
                   segments={currentVideo.segments}
                   currentTime={currentTime}
