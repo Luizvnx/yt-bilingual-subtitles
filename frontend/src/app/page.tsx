@@ -396,7 +396,7 @@ export default function HomePage() {
                 </div>
               )
             ) : (
-              <div className="flex items-center gap-2 rounded-full border border-zinc-800/80 bg-zinc-900/60 px-3.5 py-1 text-zinc-400 shadow-sm">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-2xl sm:rounded-full border border-zinc-800/80 bg-zinc-900/60 px-3.5 py-1.5 text-center text-xs text-zinc-400 shadow-sm max-w-full">
                 <span>Experimente vídeos gratuitamente ou</span>
                 <button
                   type="button"
@@ -408,7 +408,7 @@ export default function HomePage() {
                 >
                   conecte sua conta
                 </button>
-                <span>para salvar seu histórico</span>
+                <span className="hidden xs:inline">para salvar seu histórico</span>
               </div>
             )}
           </div>
@@ -469,11 +469,12 @@ export default function HomePage() {
             </div>
 
             {/* Layout Grid: Player à Esquerda, Studio à Direita */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start w-full">
               {/* Coluna do Player YouTube (7 de 12 colunas) */}
-              <div className="lg:col-span-7">
+              <div className="w-full lg:col-span-7">
                 <YouTubePlayer
                   videoId={currentVideo.videoId}
+                  embedVideoId={currentVideo.embedVideoId}
                   title={currentVideo.title}
                   segments={currentVideo.segments}
                   currentTime={currentTime}
@@ -483,7 +484,7 @@ export default function HomePage() {
               </div>
 
               {/* Coluna da Transcrição Lateral Interativa (5 de 12 colunas) */}
-              <div className="lg:col-span-5 h-[480px] sm:h-[540px]">
+              <div className="w-full lg:col-span-5 h-[420px] sm:h-[500px] lg:h-[540px]">
                 <SubtitleStudio
                   segments={currentVideo.segments}
                   currentTime={currentTime}

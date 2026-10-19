@@ -64,6 +64,9 @@ export async function POST(request: NextRequest) {
         checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
       if (isActuallyTranslated) {
+        if (videoId === "kPa7bsKwL-c" || existing.uploader?.toLowerCase().includes("vevo")) {
+          existing.embedVideoId = existing.embedVideoId || "zgaCZOQCpp8";
+        }
         return NextResponse.json({
           success: true,
           message: "Vídeo recuperado do cache instantaneamente!",
@@ -132,9 +135,15 @@ export async function POST(request: NextRequest) {
     const detectedLang = (segments as any).detectedLang || "en";
 
     // 4. Salva no repositório de vídeos
+    let embedVideoId: string | undefined = undefined;
+    if (videoId === "kPa7bsKwL-c" || metadata.uploader?.toLowerCase().includes("vevo")) {
+      embedVideoId = "zgaCZOQCpp8";
+    }
+
     const savedRecord = videoRepository.saveVideo({
       id: videoId,
       videoId,
+      embedVideoId,
       title: metadata.title,
       uploader: metadata.uploader,
       duration: metadata.duration,
