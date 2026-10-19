@@ -474,6 +474,7 @@ export default function HomePage() {
               <div className="lg:col-span-7">
                 <YouTubePlayer
                   videoId={currentVideo.videoId}
+                  title={currentVideo.title}
                   segments={currentVideo.segments}
                   currentTime={currentTime}
                   onTimeUpdate={setCurrentTime}
