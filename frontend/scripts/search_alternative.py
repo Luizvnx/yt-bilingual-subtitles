@@ -9,7 +9,8 @@ def main():
         return
 
     query = sys.argv[1].strip()
-    exclude_id = sys.argv[2].strip() if len(sys.argv) > 2 else ""
+    raw_exclude = sys.argv[2].strip() if len(sys.argv) > 2 else ""
+    exclude_ids = set([x.strip() for x in raw_exclude.split(",") if x.strip()])
 
     proxy = os.environ.get("YOUTUBE_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
     active_proxy = None
@@ -63,7 +64,7 @@ def main():
                 title = v.get('title', {}).get('runs', [{}])[0].get('text', '')
                 owner = v.get('ownerText', {}).get('runs', [{}])[0].get('text', '')
                 
-                if vid and vid != exclude_id:
+                if vid and vid not in exclude_ids:
                     # Evita outros canais VEVO que também costumam bloquear embed
                     is_vevo = 'vevo' in owner.lower() or 'vevo' in title.lower()
                     candidates.append({
@@ -83,7 +84,8 @@ def main():
             "success": True,
             "id": best['id'],
             "title": best['title'],
-            "owner": best['owner']
+            "owner": best['owner'],
+            "candidates": [{'id': c['id'], 'title': c['title'], 'owner': c['owner']} for c in candidates]
         }, ensure_ascii=False))
 
     except Exception as e:

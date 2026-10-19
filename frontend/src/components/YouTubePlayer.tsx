@@ -66,11 +66,11 @@ export function YouTubePlayer({
   // Registra apenas IDs que comprovadamente falharam com onError
   const failedVideoIdsRef = useRef<Set<string>>(new Set());
 
-  // Callback ref para onTimeUpdate e switchToAlternative (evita re-execução do useEffect do player)
+  // Callback ref para onTimeUpdate
   const onTimeUpdateRef = useRef(onTimeUpdate);
   onTimeUpdateRef.current = onTimeUpdate;
 
-  // Atualiza activeVideoId se as props externas mudarem
+  // Atualiza activeVideoId se as props externas mudarem (ex: escolha de outra música na biblioteca)
   useEffect(() => {
     const target =
       embedVideoId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : videoId);
@@ -81,6 +81,9 @@ export function YouTubePlayer({
     retryCountRef.current = 0;
     isSwitchingRef.current = false;
     failedVideoIdsRef.current = new Set();
+    setAltVideo(
+      target !== videoId ? { id: target, title: "Versão Sincronizada" } : null
+    );
 
     if (!videoId) return;
 
@@ -105,76 +108,64 @@ export function YouTubePlayer({
 
   // Função para alternar para a versão sem restrição de reprodução externa
   const switchToAlternative = useCallback(
-    async (forcedId?: string) => {
-      // Bloqueio de concorrência e limite estrito do circuit breaker
-      if (isSwitchingRef.current || retryCountRef.current >= 2) {
+    async (manual: boolean = false) => {
+      // Bloqueio de concorrência e limite estrito do circuit breaker automático
+      if (!manual && (isSwitchingRef.current || retryCountRef.current >= 2)) {
         console.warn(
-          "[YouTubePlayer] Circuit breaker ativo ou busca já em andamento."
+          "[YouTubePlayer] Circuit breaker ativo: limite automático atingido."
         );
         setHasEmbedRestriction(true);
         setIsSearchingAlt(false);
-        return;
+        return false;
+      }
+
+      if (manual) {
+        retryCountRef.current = 0; // Clique manual do usuário reinicia as tentativas
       }
 
       isSwitchingRef.current = true;
       setIsSearchingAlt(true);
-      setHasEmbedRestriction(false);
 
       try {
-        let targetId = forcedId;
+        const failedArray = Array.from(failedVideoIdsRef.current);
+        const excludeList = [videoId, activeVideoId, ...failedArray]
+          .filter(Boolean)
+          .join(",");
 
-        // 1. Se temos altVideo conhecido que não falhou e difere do atual
-        if (
-          !targetId &&
-          altVideo?.id &&
-          altVideo.id !== activeVideoId &&
-          !failedVideoIdsRef.current.has(altVideo.id)
-        ) {
-          targetId = altVideo.id;
-        }
+        const res = await fetch(
+          `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
+            title || ""
+          )}&exclude=${encodeURIComponent(excludeList)}`
+        );
 
-        // 2. Fallback para ID conhecido ou busca na API
-        if (!targetId || failedVideoIdsRef.current.has(targetId)) {
-          if (
-            videoId === "kPa7bsKwL-c" &&
-            !failedVideoIdsRef.current.has("zgaCZOQCpp8") &&
-            activeVideoId !== "zgaCZOQCpp8"
-          ) {
-            targetId = "zgaCZOQCpp8";
-          } else {
-            const res = await fetch(
-              `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
-                title || ""
-              )}`
+        if (res.ok) {
+          const data = await res.json();
+          // Procura o melhor candidato que ainda não tenha falhado
+          let targetCandidate: { id: string; title: string } | null = null;
+          if (data?.id && !failedVideoIdsRef.current.has(data.id)) {
+            targetCandidate = data;
+          } else if (Array.isArray(data?.candidates)) {
+            const found = data.candidates.find(
+              (c: any) => c.id && !failedVideoIdsRef.current.has(c.id)
             );
-            if (res.ok) {
-              const data = await res.json();
-              if (
-                data?.id &&
-                data.id !== activeVideoId &&
-                !failedVideoIdsRef.current.has(data.id)
-              ) {
-                targetId = data.id;
-                setAltVideo(data);
-              }
-            }
+            if (found) targetCandidate = found;
           }
-        }
 
-        if (
-          targetId &&
-          targetId !== activeVideoId &&
-          !failedVideoIdsRef.current.has(targetId)
-        ) {
-          console.log(
-            `[YouTubePlayer] Ativando versão alternativa: ${targetId}`
-          );
-          retryCountRef.current += 1;
-          setActiveVideoId(targetId);
-          setIsUsingAlternative(true);
-          setHasEmbedRestriction(false);
-          setIsSearchingAlt(false);
-          return;
+          if (
+            targetCandidate &&
+            targetCandidate.id &&
+            targetCandidate.id !== activeVideoId
+          ) {
+            console.log(
+              `[YouTubePlayer] Alternativa selecionada: ${targetCandidate.id}`
+            );
+            retryCountRef.current += 1;
+            setActiveVideoId(targetCandidate.id);
+            setAltVideo(targetCandidate);
+            setIsUsingAlternative(true);
+            setHasEmbedRestriction(false);
+            return true;
+          }
         }
       } catch (err) {
         console.warn("[YouTubePlayer] Erro na busca de alternativa:", err);
@@ -184,19 +175,22 @@ export function YouTubePlayer({
       }
 
       setHasEmbedRestriction(true);
+      return false;
     },
-    [altVideo, videoId, title, activeVideoId]
+    [videoId, activeVideoId, title]
   );
 
   const switchToAlternativeRef = useRef(switchToAlternative);
   switchToAlternativeRef.current = switchToAlternative;
 
-  // Conecta YouTube IFrame API ao iframe JSX nativo
+  // Conecta YouTube IFrame API ao iframe JSX nativo com cancelamento estrito de callbacks órfãos
   useEffect(() => {
+    let isCancelled = false;
     let pollInterval: NodeJS.Timeout | null = null;
     let ytInstance: any = null;
 
     const bindPlayer = () => {
+      if (isCancelled) return;
       if (!window.YT || !window.YT.Player) return;
 
       const iframeEl = document.getElementById("youtube-iframe-player");
@@ -206,9 +200,11 @@ export function YouTubePlayer({
         ytInstance = new window.YT.Player("youtube-iframe-player", {
           events: {
             onReady: () => {
+              if (isCancelled) return;
               playerRef.current = ytInstance;
               if (pollInterval) clearInterval(pollInterval);
               pollInterval = setInterval(() => {
+                if (isCancelled) return;
                 if (
                   ytInstance &&
                   typeof ytInstance.getCurrentTime === "function"
@@ -223,6 +219,7 @@ export function YouTubePlayer({
               }, 100);
             },
             onError: (event: any) => {
+              if (isCancelled) return;
               const errorCode = event?.data;
               console.warn(
                 `[YouTubePlayer] Erro detectado no player: ${errorCode} no vídeo: ${activeVideoId}`
@@ -236,9 +233,9 @@ export function YouTubePlayer({
                 errorCode === 153 ||
                 errorCode === 2
               ) {
-                // Dispara troca apenas se não ultrapassou o limite do circuit breaker
+                // Dispara troca apenas se não ultrapassou o limite do circuit breaker automático
                 if (retryCountRef.current < 2) {
-                  switchToAlternativeRef.current();
+                  switchToAlternativeRef.current(false);
                 } else {
                   setHasEmbedRestriction(true);
                 }
@@ -265,8 +262,8 @@ export function YouTubePlayer({
     }
 
     return () => {
+      isCancelled = true;
       if (pollInterval) clearInterval(pollInterval);
-      // O nó <iframe> é de propriedade do React e não deve ser removido pelo YT.destroy()
       playerRef.current = null;
     };
   }, [activeVideoId, playerRef]);
@@ -297,6 +294,7 @@ export function YouTubePlayer({
                 retryCountRef.current = 2; // Usuário solicitou explicitamente o vídeo original; impede auto-fallback em loop
                 setActiveVideoId(videoId);
                 setIsUsingAlternative(false);
+                setHasEmbedRestriction(false);
               }}
               className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
@@ -320,19 +318,9 @@ export function YouTubePlayer({
           </span>
           <button
             type="button"
-            onClick={() => {
-              retryCountRef.current = 0;
-              if (altVideo?.id && altVideo.id !== activeVideoId) {
-                failedVideoIdsRef.current.delete(altVideo.id);
-                setActiveVideoId(altVideo.id);
-                setIsUsingAlternative(true);
-                setHasEmbedRestriction(false);
-              } else {
-                switchToAlternative();
-              }
-            }}
+            onClick={() => switchToAlternative(true)}
             disabled={isSearchingAlt}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-all shadow-sm shadow-indigo-600/20 shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-all shadow-sm shadow-indigo-600/20 shrink-0 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw
               className={`h-3 w-3 ${isSearchingAlt ? "animate-spin" : ""}`}
@@ -386,22 +374,20 @@ export function YouTubePlayer({
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  retryCountRef.current = 0;
-                  if (altVideo?.id && altVideo.id !== activeVideoId) {
-                    failedVideoIdsRef.current.delete(altVideo.id);
-                    setActiveVideoId(altVideo.id);
-                    setIsUsingAlternative(true);
-                    setHasEmbedRestriction(false);
-                  } else {
-                    switchToAlternative();
-                  }
-                }}
+                onClick={() => switchToAlternative(true)}
                 disabled={isSearchingAlt}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
               >
-                <RefreshCw className={`h-3.5 w-3.5 ${isSearchingAlt ? "animate-spin" : ""}`} />
-                <span>Carregar Versão Sincronizada</span>
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${
+                    isSearchingAlt ? "animate-spin" : ""
+                  }`}
+                />
+                <span>
+                  {isSearchingAlt
+                    ? "Buscando versão compatível..."
+                    : "Carregar Versão Sincronizada"}
+                </span>
               </button>
 
               <a

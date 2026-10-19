@@ -126,6 +126,12 @@ class JobQueueServiceSingleton {
         checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
       if (isActuallyTranslated) {
+        if (videoId === "kPa7bsKwL-c") {
+          existing.embedVideoId = "zgaCZOQCpp8";
+        } else if (existing.embedVideoId) {
+          delete existing.embedVideoId;
+          videoRepository.saveVideo(existing);
+        }
         this.notify(videoId, {
           stage: 100,
           message: "Estúdio pronto!",
