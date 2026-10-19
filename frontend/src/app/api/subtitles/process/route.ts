@@ -64,8 +64,13 @@ export async function POST(request: NextRequest) {
         checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
       if (isActuallyTranslated) {
-        if (videoId === "kPa7bsKwL-c" || existing.uploader?.toLowerCase().includes("vevo")) {
-          existing.embedVideoId = existing.embedVideoId || "zgaCZOQCpp8";
+        if (!existing.embedVideoId && (videoId === "kPa7bsKwL-c" || existing.uploader?.toLowerCase().includes("vevo") || existing.title?.toLowerCase().includes("official music video"))) {
+          if (videoId === "kPa7bsKwL-c") {
+            existing.embedVideoId = "zgaCZOQCpp8";
+          } else {
+            const alt = await YouTubeService.findAlternativeVideo(videoId, existing.title);
+            if (alt) existing.embedVideoId = alt;
+          }
         }
         return NextResponse.json({
           success: true,
@@ -136,8 +141,14 @@ export async function POST(request: NextRequest) {
 
     // 4. Salva no repositório de vídeos
     let embedVideoId: string | undefined = undefined;
-    if (videoId === "kPa7bsKwL-c" || metadata.uploader?.toLowerCase().includes("vevo")) {
+    if (videoId === "kPa7bsKwL-c") {
       embedVideoId = "zgaCZOQCpp8";
+    } else if (
+      metadata.uploader?.toLowerCase().includes("vevo") ||
+      metadata.title?.toLowerCase().includes("official music video") ||
+      metadata.title?.toLowerCase().includes("official video")
+    ) {
+      embedVideoId = await YouTubeService.findAlternativeVideo(videoId, metadata.title);
     }
 
     const savedRecord = videoRepository.saveVideo({
