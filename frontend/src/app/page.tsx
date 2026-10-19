@@ -10,6 +10,7 @@ import { VocabularyModal } from "@/components/VocabularyModal";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
+import { CuratedCatalog } from "@/components/CuratedCatalog";
 import { VideoRecord } from "@/lib/security";
 import {
   Sparkles,
@@ -121,9 +122,17 @@ export default function HomePage() {
     };
   }, []);
 
-  const handleProcess = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!url.trim()) return;
+  const handleProcess = async (
+    e?: React.FormEvent,
+    overrideUrl?: string
+  ) => {
+    if (e) e.preventDefault();
+    const targetUrl = (overrideUrl || url).trim();
+    if (!targetUrl) return;
+
+    if (overrideUrl) {
+      setUrl(targetUrl);
+    }
 
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -136,7 +145,7 @@ export default function HomePage() {
     setProgressStatus("Iniciando canal de streaming com o YouTube...");
 
     const streamUrl = `/api/subtitles/stream?url=${encodeURIComponent(
-      url.trim()
+      targetUrl
     )}&model=${encodeURIComponent(model)}`;
 
     const es = new EventSource(streamUrl);
@@ -203,7 +212,7 @@ export default function HomePage() {
         const fallbackRes = await fetch("/api/subtitles/process", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: url.trim(), model }),
+          body: JSON.stringify({ url: targetUrl, model }),
         });
         const fallbackData = await fallbackRes.json();
 
@@ -515,6 +524,16 @@ export default function HomePage() {
             }}
           />
         )}
+
+        {/* Catálogo Curado por Níveis ("O Que Estudar Hoje?") */}
+        <div id="catalog-section" className="border-t border-white/10 pt-8">
+          <CuratedCatalog
+            onSelectVideo={(videoUrl) => {
+              handleProcess(undefined, videoUrl);
+            }}
+            isLoading={loading}
+          />
+        </div>
 
         {/* Seção de Biblioteca e Histórico */}
         <section id="history-section" className="space-y-4 pt-8 border-t border-white/10">
