@@ -60,10 +60,11 @@ export function YouTubePlayer({
   const [isSearchingAlt, setIsSearchingAlt] = useState(false);
   const [hasEmbedRestriction, setHasEmbedRestriction] = useState(false);
 
-  // Circuit breaker estrito anti-loop infinito (máximo 2 tentativas por ciclo)
+  // Circuit breaker estrito anti-loop infinito (máximo 2 tentativas automáticas)
   const retryCountRef = useRef(0);
   const isSwitchingRef = useRef(false);
-  const attemptedIdsRef = useRef<Set<string>>(new Set([initialId]));
+  // Registra apenas IDs que comprovadamente falharam com onError
+  const failedVideoIdsRef = useRef<Set<string>>(new Set());
 
   // Callback ref para onTimeUpdate e switchToAlternative (evita re-execução do useEffect do player)
   const onTimeUpdateRef = useRef(onTimeUpdate);
@@ -79,7 +80,7 @@ export function YouTubePlayer({
     setHasEmbedRestriction(false);
     retryCountRef.current = 0;
     isSwitchingRef.current = false;
-    attemptedIdsRef.current = new Set([target]);
+    failedVideoIdsRef.current = new Set();
 
     if (!videoId) return;
 
@@ -105,7 +106,7 @@ export function YouTubePlayer({
   // Função para alternar para a versão sem restrição de reprodução externa
   const switchToAlternative = useCallback(
     async (forcedId?: string) => {
-      // Bloqueio de segurança anti-loop infinito e concorrência
+      // Bloqueio de concorrência e limite estrito do circuit breaker
       if (isSwitchingRef.current || retryCountRef.current >= 2) {
         console.warn(
           "[YouTubePlayer] Circuit breaker ativo ou busca já em andamento."
@@ -120,13 +121,24 @@ export function YouTubePlayer({
       setHasEmbedRestriction(false);
 
       try {
-        let targetId = forcedId || altVideo?.id;
+        let targetId = forcedId;
 
-        // Se o targetId já foi tentado ou é o mesmo, busca nova alternativa
-        if (!targetId || attemptedIdsRef.current.has(targetId)) {
+        // 1. Se temos altVideo conhecido que não falhou e difere do atual
+        if (
+          !targetId &&
+          altVideo?.id &&
+          altVideo.id !== activeVideoId &&
+          !failedVideoIdsRef.current.has(altVideo.id)
+        ) {
+          targetId = altVideo.id;
+        }
+
+        // 2. Fallback para ID conhecido ou busca na API
+        if (!targetId || failedVideoIdsRef.current.has(targetId)) {
           if (
             videoId === "kPa7bsKwL-c" &&
-            !attemptedIdsRef.current.has("zgaCZOQCpp8")
+            !failedVideoIdsRef.current.has("zgaCZOQCpp8") &&
+            activeVideoId !== "zgaCZOQCpp8"
           ) {
             targetId = "zgaCZOQCpp8";
           } else {
@@ -137,7 +149,11 @@ export function YouTubePlayer({
             );
             if (res.ok) {
               const data = await res.json();
-              if (data?.id && !attemptedIdsRef.current.has(data.id)) {
+              if (
+                data?.id &&
+                data.id !== activeVideoId &&
+                !failedVideoIdsRef.current.has(data.id)
+              ) {
                 targetId = data.id;
                 setAltVideo(data);
               }
@@ -145,12 +161,15 @@ export function YouTubePlayer({
           }
         }
 
-        if (targetId && !attemptedIdsRef.current.has(targetId)) {
+        if (
+          targetId &&
+          targetId !== activeVideoId &&
+          !failedVideoIdsRef.current.has(targetId)
+        ) {
           console.log(
             `[YouTubePlayer] Ativando versão alternativa: ${targetId}`
           );
           retryCountRef.current += 1;
-          attemptedIdsRef.current.add(targetId);
           setActiveVideoId(targetId);
           setIsUsingAlternative(true);
           setHasEmbedRestriction(false);
@@ -166,7 +185,7 @@ export function YouTubePlayer({
 
       setHasEmbedRestriction(true);
     },
-    [altVideo, videoId, title]
+    [altVideo, videoId, title, activeVideoId]
   );
 
   const switchToAlternativeRef = useRef(switchToAlternative);
@@ -205,7 +224,11 @@ export function YouTubePlayer({
             },
             onError: (event: any) => {
               const errorCode = event?.data;
-              console.warn("[YouTubePlayer] Erro detectado no player:", errorCode);
+              console.warn(
+                `[YouTubePlayer] Erro detectado no player: ${errorCode} no vídeo: ${activeVideoId}`
+              );
+              failedVideoIdsRef.current.add(activeVideoId);
+
               if (
                 errorCode === 150 ||
                 errorCode === 101 ||
@@ -299,7 +322,14 @@ export function YouTubePlayer({
             type="button"
             onClick={() => {
               retryCountRef.current = 0;
-              switchToAlternative();
+              if (altVideo?.id && altVideo.id !== activeVideoId) {
+                failedVideoIdsRef.current.delete(altVideo.id);
+                setActiveVideoId(altVideo.id);
+                setIsUsingAlternative(true);
+                setHasEmbedRestriction(false);
+              } else {
+                switchToAlternative();
+              }
             }}
             disabled={isSearchingAlt}
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-all shadow-sm shadow-indigo-600/20 shrink-0 cursor-pointer"
@@ -358,7 +388,14 @@ export function YouTubePlayer({
                 type="button"
                 onClick={() => {
                   retryCountRef.current = 0;
-                  switchToAlternative();
+                  if (altVideo?.id && altVideo.id !== activeVideoId) {
+                    failedVideoIdsRef.current.delete(altVideo.id);
+                    setActiveVideoId(altVideo.id);
+                    setIsUsingAlternative(true);
+                    setHasEmbedRestriction(false);
+                  } else {
+                    switchToAlternative();
+                  }
                 }}
                 disabled={isSearchingAlt}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
