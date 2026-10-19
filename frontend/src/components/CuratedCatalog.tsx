@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Sparkles,
   Music,
@@ -14,9 +14,18 @@ import {
   ChevronRight,
   Search,
   Filter,
+  Flame,
+  Zap,
+  Target,
+  Trophy,
+  Crown,
+  Check,
+  RotateCcw,
+  Compass,
+  Layers,
 } from "lucide-react";
 
-export interface CuratedItem {
+export interface CuratedLesson {
   id: string;
   videoId: string;
   url: string;
@@ -30,214 +39,267 @@ export interface CuratedItem {
   focus: string;
   description: string;
   tag: string;
+  xp: number;
 }
 
-export const CURATED_COLLECTION: CuratedItem[] = [
-  // --- MÚSICAS ---
-  {
-    id: "the-lazy-song",
-    videoId: "fLexgOxsZu0",
-    url: "https://www.youtube.com/watch?v=fLexgOxsZu0",
-    title: "The Lazy Song (Official Music Video)",
-    creator: "Bruno Mars",
-    category: "musica",
-    level: "intermediario",
-    levelLabel: "B1 • Intermediário",
-    duration: "3:19",
-    thumbnail: "https://i.ytimg.com/vi/fLexgOxsZu0/hqdefault.jpg",
-    focus: "Gírias do cotidiano & Rotina",
-    description: "Excelente para aprender expressões descontraídas de lazer com ritmo cadenciado.",
-    tag: "Pop / Hits",
-  },
-  {
-    id: "ed-sheeran-perfect",
-    videoId: "2Vv-BfVoq4g",
-    url: "https://www.youtube.com/watch?v=2Vv-BfVoq4g",
-    title: "Perfect (Official Music Video)",
-    creator: "Ed Sheeran",
-    category: "musica",
-    level: "iniciante",
-    levelLabel: "A2 • Iniciante",
-    duration: "4:23",
-    thumbnail: "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
-    focus: "Pronúncia Britânica Limpa & Passado",
-    description: "Voz pausada e dicção perfeita para quem quer treinar escuta e cantar junto.",
-    tag: "Romântico / Acústico",
-  },
-  {
-    id: "adele-someone-like-you",
-    videoId: "hLQl3WQQoQ0",
-    url: "https://www.youtube.com/watch?v=hLQl3WQQoQ0",
-    title: "Someone Like You (Official Video)",
-    creator: "Adele",
-    category: "musica",
-    level: "intermediario",
-    levelLabel: "B1 • Intermediário",
-    duration: "4:45",
-    thumbnail: "https://i.ytimg.com/vi/hLQl3WQQoQ0/hqdefault.jpg",
-    focus: "Conexão de Palavras (Linking Words)",
-    description: "Interpretação marcante para treinar como nativos conectam o final e o início das palavras.",
-    tag: "Clássico Global",
-  },
-  {
-    id: "coldplay-viva-la-vida",
-    videoId: "dvgZkm1xWPE",
-    url: "https://www.youtube.com/watch?v=dvgZkm1xWPE",
-    title: "Viva La Vida (Official Video)",
-    creator: "Coldplay",
-    category: "musica",
-    level: "intermediario",
-    levelLabel: "B2 • Intermediário+",
-    duration: "4:02",
-    thumbnail: "https://i.ytimg.com/vi/dvgZkm1xWPE/hqdefault.jpg",
-    focus: "Vocabulário Literário & Histórico",
-    description: "Letra rica em metáforas e estruturas gramaticais variadas para expandir seu vocabulário.",
-    tag: "Rock Alternativo",
-  },
+export interface CuratedSection {
+  id: number;
+  title: string;
+  subtitle: string;
+  levelBadge: string;
+  themeColor: "emerald" | "indigo" | "amber" | "purple";
+  lessons: CuratedLesson[];
+}
 
-  // --- SÉRIES & FILMES ---
+export const DUOLINGO_SECTIONS: CuratedSection[] = [
   {
-    id: "friends-joey-food",
-    videoId: "QnS_14K9Ucw",
-    url: "https://www.youtube.com/watch?v=QnS_14K9Ucw",
-    title: "Joey Doesn't Share Food! (Cena Clássica)",
-    creator: "Friends (NBC)",
-    category: "serie",
-    level: "intermediario",
-    levelLabel: "B1 • Intermediário",
-    duration: "2:45",
-    thumbnail: "https://i.ytimg.com/vi/QnS_14K9Ucw/hqdefault.jpg",
-    focus: "Humor, Diálogo Social & Restaurante",
-    description: "Aprenda como se comunicar em encontros e restaurantes com a icônica cena de Joey Tribbiani.",
-    tag: "Sitcom Clássica",
+    id: 1,
+    title: "Seção 1: Primeiros Passos & Audição Básica",
+    subtitle: "Treine seu ouvido com falas nítidas, emoções e vocabulário essencial do zero",
+    levelBadge: "Nível A1 • Básico",
+    themeColor: "emerald",
+    lessons: [
+      {
+        id: "inside-out-emotions",
+        videoId: "dOkyKyVFnSs",
+        url: "https://www.youtube.com/watch?v=dOkyKyVFnSs",
+        title: "Divertida Mente: Conhecendo as Emoções",
+        creator: "Disney • Pixar",
+        category: "desenho",
+        level: "iniciante",
+        levelLabel: "A1 • Básico",
+        duration: "3:10",
+        thumbnail: "https://i.ytimg.com/vi/dOkyKyVFnSs/hqdefault.jpg",
+        focus: "Emoções, Cores & Adjetivos",
+        description: "Falas claras, expressivas e contextuais. O melhor início para construir vocabulário visual.",
+        tag: "Animação Pixar",
+        xp: 25,
+      },
+      {
+        id: "peppa-pig-museum",
+        videoId: "0p6B93s5J_w",
+        url: "https://www.youtube.com/watch?v=0p6B93s5J_w",
+        title: "The Aquarium: Vocabulário Visual Infantil",
+        creator: "Peppa Pig Official",
+        category: "desenho",
+        level: "iniciante",
+        levelLabel: "A1 • Básico",
+        duration: "4:30",
+        thumbnail: "https://i.ytimg.com/vi/0p6B93s5J_w/hqdefault.jpg",
+        focus: "Inglês Britânico & Objetos Cotidianos",
+        description: "O método favorito de poliglotas para treinar os ouvidos sem ansiedade gramatical.",
+        tag: "Inglês Britânico A1",
+        xp: 25,
+      },
+      {
+        id: "kung-fu-panda-yesterday",
+        videoId: "B1yQO4cZtYc",
+        url: "https://www.youtube.com/watch?v=B1yQO4cZtYc",
+        title: "Kung Fu Panda: O Segredo de Hoje e Ontem",
+        creator: "DreamWorks Animation",
+        category: "desenho",
+        level: "iniciante",
+        levelLabel: "A2 • Iniciante",
+        duration: "2:15",
+        thumbnail: "https://i.ytimg.com/vi/B1yQO4cZtYc/hqdefault.jpg",
+        focus: "Shadowing, Pausas & Entonação",
+        description: "Diálogo clássico do Mestre Oogway. Frases curtas e memoráveis para repetir em voz alta.",
+        tag: "Clássico da Animação",
+        xp: 30,
+      },
+    ],
   },
   {
-    id: "the-office-cpr",
-    videoId: "yfZi_q6a7s0",
-    url: "https://www.youtube.com/watch?v=yfZi_q6a7s0",
-    title: "Treinamento de RCP com Stayin' Alive (Stress Relief)",
-    creator: "The Office US",
-    category: "serie",
-    level: "avancado",
-    levelLabel: "C1 • Avançado",
-    duration: "4:12",
-    thumbnail: "https://i.ytimg.com/vi/yfZi_q6a7s0/hqdefault.jpg",
-    focus: "Diálogo Rápido & Conversas Múltiplas",
-    description: "Cena hilária no escritório com ritmo frenético para testar compreensão avançada sem legendas em português.",
-    tag: "Comédia de Escritório",
-  },
-
-  // --- DESENHOS & ANIMAÇÕES (IDEAL PARA INICIANTES) ---
-  {
-    id: "inside-out-emotions",
-    videoId: "dOkyKyVFnSs",
-    url: "https://www.youtube.com/watch?v=dOkyKyVFnSs",
-    title: "Meet the Emotions (Apresentando as Emoções)",
-    creator: "Disney • Pixar",
-    category: "desenho",
-    level: "iniciante",
-    levelLabel: "A1 • Básico Total",
-    duration: "3:10",
-    thumbnail: "https://i.ytimg.com/vi/dOkyKyVFnSs/hqdefault.jpg",
-    focus: "Emoções, Adjetivos & Vocabulário Base",
-    description: "Falas nítidas, articuladas e visuais. O melhor ponto de partida para quem tem vocabulário inicial.",
-    tag: "Animação Pixar",
-  },
-  {
-    id: "kung-fu-panda-yesterday",
-    videoId: "B1yQO4cZtYc",
-    url: "https://www.youtube.com/watch?v=B1yQO4cZtYc",
-    title: "Yesterday is History, Tomorrow is a Mystery",
-    creator: "DreamWorks Animation",
-    category: "desenho",
-    level: "iniciante",
-    levelLabel: "A2 • Iniciante",
-    duration: "2:15",
-    thumbnail: "https://i.ytimg.com/vi/B1yQO4cZtYc/hqdefault.jpg",
-    focus: "Pausas, Entonação & Shadowing",
-    description: "Diálogo calmo entre Po e Mestre Oogway. Frases curtas e inspiradoras fáceis de repetir.",
-    tag: "Clássico da Animação",
-  },
-  {
-    id: "peppa-pig-museum",
-    videoId: "0p6B93s5J_w",
-    url: "https://www.youtube.com/watch?v=0p6B93s5J_w",
-    title: "The Aquarium Visit (Falas Claras & Objetos)",
-    creator: "Peppa Pig Official",
-    category: "desenho",
-    level: "iniciante",
-    levelLabel: "A1 • Básico",
-    duration: "4:30",
-    thumbnail: "https://i.ytimg.com/vi/0p6B93s5J_w/hqdefault.jpg",
-    focus: "Vocabulário Visual Infantil sem Ansiedade",
-    description: "O segredo dos poliglotas: frases simples com contexto visual direto para fixar sem esforço.",
-    tag: "Inglês Britânico Básico",
-  },
-
-  // --- DIÁLOGOS PRÁTICOS ---
-  {
-    id: "ordering-coffee-shop",
-    videoId: "P1tW-qK1ZNo",
-    url: "https://www.youtube.com/watch?v=P1tW-qK1ZNo",
-    title: "Como Pedir Café e Comida em Nova York",
-    creator: "Real English Daily",
-    category: "dialogo",
-    level: "iniciante",
-    levelLabel: "A2 • Vida Real",
-    duration: "3:40",
-    thumbnail: "https://i.ytimg.com/vi/P1tW-qK1ZNo/hqdefault.jpg",
-    focus: "Cortesia, Pedidos & Pagamento",
-    description: "Domine frases indispensáveis para viagens: 'Can I get...', 'To go or for here?' e gorjetas.",
-    tag: "Inglês para Viagens",
+    id: 2,
+    title: "Seção 2: Viagens, Vida Prática & Músicas Claras",
+    subtitle: "Aprenda a pedir comida, viajar e cantar baladas populares com ritmo cadenciado",
+    levelBadge: "Nível A2 • Iniciante+",
+    themeColor: "indigo",
+    lessons: [
+      {
+        id: "ordering-coffee-shop",
+        videoId: "P1tW-qK1ZNo",
+        url: "https://www.youtube.com/watch?v=P1tW-qK1ZNo",
+        title: "Como Pedir Café e Comida em Nova York",
+        creator: "Real English Daily",
+        category: "dialogo",
+        level: "iniciante",
+        levelLabel: "A2 • Vida Real",
+        duration: "3:40",
+        thumbnail: "https://i.ytimg.com/vi/P1tW-qK1ZNo/hqdefault.jpg",
+        focus: "Cortesia, Pedidos & 'To go or for here?'",
+        description: "Frases essenciais para viajar sem passar vergonha em restaurantes e cafeterias.",
+        tag: "Inglês para Viagens",
+        xp: 35,
+      },
+      {
+        id: "ed-sheeran-perfect",
+        videoId: "2Vv-BfVoq4g",
+        url: "https://www.youtube.com/watch?v=2Vv-BfVoq4g",
+        title: "Perfect (Official Music Video)",
+        creator: "Ed Sheeran",
+        category: "musica",
+        level: "iniciante",
+        levelLabel: "A2 • Música",
+        duration: "4:23",
+        thumbnail: "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
+        focus: "Pronúncia Britânica Limpa & Passado",
+        description: "Voz pausada e dicção impecável para treinar escuta e cantar junto.",
+        tag: "Romântico / Acústico",
+        xp: 35,
+      },
+      {
+        id: "the-lazy-song",
+        videoId: "fLexgOxsZu0",
+        url: "https://www.youtube.com/watch?v=fLexgOxsZu0",
+        title: "The Lazy Song (Clipe Oficial)",
+        creator: "Bruno Mars",
+        category: "musica",
+        level: "intermediario",
+        levelLabel: "B1 • Intermediário",
+        duration: "3:19",
+        thumbnail: "https://i.ytimg.com/vi/fLexgOxsZu0/hqdefault.jpg",
+        focus: "Gírias do Cotidiano & Rotina",
+        description: "Expressões descontraídas de lazer e gírias americanas com ritmo gostoso de acompanhar.",
+        tag: "Pop / Hits",
+        xp: 40,
+      },
+    ],
   },
   {
-    id: "job-interview-tell-me",
-    videoId: "5v-wyR5emRw",
-    url: "https://www.youtube.com/watch?v=5v-wyR5emRw",
-    title: "Tell Me About Yourself (Entrevista de Emprego)",
-    creator: "CareerVidz",
-    category: "dialogo",
-    level: "intermediario",
-    levelLabel: "B2 • Profissional",
-    duration: "5:20",
-    thumbnail: "https://i.ytimg.com/vi/5v-wyR5emRw/hqdefault.jpg",
-    focus: "Apresentação Pessoal & Carreira",
-    description: "Aprenda o roteiro perfeito para responder à pergunta mais temida de processos seletivos.",
-    tag: "Inglês para Negócios",
+    id: 3,
+    title: "Seção 3: Humor, Séries & Conexão Nativa",
+    subtitle: "Domine como nativos conectam palavras, pegue piadas de séries e expanda seu vocabulário",
+    levelBadge: "Nível B1-B2 • Intermediário",
+    themeColor: "amber",
+    lessons: [
+      {
+        id: "friends-joey-food",
+        videoId: "QnS_14K9Ucw",
+        url: "https://www.youtube.com/watch?v=QnS_14K9Ucw",
+        title: "Joey Doesn't Share Food! (Friends)",
+        creator: "Friends (NBC)",
+        category: "serie",
+        level: "intermediario",
+        levelLabel: "B1 • Comédia",
+        duration: "2:45",
+        thumbnail: "https://i.ytimg.com/vi/QnS_14K9Ucw/hqdefault.jpg",
+        focus: "Conversação Social, Encontros & Humor",
+        description: "Entenda o timing das piadas, gírias e como reagir naturalmente em conversas informais.",
+        tag: "Sitcom Clássica",
+        xp: 40,
+      },
+      {
+        id: "adele-someone-like-you",
+        videoId: "hLQl3WQQoQ0",
+        url: "https://www.youtube.com/watch?v=hLQl3WQQoQ0",
+        title: "Someone Like You (Clipe Oficial)",
+        creator: "Adele",
+        category: "musica",
+        level: "intermediario",
+        levelLabel: "B1 • Música",
+        duration: "4:45",
+        thumbnail: "https://i.ytimg.com/vi/hLQl3WQQoQ0/hqdefault.jpg",
+        focus: "Linking Words (Conexão de Sons)",
+        description: "Descubra como os nativos emendam o final de uma palavra no começo da próxima.",
+        tag: "Clássico Global",
+        xp: 45,
+      },
+      {
+        id: "coldplay-viva-la-vida",
+        videoId: "dvgZkm1xWPE",
+        url: "https://www.youtube.com/watch?v=dvgZkm1xWPE",
+        title: "Viva La Vida (Clipe Oficial)",
+        creator: "Coldplay",
+        category: "musica",
+        level: "intermediario",
+        levelLabel: "B2 • Intermediário+",
+        duration: "4:02",
+        thumbnail: "https://i.ytimg.com/vi/dvgZkm1xWPE/hqdefault.jpg",
+        focus: "Vocabulário Poético & Passado Perfeito",
+        description: "Uma aula de poesia em inglês com metáforas históricas e vocabulário avançado.",
+        tag: "Rock Alternativo",
+        xp: 45,
+      },
+      {
+        id: "ted-ed-memory",
+        videoId: "yOgXjm4Z3Co",
+        url: "https://www.youtube.com/watch?v=yOgXjm4Z3Co",
+        title: "Como Criamos e Perdemos Memórias",
+        creator: "TED-Ed",
+        category: "ted",
+        level: "intermediario",
+        levelLabel: "B2 • Ciência",
+        duration: "4:55",
+        thumbnail: "https://i.ytimg.com/vi/yOgXjm4Z3Co/hqdefault.jpg",
+        focus: "Termos Acadêmicos & Narração Científica",
+        description: "Locução profissional impecável em ritmo claro sobre neurociência e saúde.",
+        tag: "Educação & Ciência",
+        xp: 50,
+      },
+    ],
   },
-
-  // --- TED TALKS & IDEIAS ---
   {
-    id: "ted-ed-memory",
-    videoId: "yOgXjm4Z3Co",
-    url: "https://www.youtube.com/watch?v=yOgXjm4Z3Co",
-    title: "Como Nosso Cérebro Cria e Perde Memórias",
-    creator: "TED-Ed",
-    category: "ted",
-    level: "intermediario",
-    levelLabel: "B2 • Ideias",
-    duration: "4:55",
-    thumbnail: "https://i.ytimg.com/vi/yOgXjm4Z3Co/hqdefault.jpg",
-    focus: "Termos Conceituais & Narração Acadêmica",
-    description: "Locução profissional impecável em ritmo claro sobre neurociência e aprendizado.",
-    tag: "Educação & Ciência",
-  },
-  {
-    id: "steve-jobs-stanford",
-    videoId: "UF8uR6Z6KLc",
-    url: "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
-    title: "Stay Hungry, Stay Foolish (Discurso em Stanford)",
-    creator: "Stanford University",
-    category: "ted",
-    level: "intermediario",
-    levelLabel: "B2 • Oratória",
-    duration: "5:00",
-    thumbnail: "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg",
-    focus: "Storytelling, Pausas & Oratória Inspiradora",
-    description: "Aprenda a contar histórias pessoais em inglês com pausas estratégicas e impacto emocional.",
-    tag: "Discurso Histórico",
+    id: 4,
+    title: "Seção 4: Fluência, Negócios & Oratória",
+    subtitle: "Prepare-se para entrevistas de emprego em multinacionais, conversas rápidas e discursos",
+    levelBadge: "Nível B2-C1 • Avançado",
+    themeColor: "purple",
+    lessons: [
+      {
+        id: "job-interview-tell-me",
+        videoId: "5v-wyR5emRw",
+        url: "https://www.youtube.com/watch?v=5v-wyR5emRw",
+        title: "Tell Me About Yourself (Entrevista Modelo)",
+        creator: "CareerVidz",
+        category: "dialogo",
+        level: "intermediario",
+        levelLabel: "B2 • Carreira",
+        duration: "5:20",
+        thumbnail: "https://i.ytimg.com/vi/5v-wyR5emRw/hqdefault.jpg",
+        focus: "Carreira, Apresentação & 'Pitch' Pessoal",
+        description: "A estrutura ideal para responder à pergunta mais comum em entrevistas no exterior.",
+        tag: "Inglês para Negócios",
+        xp: 50,
+      },
+      {
+        id: "steve-jobs-stanford",
+        videoId: "UF8uR6Z6KLc",
+        url: "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+        title: "Stay Hungry, Stay Foolish (Stanford)",
+        creator: "Stanford University",
+        category: "ted",
+        level: "intermediario",
+        levelLabel: "B2 • Oratória",
+        duration: "5:00",
+        thumbnail: "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg",
+        focus: "Storytelling, Pausas & Retórica",
+        description: "O discurso histórico de Steve Jobs. Aprenda a emocionar e reter a atenção do público.",
+        tag: "Discurso Histórico",
+        xp: 55,
+      },
+      {
+        id: "the-office-cpr",
+        videoId: "yfZi_q6a7s0",
+        url: "https://www.youtube.com/watch?v=yfZi_q6a7s0",
+        title: "Treinamento de RCP (Stress Relief)",
+        creator: "The Office US",
+        category: "serie",
+        level: "avancado",
+        levelLabel: "C1 • Avançado",
+        duration: "4:12",
+        thumbnail: "https://i.ytimg.com/vi/yfZi_q6a7s0/hqdefault.jpg",
+        focus: "Diálogo Rápido, Múltiplas Vozes & Gírias",
+        description: "O teste definitivo de escuta: ambiente de trabalho frenético com falantes sobrepostos.",
+        tag: "Comédia de Escritório",
+        xp: 60,
+      },
+    ],
   },
 ];
+
+// Lista plana para a aba "Explorar Catálogo Livre"
+export const ALL_LESSONS = DUOLINGO_SECTIONS.flatMap((sec) => sec.lessons);
 
 interface CuratedCatalogProps {
   onSelectVideo: (url: string) => void;
@@ -245,15 +307,85 @@ interface CuratedCatalogProps {
 }
 
 export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCatalogProps) {
+  // Modo de visualização: "path" (Trilha Duolingo) ou "grid" (Explorar Livre)
+  const [viewMode, setViewMode] = useState<"path" | "grid">("path");
+  const [activeSectionId, setActiveSectionId] = useState<number>(1);
+  const [activeLessonPopover, setActiveLessonPopover] = useState<CuratedLesson | null>(null);
+
+  // Estados de Gamificação salvos localmente
+  const [streak, setStreak] = useState<number>(1);
+  const [xp, setXp] = useState<number>(50);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+
+  // Filtros do Modo Grid
   const [selectedCategory, setSelectedCategory] = useState<string>("todos");
   const [selectedLevel, setSelectedLevel] = useState<string>("todos");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  // Inicializa gamificação do localStorage
+  useEffect(() => {
+    try {
+      const savedXp = localStorage.getItem("ytsubs_xp");
+      const savedStreak = localStorage.getItem("ytsubs_streak");
+      const savedCompleted = localStorage.getItem("ytsubs_completed");
+      const lastActiveDate = localStorage.getItem("ytsubs_last_active");
+
+      if (savedXp) setXp(parseInt(savedXp, 10));
+      if (savedCompleted) {
+        setCompletedIds(new Set(JSON.parse(savedCompleted)));
+      }
+
+      const todayStr = new Date().toDateString();
+      if (lastActiveDate) {
+        const lastDate = new Date(lastActiveDate);
+        const diffDays = Math.floor(
+          (new Date().getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (diffDays === 1) {
+          // Continua streak
+          const newStreak = savedStreak ? parseInt(savedStreak, 10) : 1;
+          setStreak(newStreak);
+        } else if (diffDays > 1) {
+          // Quebrou streak
+          setStreak(1);
+          localStorage.setItem("ytsubs_streak", "1");
+        } else if (savedStreak) {
+          setStreak(parseInt(savedStreak, 10));
+        }
+      } else {
+        localStorage.setItem("ytsubs_last_active", todayStr);
+        localStorage.setItem("ytsubs_streak", "1");
+      }
+    } catch {}
+  }, []);
+
+  const handleStartLesson = (lesson: CuratedLesson) => {
+    try {
+      // Registra ganho de XP e marca como concluído
+      const newXp = xp + lesson.xp;
+      setXp(newXp);
+      localStorage.setItem("ytsubs_xp", newXp.toString());
+
+      const nextCompleted = new Set(completedIds);
+      nextCompleted.add(lesson.id);
+      setCompletedIds(nextCompleted);
+      localStorage.setItem(
+        "ytsubs_completed",
+        JSON.stringify(Array.from(nextCompleted))
+      );
+
+      localStorage.setItem("ytsubs_last_active", new Date().toDateString());
+    } catch {}
+
+    setActiveLessonPopover(null);
+    onSelectVideo(lesson.url);
+  };
+
   const categories = [
-    { id: "todos", label: "Todos os Vídeos", icon: Sparkles },
+    { id: "todos", label: "Todos", icon: Sparkles },
     { id: "musica", label: "Músicas", icon: Music },
     { id: "serie", label: "Séries & Cenas", icon: Film },
-    { id: "desenho", label: "Desenhos (A1)", icon: Smile },
+    { id: "desenho", label: "Desenhos A1", icon: Smile },
     { id: "dialogo", label: "Diálogos Reais", icon: MessageSquare },
     { id: "ted", label: "TED Talks", icon: Lightbulb },
   ];
@@ -265,8 +397,15 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
     { id: "avancado", label: "🟣 Avançado (C1-C2)" },
   ];
 
-  const filteredItems = useMemo(() => {
-    return CURATED_COLLECTION.filter((item) => {
+  const currentSection = useMemo(() => {
+    return (
+      DUOLINGO_SECTIONS.find((s) => s.id === activeSectionId) ||
+      DUOLINGO_SECTIONS[0]
+    );
+  }, [activeSectionId]);
+
+  const filteredGridItems = useMemo(() => {
+    return ALL_LESSONS.filter((item) => {
       const matchCategory =
         selectedCategory === "todos" || item.category === selectedCategory;
       const matchLevel =
@@ -282,190 +421,517 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
   }, [selectedCategory, selectedLevel, searchQuery]);
 
   return (
-    <section className="space-y-6 pt-4">
-      {/* Header do Catálogo */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300 backdrop-blur-md mb-2">
-            <GraduationCap className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Biblioteca Recomendada</span>
+    <section className="space-y-6 pt-2">
+      {/* 1. BARRA SUPERIOR DE GAMIFICAÇÃO DUOLINGO (Streak, XP, Meta e Alternador de Modo) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border border-white/10 bg-zinc-900/80 p-3 sm:p-4 backdrop-blur-xl shadow-2xl">
+        {/* Métricas de Ofensiva (Streak) e XP */}
+        <div className="flex items-center gap-3 sm:gap-6">
+          {/* Streak */}
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400 font-bold text-xs sm:text-sm"
+            title="Sua sequência de dias estudando inglês!"
+          >
+            <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 animate-pulse fill-orange-500" />
+            <span>{streak} {streak === 1 ? "dia" : "dias"} de ofensiva</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            O Que Você Quer Estudar Hoje?
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
-            Clique em qualquer vídeo para abrir o estúdio interativo com legendas bilíngues sincronizadas e dicionário instantâneo com pronúncia nativa.
-          </p>
+
+          {/* XP Total */}
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 font-bold text-xs sm:text-sm"
+            title="Pontos de experiência acumulados com seus estudos"
+          >
+            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 fill-amber-400" />
+            <span>{xp} XP</span>
+          </div>
+
+          {/* Meta do Dia */}
+          <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400">
+            <Target className="h-4 w-4 text-emerald-400" />
+            <span>
+              Meta de Hoje:{" "}
+              <strong className="text-white">
+                {completedIds.size > 0 ? "1/1 Concluída ✅" : "0/1 Vídeo"}
+              </strong>
+            </span>
+          </div>
         </div>
 
-        {/* Campo de Busca Rápida */}
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Buscar por artista, série ou tema..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20 transition-all"
-          />
-        </div>
-      </div>
-
-      {/* Barra de Filtros por Categoria */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-          const isActive = selectedCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-                isActive
-                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25 font-semibold"
-                  : "bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/[0.06]"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Filtro Secundário por Nível de Dificuldade */}
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-zinc-500 flex items-center gap-1.5 font-medium mr-1">
-          <Filter className="h-3 w-3" />
-          Nível:
-        </span>
-        {levels.map((lvl) => {
-          const isActive = selectedLevel === lvl.id;
-          return (
-            <button
-              key={lvl.id}
-              type="button"
-              onClick={() => setSelectedLevel(lvl.id)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
-                isActive
-                  ? "bg-white/15 text-white font-semibold border border-white/20"
-                  : "bg-zinc-900/50 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800/80 border border-white/[0.04]"
-              }`}
-            >
-              {lvl.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Grid de Cards de Vídeos Recomendados */}
-      {filteredItems.length === 0 ? (
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-900/40 p-12 text-center space-y-3">
-          <Search className="h-8 w-8 text-zinc-600 mx-auto" />
-          <h3 className="text-sm font-semibold text-zinc-300">
-            Nenhum conteúdo encontrado para estes filtros
-          </h3>
-          <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-            Tente selecionar outra categoria ou limpe o termo de busca para ver todas as opções disponíveis.
-          </p>
+        {/* Alternador de Modo: Trilha Duolingo vs. Explorar Catálogo Livre */}
+        <div className="flex items-center p-1 rounded-xl bg-black/60 border border-white/10 text-xs font-semibold">
           <button
             type="button"
-            onClick={() => {
-              setSelectedCategory("todos");
-              setSelectedLevel("todos");
-              setSearchQuery("");
-            }}
-            className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:underline cursor-pointer"
+            onClick={() => setViewMode("path")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              viewMode === "path"
+                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 font-bold"
+                : "text-zinc-400 hover:text-white"
+            }`}
           >
-            <span>Restaurar todos os filtros</span>
+            <Compass className="h-3.5 w-3.5" />
+            <span>Trilha de Estudo</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("grid")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              viewMode === "grid"
+                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25 font-bold"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5" />
+            <span>Explorar Todos</span>
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-          {filteredItems.map((item) => {
-            const isBeginner = item.level === "iniciante";
-            const isIntermediate = item.level === "intermediario";
+      </div>
 
-            return (
-              <div
-                key={item.id}
-                onClick={() => !isLoading && onSelectVideo(item.url)}
-                className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden"
+      {/* 2. MODO TRILHA DUOLINGO (The Learning Path) */}
+      {viewMode === "path" && (
+        <div className="space-y-6">
+          {/* Navegador de Seções do Duolingo (A1 -> A2 -> B1 -> B2/C1) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            {DUOLINGO_SECTIONS.map((sec) => {
+              const isSelected = sec.id === activeSectionId;
+              const hasCompleted = sec.lessons.some((l) => completedIds.has(l.id));
+
+              let colorClasses = "border-white/10 text-zinc-400 hover:bg-zinc-900";
+              if (isSelected) {
+                if (sec.themeColor === "emerald") {
+                  colorClasses =
+                    "border-emerald-500/60 bg-emerald-500/15 text-emerald-300 ring-2 ring-emerald-500/20";
+                } else if (sec.themeColor === "indigo") {
+                  colorClasses =
+                    "border-indigo-500/60 bg-indigo-500/15 text-indigo-300 ring-2 ring-indigo-500/20";
+                } else if (sec.themeColor === "amber") {
+                  colorClasses =
+                    "border-amber-500/60 bg-amber-500/15 text-amber-300 ring-2 ring-amber-500/20";
+                } else {
+                  colorClasses =
+                    "border-purple-500/60 bg-purple-500/15 text-purple-300 ring-2 ring-purple-500/20";
+                }
+              }
+
+              return (
+                <button
+                  key={sec.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveSectionId(sec.id);
+                    setActiveLessonPopover(null);
+                  }}
+                  className={`flex flex-col text-left p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${colorClasses}`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold mb-1">
+                    <span>SEÇÃO {sec.id}</span>
+                    {hasCompleted && (
+                      <span className="flex items-center gap-0.5 text-emerald-400 text-[10px]">
+                        <Check className="h-3 w-3" />
+                        <span>Em progresso</span>
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-1">
+                    {sec.levelBadge}
+                  </h4>
+                  <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">
+                    {sec.lessons.length} lições práticas
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Banner da Seção Ativa (Estilo Duolingo Banner com Ícones e Recompensas) */}
+          <div
+            className={`rounded-3xl p-5 sm:p-6 text-white border relative overflow-hidden shadow-2xl transition-all ${
+              currentSection.themeColor === "emerald"
+                ? "bg-gradient-to-r from-emerald-950/80 via-emerald-900/50 to-zinc-950 border-emerald-500/30 shadow-emerald-950/30"
+                : currentSection.themeColor === "indigo"
+                ? "bg-gradient-to-r from-indigo-950/80 via-indigo-900/50 to-zinc-950 border-indigo-500/30 shadow-indigo-950/30"
+                : currentSection.themeColor === "amber"
+                ? "bg-gradient-to-r from-amber-950/80 via-amber-900/50 to-zinc-950 border-amber-500/30 shadow-amber-950/30"
+                : "bg-gradient-to-r from-purple-950/80 via-purple-900/50 to-zinc-950 border-purple-500/30 shadow-purple-950/30"
+            }`}
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+              <div className="space-y-1.5 max-w-xl">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/80">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  {currentSection.levelBadge}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                  {currentSection.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-300">
+                  {currentSection.subtitle}
+                </p>
+              </div>
+
+              {/* Dica da Trilha */}
+              <div className="inline-flex items-center gap-2 rounded-2xl bg-black/40 border border-white/10 px-4 py-2.5 text-xs text-zinc-300 backdrop-blur-md shrink-0">
+                <Trophy className="h-4 w-4 text-amber-400 shrink-0" />
+                <span>
+                  Ganhe até{" "}
+                  <strong className="text-amber-300">
+                    +{currentSection.lessons.reduce((acc, l) => acc + l.xp, 0)} XP
+                  </strong>{" "}
+                  nesta seção
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* O Caminho Serpenteante da Trilha (The Duolingo Snake Path) */}
+          <div className="relative py-6 max-w-md mx-auto flex flex-col items-center">
+            {/* Linha vertical conectora de fundo estilizada */}
+            <div className="absolute top-10 bottom-10 w-1.5 bg-gradient-to-b from-white/15 via-white/20 to-white/5 rounded-full z-0" />
+
+            {/* Nós Interativos da Trilha */}
+            <div className="w-full space-y-10 sm:space-y-12 relative z-10">
+              {currentSection.lessons.map((lesson, idx) => {
+                const isCompleted = completedIds.has(lesson.id);
+                // Serpenteamento Duolingo: centro, esquerda, centro, direita
+                const alignments = [
+                  "justify-center",
+                  "justify-start pl-6 sm:pl-10",
+                  "justify-center",
+                  "justify-end pr-6 sm:pr-10",
+                ];
+                const alignmentClass = alignments[idx % alignments.length];
+
+                let IconComponent = Play;
+                if (lesson.category === "musica") IconComponent = Music;
+                else if (lesson.category === "serie") IconComponent = Film;
+                else if (lesson.category === "desenho") IconComponent = Smile;
+                else if (lesson.category === "dialogo") IconComponent = MessageSquare;
+                else if (lesson.category === "ted") IconComponent = Lightbulb;
+
+                // Cor do botão 3D da trilha
+                let btnColor =
+                  "bg-indigo-600 border-indigo-800 text-white shadow-indigo-600/30 hover:bg-indigo-500";
+                if (isCompleted) {
+                  btnColor =
+                    "bg-emerald-600 border-emerald-800 text-white shadow-emerald-600/30 hover:bg-emerald-500";
+                }
+
+                return (
+                  <div key={lesson.id} className={`flex ${alignmentClass} relative`}>
+                    <div className="relative group flex flex-col items-center">
+                      {/* Botão circular 3D Duolingo com efeito de clique e pulsação */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveLessonPopover(lesson)}
+                        className={`relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-b-[6px] transition-all cursor-pointer active:translate-y-1 active:border-b-0 shadow-xl ${btnColor}`}
+                      >
+                        {isCompleted ? (
+                          <div className="relative flex items-center justify-center">
+                            <Check className="h-8 w-8 stroke-[3.5] text-white" />
+                            <span className="absolute -bottom-4 bg-emerald-950 border border-emerald-400 text-[10px] font-black px-1.5 py-0.2 rounded-full text-emerald-300">
+                              FEITO
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center">
+                            <IconComponent className="h-7 w-7 text-white fill-white/20" />
+                            <span className="text-[10px] font-black text-white/90 mt-0.5">
+                              +{lesson.xp}XP
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Halo pulsante no nó ativo */}
+                        {!isCompleted && idx === 0 && (
+                          <span className="absolute -inset-1 rounded-full border-2 border-white/50 animate-ping pointer-events-none" />
+                        )}
+                      </button>
+
+                      {/* Título flutuante abaixo do nó */}
+                      <span className="mt-2 text-[11px] sm:text-xs font-bold text-zinc-300 max-w-[140px] text-center truncate drop-shadow-md">
+                        {lesson.title}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Baú / Troféu de Conclusão da Seção (Marco Duolingo) */}
+              <div className="flex justify-center pt-2">
+                <div className="flex flex-col items-center p-4 rounded-3xl border border-amber-500/30 bg-amber-500/10 backdrop-blur-md text-center max-w-xs shadow-xl shadow-amber-500/10">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 shadow-lg shadow-amber-500/30 mb-2">
+                    <Crown className="h-8 w-8 fill-current" />
+                  </div>
+                  <h4 className="font-extrabold text-sm text-amber-300">
+                    Marco da Seção {currentSection.id}
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Complete todas as lições acima para dominar {currentSection.levelBadge}!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Modal / Popover de Prévia da Lição Selecionada na Trilha */}
+          {activeLessonPopover && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+              <div className="w-full max-w-md rounded-3xl border border-white/15 bg-zinc-950 p-5 sm:p-6 shadow-2xl space-y-4">
+                {/* Imagem de Capa com Badge de Duração */}
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black">
+                  <img
+                    src={activeLessonPopover.thumbnail}
+                    alt={activeLessonPopover.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute top-2.5 left-2.5 rounded-lg bg-black/80 border border-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-200 backdrop-blur-md">
+                    {activeLessonPopover.levelLabel}
+                  </div>
+                  <div className="absolute bottom-2.5 right-2.5 rounded-lg bg-black/80 px-2 py-0.5 text-[10px] font-mono font-semibold text-zinc-300">
+                    {activeLessonPopover.duration}
+                  </div>
+                </div>
+
+                {/* Detalhes da Lição */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>{activeLessonPopover.creator}</span>
+                    <span className="flex items-center gap-1 font-bold text-amber-400">
+                      <Zap className="h-3.5 w-3.5 fill-current" />
+                      +{activeLessonPopover.xp} XP ao concluir
+                    </span>
+                  </div>
+
+                  <h3 className="font-extrabold text-base sm:text-lg text-white">
+                    {activeLessonPopover.title}
+                  </h3>
+
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {activeLessonPopover.description}
+                  </p>
+
+                  <div className="pt-1">
+                    <span className="inline-flex items-center text-xs font-semibold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-xl">
+                      🎯 Foco: {activeLessonPopover.focus}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Botões de Ação estilo Duolingo */}
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveLessonPopover(null)}
+                    className="w-1/3 py-3 rounded-2xl border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    Fechar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleStartLesson(activeLessonPopover)}
+                    disabled={isLoading}
+                    className="w-2/3 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 text-xs sm:text-sm font-black text-white shadow-xl shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-b-4 border-emerald-800"
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                    <span>
+                      {completedIds.has(activeLessonPopover.id)
+                        ? "REVISAR VÍDEO"
+                        : `COMEÇAR (+${activeLessonPopover.xp} XP)`}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. MODO EXPLORAR CATÁLOGO LIVRE (Grid com Busca e Filtros) */}
+      {viewMode === "grid" && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Header e Busca */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                Explorar Todos os Vídeos & Conteúdos
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl">
+                Navegue livremente por gênero musical, trechos de séries clássicas ou diálogos da vida real.
+              </p>
+            </div>
+
+            {/* Campo de Busca Rápida */}
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <input
+                type="text"
+                placeholder="Buscar por artista, série ou tema..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Barra de Filtros por Categoria */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25 font-semibold"
+                      : "bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/[0.06]"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Filtro Secundário por Nível */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-zinc-500 flex items-center gap-1.5 font-medium mr-1">
+              <Filter className="h-3 w-3" />
+              Nível CEFR:
+            </span>
+            {levels.map((lvl) => {
+              const isActive = selectedLevel === lvl.id;
+              return (
+                <button
+                  key={lvl.id}
+                  type="button"
+                  onClick={() => setSelectedLevel(lvl.id)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-white/15 text-white font-semibold border border-white/20"
+                      : "bg-zinc-900/50 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800/80 border border-white/[0.04]"
+                  }`}
+                >
+                  {lvl.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Grid de Cards */}
+          {filteredGridItems.length === 0 ? (
+            <div className="rounded-2xl border border-white/[0.08] bg-zinc-900/40 p-12 text-center space-y-3">
+              <Search className="h-8 w-8 text-zinc-600 mx-auto" />
+              <h3 className="text-sm font-semibold text-zinc-300">
+                Nenhum conteúdo encontrado para estes filtros
+              </h3>
+              <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+                Tente selecionar outra categoria ou limpe o termo de busca.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory("todos");
+                  setSelectedLevel("todos");
+                  setSearchQuery("");
+                }}
+                className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:underline cursor-pointer"
               >
-                {/* Imagem de Capa e Badges */}
-                <div className="space-y-3">
-                  <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/60">
-                    <img
-                      src={item.thumbnail}
-                      alt={item.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                <span>Restaurar todos os filtros</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+              {filteredGridItems.map((item) => {
+                const isBeginner = item.level === "iniciante";
+                const isIntermediate = item.level === "intermediario";
+                const isDone = completedIds.has(item.id);
 
-                    {/* Overlay escuro ao passar o mouse com botão de play */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/40 scale-75 group-hover:scale-100 transition-transform">
-                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => !isLoading && handleStartLesson(item)}
+                    className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden"
+                  >
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/60">
+                        <img
+                          src={item.thumbnail}
+                          alt={item.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+
+                        {/* Overlay com Play */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/40 scale-75 group-hover:scale-100 transition-transform">
+                            <Play className="h-5 w-5 fill-current ml-0.5" />
+                          </div>
+                        </div>
+
+                        {/* Selo Concluído */}
+                        {isDone && (
+                          <div className="absolute top-2 right-2 rounded-md bg-emerald-500/90 text-white px-1.5 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-md">
+                            <Check className="h-3 w-3" />
+                            <span>Concluído</span>
+                          </div>
+                        )}
+
+                        <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-mono font-semibold text-zinc-300">
+                          <Clock className="h-2.5 w-2.5" />
+                          <span>{item.duration}</span>
+                        </div>
+
+                        <div className="absolute top-2 left-2 rounded-md bg-zinc-950/80 backdrop-blur-md border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-zinc-300">
+                          {item.tag}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              isBeginner
+                                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/25"
+                                : isIntermediate
+                                ? "bg-amber-500/10 text-amber-300 border-amber-500/25"
+                                : "bg-purple-500/10 text-purple-300 border-purple-500/25"
+                            }`}
+                          >
+                            {item.levelLabel}
+                          </span>
+                          <span className="text-[11px] text-zinc-500 truncate max-w-[120px]">
+                            {item.creator}
+                          </span>
+                        </div>
+
+                        <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-indigo-300 transition-colors">
+                          {item.title}
+                        </h4>
+
+                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Badge de Duração no Canto Inferior Direito */}
-                    <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-mono font-semibold text-zinc-300">
-                      <Clock className="h-2.5 w-2.5" />
-                      <span>{item.duration}</span>
-                    </div>
-
-                    {/* Tag de Categoria */}
-                    <div className="absolute top-2 left-2 rounded-md bg-zinc-950/80 backdrop-blur-md border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-zinc-300">
-                      {item.tag}
-                    </div>
-                  </div>
-
-                  {/* Detalhes do Conteúdo */}
-                  <div className="space-y-1.5">
-                    {/* Badge de Nível CEFR */}
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          isBeginner
-                            ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/25"
-                            : isIntermediate
-                            ? "bg-amber-500/10 text-amber-300 border-amber-500/25"
-                            : "bg-purple-500/10 text-purple-300 border-purple-500/25"
-                        }`}
-                      >
-                        {item.levelLabel}
+                    <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
+                      <span className="text-[10px] font-medium text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md truncate max-w-[200px]">
+                        🎯 {item.focus}
                       </span>
-                      <span className="text-[11px] text-zinc-500 truncate max-w-[120px]">
-                        {item.creator}
+
+                      <span className="text-xs font-semibold text-indigo-400 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                        <span>+{item.xp}XP</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
                       </span>
                     </div>
-
-                    <h3 className="font-bold text-sm text-white line-clamp-1 group-hover:text-indigo-300 transition-colors">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
                   </div>
-                </div>
-
-                {/* Footer do Card com Foco de Aprendizado */}
-                <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md truncate max-w-[200px]">
-                    🎯 {item.focus}
-                  </span>
-
-                  <span className="text-xs font-semibold text-indigo-400 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-                    <span>Estudar</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </section>
