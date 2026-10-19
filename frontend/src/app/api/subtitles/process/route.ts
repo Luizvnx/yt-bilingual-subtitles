@@ -64,13 +64,12 @@ export async function POST(request: NextRequest) {
         checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
       if (isActuallyTranslated) {
-        if (!existing.embedVideoId && (videoId === "kPa7bsKwL-c" || existing.uploader?.toLowerCase().includes("vevo") || existing.title?.toLowerCase().includes("official music video"))) {
-          if (videoId === "kPa7bsKwL-c") {
-            existing.embedVideoId = "zgaCZOQCpp8";
-          } else {
-            const alt = await YouTubeService.findAlternativeVideo(videoId, existing.title);
-            if (alt) existing.embedVideoId = alt;
-          }
+        if (videoId === "kPa7bsKwL-c") {
+          existing.embedVideoId = "zgaCZOQCpp8";
+        } else if (existing.embedVideoId) {
+          // Remove ID de embed pré-salvo incorretamente para garantir reprodução do vídeo oficial
+          delete existing.embedVideoId;
+          videoRepository.saveVideo(existing);
         }
         return NextResponse.json({
           success: true,
@@ -140,16 +139,9 @@ export async function POST(request: NextRequest) {
     const detectedLang = (segments as any).detectedLang || "en";
 
     // 4. Salva no repositório de vídeos
-    let embedVideoId: string | undefined = undefined;
-    if (videoId === "kPa7bsKwL-c") {
-      embedVideoId = "zgaCZOQCpp8";
-    } else if (
-      metadata.uploader?.toLowerCase().includes("vevo") ||
-      metadata.title?.toLowerCase().includes("official music video") ||
-      metadata.title?.toLowerCase().includes("official video")
-    ) {
-      embedVideoId = await YouTubeService.findAlternativeVideo(videoId, metadata.title);
-    }
+    // Somente o vídeo oficial com bloqueio VEVO comprovado recebe fallback estático imediato
+    const embedVideoId: string | undefined =
+      videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : undefined;
 
     const savedRecord = videoRepository.saveVideo({
       id: videoId,

@@ -475,10 +475,9 @@ export default function HomePage() {
                 <YouTubePlayer
                   videoId={currentVideo.videoId}
                   embedVideoId={
-                    currentVideo.embedVideoId ||
-                    (currentVideo.videoId === "kPa7bsKwL-c"
+                    currentVideo.videoId === "kPa7bsKwL-c"
                       ? "zgaCZOQCpp8"
-                      : undefined)
+                      : undefined
                   }
                   title={currentVideo.title}
                   segments={currentVideo.segments}
