@@ -1100,4 +1100,65 @@ export class YouTubeService {
 
     return segments;
   }
+
+  /**
+   * Localiza versão alternativa sem restrição de incorporação (letras/áudio idênticos)
+   */
+  static async findAlternativeVideo(videoId: string, rawTitle: string): Promise<string | undefined> {
+    try {
+      const cleanTitle = rawTitle
+        .replace(/\(Official\s+(Music\s+)?Video\)/gi, "")
+        .replace(/\[Official\s+(Music\s+)?Video\]/gi, "")
+        .replace(/\(Official\s+Audio\)/gi, "")
+        .replace(/\[Official\s+Audio\]/gi, "")
+        .replace(/\(Videoclipe\s+Oficial\)/gi, "")
+        .replace(/\[Videoclipe\s+Oficial\]/gi, "")
+        .replace(/\(Clipe\s+Oficial\)/gi, "")
+        .replace(/\[Clipe\s+Oficial\]/gi, "")
+        .replace(/Official\s+Video/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const query = cleanTitle ? `${cleanTitle} lyrics` : `${videoId} lyrics`;
+
+      const res = await fetch("https://www.youtube.com/youtubei/v1/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        body: JSON.stringify({
+          context: {
+            client: {
+              clientName: "WEB",
+              clientVersion: "2.20240101.00.00",
+              hl: "en",
+              gl: "US",
+            },
+          },
+          query,
+        }),
+        signal: AbortSignal.timeout(4500),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const contents =
+          data?.contents?.twoColumnSearchResultsRenderer?.primaryContents
+            ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
+
+        for (const item of contents) {
+          const v = item.videoRenderer;
+          if (v && v.videoId && v.videoId !== videoId) {
+            const owner = v.ownerText?.runs?.[0]?.text || "";
+            if (!owner.toLowerCase().includes("vevo")) {
+              return v.videoId;
+            }
+          }
+        }
+      }
+    } catch {}
+    return undefined;
+  }
 }
