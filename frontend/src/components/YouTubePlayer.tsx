@@ -41,56 +41,54 @@ export function YouTubePlayer({
     "bilingual"
   );
 
-  // Determina o ID reproduzível inicial (se o clipe for restrito, já inicializa com o embedVideoId compatível)
-  const initialPlayableId =
+  // Determina o ID de vídeo inicial reproduzível
+  const initialId =
     embedVideoId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : videoId);
 
-  const [activeVideoId, setActiveVideoId] = useState(initialPlayableId);
+  const [activeVideoId, setActiveVideoId] = useState(initialId);
   const [isUsingAlternative, setIsUsingAlternative] = useState(
-    initialPlayableId !== videoId
+    initialId !== videoId
   );
   const [altVideo, setAltVideo] = useState<{
     id: string;
     title: string;
-    owner?: string;
   } | null>(
-    initialPlayableId !== videoId
-      ? { id: initialPlayableId, title: "Versão Sincronizada" }
+    initialId !== videoId
+      ? { id: initialId, title: "Versão Sincronizada" }
       : null
   );
   const [isSearchingAlt, setIsSearchingAlt] = useState(false);
   const [hasEmbedRestriction, setHasEmbedRestriction] = useState(false);
 
-  // Referência do container estável do DOM
-  const containerRef = useRef<HTMLDivElement>(null);
-  const playerIdRef = useRef("yt-player-target");
+  // Circuit breaker estrito anti-loop infinito (máximo 2 tentativas por ciclo)
+  const retryCountRef = useRef(0);
+  const isSwitchingRef = useRef(false);
+  const attemptedIdsRef = useRef<Set<string>>(new Set([initialId]));
 
-  // Duração máxima calculada com base no último segmento de legenda
-  const maxDuration =
-    segments && segments.length > 0
-      ? Math.max(...segments.map((s) => s.end || 0)) + 5
-      : 300;
+  // Callback ref para onTimeUpdate e switchToAlternative (evita re-execução do useEffect do player)
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  onTimeUpdateRef.current = onTimeUpdate;
 
-  // Pré-busca versão alternativa sincronizada em segundo plano
+  // Atualiza activeVideoId se as props externas mudarem
   useEffect(() => {
-    const targetId =
+    const target =
       embedVideoId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : videoId);
 
-    setActiveVideoId(targetId);
-    setIsUsingAlternative(targetId !== videoId);
+    setActiveVideoId(target);
+    setIsUsingAlternative(target !== videoId);
     setHasEmbedRestriction(false);
-
-    if (targetId !== videoId) {
-      setAltVideo({ id: targetId, title: "Versão Sincronizada" });
-    }
+    retryCountRef.current = 0;
+    isSwitchingRef.current = false;
+    attemptedIdsRef.current = new Set([target]);
 
     if (!videoId) return;
 
+    // Pré-busca preventiva de versão alternativa em segundo plano
     const controller = new AbortController();
-    const queryTitle = title || "";
-
     fetch(
-      `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(queryTitle)}`,
+      `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
+        title || ""
+      )}`,
       { signal: controller.signal }
     )
       .then((res) => (res.ok ? res.json() : null))
@@ -106,122 +104,108 @@ export function YouTubePlayer({
 
   // Função para alternar para a versão sem restrição de reprodução externa
   const switchToAlternative = useCallback(
-    async (forcedTargetId?: string) => {
+    async (forcedId?: string) => {
+      // Bloqueio de segurança anti-loop infinito e concorrência
+      if (isSwitchingRef.current || retryCountRef.current >= 2) {
+        console.warn(
+          "[YouTubePlayer] Circuit breaker ativo ou busca já em andamento."
+        );
+        setHasEmbedRestriction(true);
+        setIsSearchingAlt(false);
+        return;
+      }
+
+      isSwitchingRef.current = true;
       setIsSearchingAlt(true);
       setHasEmbedRestriction(false);
 
       try {
-        let targetId = forcedTargetId || altVideo?.id;
-        if (!targetId || targetId === videoId) {
-          if (videoId === "kPa7bsKwL-c") {
+        let targetId = forcedId || altVideo?.id;
+
+        // Se o targetId já foi tentado ou é o mesmo, busca nova alternativa
+        if (!targetId || attemptedIdsRef.current.has(targetId)) {
+          if (
+            videoId === "kPa7bsKwL-c" &&
+            !attemptedIdsRef.current.has("zgaCZOQCpp8")
+          ) {
             targetId = "zgaCZOQCpp8";
           } else {
-            try {
-              const res = await fetch(
-                `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
-                  title || ""
-                )}`
-              );
-              if (res.ok) {
-                const data = await res.json();
-                if (data?.success && data?.id && data.id !== videoId) {
-                  targetId = data.id;
-                  setAltVideo(data);
-                }
+            const res = await fetch(
+              `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
+                title || ""
+              )}`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.id && !attemptedIdsRef.current.has(data.id)) {
+                targetId = data.id;
+                setAltVideo(data);
               }
-            } catch {}
+            }
           }
         }
 
-        const finalId =
-          targetId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : undefined);
-
-        if (finalId) {
-          console.log(`[YouTubePlayer] Ativando versão sincronizada: ${finalId}`);
-          setActiveVideoId(finalId);
+        if (targetId && !attemptedIdsRef.current.has(targetId)) {
+          console.log(
+            `[YouTubePlayer] Ativando versão alternativa: ${targetId}`
+          );
+          retryCountRef.current += 1;
+          attemptedIdsRef.current.add(targetId);
+          setActiveVideoId(targetId);
           setIsUsingAlternative(true);
           setHasEmbedRestriction(false);
           setIsSearchingAlt(false);
-
-          if (
-            playerRef.current &&
-            typeof playerRef.current.loadVideoById === "function"
-          ) {
-            try {
-              playerRef.current.loadVideoById(finalId);
-              return true;
-            } catch (e) {
-              console.warn("[YouTubePlayer] loadVideoById falhou:", e);
-            }
-          }
-          return true;
+          return;
         }
       } catch (err) {
         console.warn("[YouTubePlayer] Erro na busca de alternativa:", err);
+      } finally {
+        isSwitchingRef.current = false;
+        setIsSearchingAlt(false);
       }
-      setIsSearchingAlt(false);
-      return false;
+
+      setHasEmbedRestriction(true);
     },
-    [altVideo, videoId, title, playerRef]
+    [altVideo, videoId, title]
   );
 
-  // Carrega e gerencia o player do YouTube no iframe
+  const switchToAlternativeRef = useRef(switchToAlternative);
+  switchToAlternativeRef.current = switchToAlternative;
+
+  // Conecta YouTube IFrame API ao iframe JSX nativo
   useEffect(() => {
-    if (!activeVideoId) return;
-
     let pollInterval: NodeJS.Timeout | null = null;
+    let ytInstance: any = null;
 
-    const initPlayer = () => {
+    const bindPlayer = () => {
       if (!window.YT || !window.YT.Player) return;
 
-      // Garante que o elemento HTML target exista dentro do container estável
-      if (containerRef.current) {
-        containerRef.current.innerHTML = `<div id="${playerIdRef.current}" class="h-full w-full"></div>`;
-      }
+      const iframeEl = document.getElementById("youtube-iframe-player");
+      if (!iframeEl) return;
 
       try {
-        const playerVars: any = {
-          autoplay: 0,
-          controls: 1,
-          modestbranding: 1,
-          rel: 0,
-          fs: 1,
-          playsinline: 1,
-          enablejsapi: 1,
-        };
-
-        // Somente define origin em localhost (evita que YouTube bloqueie IPs como 137.131.164.202)
-        if (typeof window !== "undefined") {
-          const host = window.location.hostname;
-          if (host === "localhost" || host === "127.0.0.1") {
-            playerVars.origin = window.location.origin;
-          }
-        }
-
-        playerRef.current = new window.YT.Player(playerIdRef.current, {
-          videoId: activeVideoId,
-          playerVars,
+        ytInstance = new window.YT.Player("youtube-iframe-player", {
           events: {
             onReady: () => {
+              playerRef.current = ytInstance;
               if (pollInterval) clearInterval(pollInterval);
               pollInterval = setInterval(() => {
                 if (
-                  playerRef.current &&
-                  typeof playerRef.current.getCurrentTime === "function"
+                  ytInstance &&
+                  typeof ytInstance.getCurrentTime === "function"
                 ) {
                   try {
-                    const time = playerRef.current.getCurrentTime();
-                    if (typeof time === "number" && !isNaN(time)) {
-                      onTimeUpdate(time);
+                    const t = ytInstance.getCurrentTime();
+                    if (typeof t === "number" && !isNaN(t)) {
+                      onTimeUpdateRef.current(t);
                     }
                   } catch {}
                 }
               }, 100);
             },
-            onError: async (event: any) => {
+            onError: (event: any) => {
               const errorCode = event?.data;
-              console.warn("[YouTubePlayer] Erro na reprodução:", errorCode);
-              // Códigos 150, 101, 152, 153, 2: Restrição de reprodução externa imposta pela gravadora / VEVO
+              console.warn("[YouTubePlayer] Erro detectado no player:", errorCode);
               if (
                 errorCode === 150 ||
                 errorCode === 101 ||
@@ -229,41 +213,23 @@ export function YouTubePlayer({
                 errorCode === 153 ||
                 errorCode === 2
               ) {
-                const altId =
-                  videoId === "kPa7bsKwL-c"
-                    ? "zgaCZOQCpp8"
-                    : altVideo?.id || undefined;
-
-                if (altId && activeVideoId !== altId) {
-                  setActiveVideoId(altId);
-                  setIsUsingAlternative(true);
-                  setHasEmbedRestriction(false);
-                  if (
-                    playerRef.current &&
-                    typeof playerRef.current.loadVideoById === "function"
-                  ) {
-                    try {
-                      playerRef.current.loadVideoById(altId);
-                      return;
-                    } catch {}
-                  }
+                // Dispara troca apenas se não ultrapassou o limite do circuit breaker
+                if (retryCountRef.current < 2) {
+                  switchToAlternativeRef.current();
                 } else {
-                  const switched = await switchToAlternative();
-                  if (!switched) {
-                    setHasEmbedRestriction(true);
-                  }
+                  setHasEmbedRestriction(true);
                 }
               }
             },
           },
         });
       } catch (err) {
-        console.warn("[YouTubePlayer] Erro ao instanciar player:", err);
+        console.warn("[YouTubePlayer] Falha ao conectar YT.Player:", err);
       }
     };
 
     if (window.YT && window.YT.Player) {
-      initPlayer();
+      bindPlayer();
     } else {
       const existingScript = document.getElementById("youtube-iframe-script");
       if (!existingScript) {
@@ -272,19 +238,15 @@ export function YouTubePlayer({
         tag.src = "https://www.youtube.com/iframe_api";
         document.body.appendChild(tag);
       }
-      window.onYouTubeIframeAPIReady = initPlayer;
+      window.onYouTubeIframeAPIReady = bindPlayer;
     }
 
     return () => {
       if (pollInterval) clearInterval(pollInterval);
-      if (playerRef.current && playerRef.current.destroy) {
-        try {
-          playerRef.current.destroy();
-        } catch {}
-        playerRef.current = null;
-      }
+      // O nó <iframe> é de propriedade do React e não deve ser removido pelo YT.destroy()
+      playerRef.current = null;
     };
-  }, [activeVideoId, switchToAlternative, playerRef, onTimeUpdate]);
+  }, [activeVideoId, playerRef]);
 
   // Deriva o segmento de legenda ativo com base no tempo atual
   const activeSegment =
@@ -309,11 +271,9 @@ export function YouTubePlayer({
             <button
               type="button"
               onClick={() => {
+                retryCountRef.current = 2; // Usuário solicitou explicitamente o vídeo original; impede auto-fallback em loop
                 setActiveVideoId(videoId);
                 setIsUsingAlternative(false);
-                if (playerRef.current?.loadVideoById) {
-                  playerRef.current.loadVideoById(videoId);
-                }
               }}
               className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
@@ -337,7 +297,10 @@ export function YouTubePlayer({
           </span>
           <button
             type="button"
-            onClick={() => switchToAlternative()}
+            onClick={() => {
+              retryCountRef.current = 0;
+              switchToAlternative();
+            }}
             disabled={isSearchingAlt}
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-all shadow-sm shadow-indigo-600/20 shrink-0 cursor-pointer"
           >
@@ -349,12 +312,17 @@ export function YouTubePlayer({
         </div>
       ) : null}
 
-      {/* Container de Vídeo IFrame Proporção 16:9 */}
+      {/* Container de Vídeo IFrame Proporção 16:9 Estável */}
       <div className="relative aspect-video w-full bg-black">
-        {/* Container estável que nunca é destruído */}
-        <div ref={containerRef} className="h-full w-full">
-          <div id={playerIdRef.current} className="h-full w-full" />
-        </div>
+        {/* IFrame Nativo JSX gerenciado pelo React (100% imune a desaparecimento e a loops) */}
+        <iframe
+          id="youtube-iframe-player"
+          key={activeVideoId}
+          src={`https://www.youtube.com/embed/${activeVideoId}?enablejsapi=1&rel=0&playsinline=1`}
+          className="w-full h-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
 
         {/* Loading Overlay com Design Glassmorphism da Identidade Visual */}
         {isSearchingAlt && (
@@ -369,7 +337,7 @@ export function YouTubePlayer({
           </div>
         )}
 
-        {/* Fallback Glassmorphic Discreto se tudo falhar */}
+        {/* Fallback Glassmorphic Discreto se todas as alternativas falharem */}
         {hasEmbedRestriction && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-zinc-950/90 backdrop-blur-md p-6 text-center space-y-4">
             <div className="flex flex-col items-center max-w-sm space-y-2">
@@ -389,14 +357,13 @@ export function YouTubePlayer({
               <button
                 type="button"
                 onClick={() => {
-                  setHasEmbedRestriction(false);
-                  switchToAlternative(
-                    videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : undefined
-                  );
+                  retryCountRef.current = 0;
+                  switchToAlternative();
                 }}
+                disabled={isSearchingAlt}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
+                <RefreshCw className={`h-3.5 w-3.5 ${isSearchingAlt ? "animate-spin" : ""}`} />
                 <span>Carregar Versão Sincronizada</span>
               </button>
 
@@ -404,7 +371,7 @@ export function YouTubePlayer({
                 href={`https://www.youtube.com/watch?v=${videoId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium border border-white/10 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium border border-white/10 transition-colors"
               >
                 <span>Assistir no YouTube</span>
                 <ExternalLink className="h-3 w-3" />
