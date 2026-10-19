@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { SubtitleSegment } from "@/lib/security";
 import {
   EyeOff,
@@ -10,8 +10,9 @@ import {
   RotateCcw,
   ExternalLink,
   Music2,
-  AlertTriangle,
   RotateCw,
+  RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
 
 declare global {
@@ -23,6 +24,7 @@ declare global {
 
 interface YouTubePlayerProps {
   videoId: string;
+  title?: string;
   segments: SubtitleSegment[];
   currentTime: number;
   onTimeUpdate: (time: number) => void;
@@ -31,6 +33,7 @@ interface YouTubePlayerProps {
 
 export function YouTubePlayer({
   videoId,
+  title,
   segments,
   currentTime,
   onTimeUpdate,
@@ -39,6 +42,14 @@ export function YouTubePlayer({
   const [subMode, setSubMode] = useState<"bilingual" | "en" | "pt" | "none">(
     "bilingual"
   );
+  const [activeVideoId, setActiveVideoId] = useState(videoId);
+  const [altVideo, setAltVideo] = useState<{
+    id: string;
+    title: string;
+    owner?: string;
+  } | null>(null);
+  const [isUsingAlternative, setIsUsingAlternative] = useState(false);
+  const [isSearchingAlt, setIsSearchingAlt] = useState(false);
   const [hasEmbedRestriction, setHasEmbedRestriction] = useState(false);
   const [isVirtualPlaying, setIsVirtualPlaying] = useState(false);
 
@@ -48,11 +59,84 @@ export function YouTubePlayer({
       ? Math.max(...segments.map((s) => s.end || 0)) + 5
       : 300;
 
+  // Pré-busca versão alternativa sincronizada em segundo plano
+  useEffect(() => {
+    setActiveVideoId(videoId);
+    setIsUsingAlternative(false);
+    setHasEmbedRestriction(false);
+    setAltVideo(null);
+    setIsVirtualPlaying(false);
+
+    if (!videoId) return;
+
+    const controller = new AbortController();
+    const queryTitle = title || "";
+
+    fetch(
+      `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(queryTitle)}`,
+      { signal: controller.signal }
+    )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && data?.id && data.id !== videoId) {
+          setAltVideo(data);
+        }
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [videoId, title]);
+
+  // Função para alternar para a versão sem restrição de reprodução externa
+  const switchToAlternative = useCallback(
+    async (targetAlt?: { id: string; title: string }) => {
+      setIsSearchingAlt(true);
+      try {
+        let target = targetAlt || altVideo;
+        if (!target) {
+          const res = await fetch(
+            `/api/subtitles/alternative?v=${videoId}&title=${encodeURIComponent(
+              title || ""
+            )}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.id) {
+              target = data;
+              setAltVideo(data);
+            }
+          }
+        }
+
+        if (target && target.id && target.id !== activeVideoId) {
+          console.log(
+            `[YouTubePlayer] Trocando automaticamente para versão alternativa: ${target.id} (${target.title})`
+          );
+          setActiveVideoId(target.id);
+          setIsUsingAlternative(true);
+          setHasEmbedRestriction(false);
+          setIsSearchingAlt(false);
+
+          if (
+            playerRef.current &&
+            typeof playerRef.current.loadVideoById === "function"
+          ) {
+            playerRef.current.loadVideoById(target.id);
+          }
+          return true;
+        }
+      } catch (err) {
+        console.warn("[YouTubePlayer] Falha ao alternar versão:", err);
+      }
+      setIsSearchingAlt(false);
+      return false;
+    },
+    [altVideo, videoId, title, activeVideoId, playerRef]
+  );
+
   // Carrega a API do YouTube IFrame sob demanda com proteção anti-restrição
   useEffect(() => {
-    if (!videoId) return;
-    setHasEmbedRestriction(false);
-    setIsVirtualPlaying(false);
+    if (!activeVideoId) return;
 
     let pollInterval: NodeJS.Timeout | null = null;
 
@@ -61,7 +145,9 @@ export function YouTubePlayer({
 
       // Destrói instância anterior se existir
       if (playerRef.current && playerRef.current.destroy) {
-        playerRef.current.destroy();
+        try {
+          playerRef.current.destroy();
+        } catch {}
       }
 
       try {
@@ -71,7 +157,7 @@ export function YouTubePlayer({
             : "http://localhost:3000";
 
         playerRef.current = new window.YT.Player("youtube-iframe-target", {
-          videoId: videoId,
+          videoId: activeVideoId,
           playerVars: {
             autoplay: 0,
             controls: 1,
@@ -100,10 +186,10 @@ export function YouTubePlayer({
                 }
               }, 100);
             },
-            onError: (event: any) => {
+            onError: async (event: any) => {
               const errorCode = event?.data;
               console.warn("[YouTubePlayer] Erro na reprodução:", errorCode);
-              // Códigos 150, 101, 152, 153: Restrição de reprodução externa imposta pela gravadora / VEVO
+              // Códigos 150, 101, 152, 153, 2: Restrição de reprodução externa imposta pela gravadora / VEVO
               if (
                 errorCode === 150 ||
                 errorCode === 101 ||
@@ -111,7 +197,10 @@ export function YouTubePlayer({
                 errorCode === 153 ||
                 errorCode === 2
               ) {
-                setHasEmbedRestriction(true);
+                const switched = await switchToAlternative();
+                if (!switched) {
+                  setHasEmbedRestriction(true);
+                }
               }
             },
           },
@@ -143,9 +232,9 @@ export function YouTubePlayer({
         playerRef.current = null;
       }
     };
-  }, [videoId]);
+  }, [activeVideoId, switchToAlternative, playerRef, onTimeUpdate]);
 
-  // Modo Virtual de Estudo: se o vídeo for restrito por VEVO, simula o relógio para sincronizar as legendas
+  // Modo Virtual de Estudo: se absolutamente nenhuma versão estiver disponível
   useEffect(() => {
     if (!hasEmbedRestriction || !isVirtualPlaying) return;
 
@@ -154,9 +243,8 @@ export function YouTubePlayer({
     }, 200);
 
     return () => clearInterval(timer);
-  }, [hasEmbedRestriction, isVirtualPlaying, currentTime, maxDuration]);
+  }, [hasEmbedRestriction, isVirtualPlaying, currentTime, maxDuration, onTimeUpdate]);
 
-  // Se o usuário clicar em seek enquanto o player estiver com restrição externa
   const handleVirtualSeek = (newTime: number) => {
     const clamped = Math.max(0, Math.min(maxDuration, newTime));
     onTimeUpdate(clamped);
@@ -175,11 +263,83 @@ export function YouTubePlayer({
 
   return (
     <div className="relative flex flex-col rounded-3xl border border-white/10 bg-zinc-950 overflow-hidden shadow-2xl">
+      {/* Barra de Status Inteligente Anti-Bloqueio */}
+      {isUsingAlternative ? (
+        <div className="flex items-center justify-between bg-emerald-950/80 border-b border-emerald-500/20 px-4 py-2 text-xs">
+          <div className="flex items-center gap-2 text-emerald-300">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold">
+              Versão Sincronizada Ativa
+            </span>
+            <span className="hidden sm:inline text-emerald-400/80 text-[11px]">
+              (áudio e tempo idênticos ao videoclipe original)
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveVideoId(videoId);
+                setIsUsingAlternative(false);
+                if (playerRef.current?.loadVideoById) {
+                  playerRef.current.loadVideoById(videoId);
+                }
+              }}
+              className="text-[11px] text-zinc-400 hover:text-white transition-colors underline"
+            >
+              Tentar Original
+            </button>
+            <a
+              href={`https://www.youtube.com/watch?v=${videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-emerald-300 hover:text-white font-medium"
+            >
+              <span>YouTube</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </div>
+      ) : altVideo ? (
+        <div className="flex items-center justify-between bg-zinc-900/90 border-b border-white/10 px-4 py-1.5 text-xs">
+          <span className="text-[11px] text-zinc-400 truncate max-w-[280px] sm:max-w-none">
+            Se o YouTube mostrar "Vídeo indisponível", use a versão sincronizada:
+          </span>
+          <button
+            type="button"
+            onClick={() => switchToAlternative()}
+            disabled={isSearchingAlt}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] transition-all shadow-md shadow-indigo-600/20 shrink-0"
+          >
+            <RefreshCw
+              className={`h-3 w-3 ${isSearchingAlt ? "animate-spin" : ""}`}
+            />
+            <span>
+              {isSearchingAlt ? "Conectando..." : "Carregar Sem Restrição"}
+            </span>
+          </button>
+        </div>
+      ) : null}
+
       {/* Container de Vídeo IFrame Proporção 16:9 */}
       <div className="relative aspect-video w-full bg-black">
         <div id="youtube-iframe-target" className="h-full w-full" />
 
-        {/* Overlay Especial: Quando o videoclipe possui restrição externa da gravadora (VEVO / Erro 150) */}
+        {/* Loading Overlay quando está trocando para alternativa */}
+        {isSearchingAlt && (
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-zinc-950/90 backdrop-blur-sm p-4 text-center">
+            <div className="h-8 w-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin mb-3" />
+            <p className="text-sm font-bold text-white">
+              Restrição detectada pela gravadora
+            </p>
+            <p className="text-xs text-zinc-300 mt-1 max-w-sm">
+              Conectando versão alternativa sincronizada com áudio e tempo
+              idênticos para o estudo...
+            </p>
+          </div>
+        )}
+
+        {/* Overlay Especial de Fallback: Quando absolutamente nenhuma alternativa puder ser reproduzida */}
         {hasEmbedRestriction && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-between bg-zinc-950/95 p-6 backdrop-blur-md text-center border border-amber-500/30">
             {/* Topo do Aviso */}
@@ -195,7 +355,8 @@ export function YouTubePlayer({
                 A gravadora deste videoclipe desativou a exibição direta fora do
                 YouTube oficial.{" "}
                 <span className="text-emerald-400 font-medium">
-                  Suas legendas bilíngues e vocabulário estão 100% prontos ao lado!
+                  Suas legendas bilíngues e vocabulário estão 100% prontos ao
+                  lado!
                 </span>
               </p>
             </div>
@@ -281,10 +442,10 @@ export function YouTubePlayer({
 
               <button
                 type="button"
-                onClick={() => setHasEmbedRestriction(false)}
-                className="text-xs text-zinc-400 hover:text-zinc-200 underline transition-colors"
+                onClick={() => switchToAlternative()}
+                className="text-xs text-indigo-400 hover:text-indigo-300 underline transition-colors"
               >
-                Tentar carregar vídeo novamente
+                Buscar outra versão compatível
               </button>
             </div>
           </div>
