@@ -11,6 +11,7 @@ export interface SubtitleSegment {
 export interface VideoRecord {
   id: string;
   videoId: string;
+  embedVideoId?: string;
   title: string;
   uploader: string;
   duration: number;

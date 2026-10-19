@@ -346,7 +346,7 @@ export function SubtitleStudio({
             </span>
           </button>
 
-          <span className="text-[11px] text-zinc-500 flex items-center gap-1.5">
+          <span className="hidden sm:flex text-[11px] text-zinc-500 items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
             Clique em qualquer palavra para abrir o dicionário
           </span>
