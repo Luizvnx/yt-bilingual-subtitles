@@ -255,6 +255,27 @@ export default function HomePage() {
     }
   };
 
+  const handleAlternativeSwitched = async (newVideoId: string) => {
+    if (!newVideoId || newVideoId === currentVideo?.videoId) return;
+    try {
+      const res = await fetch(`/api/subtitles/${newVideoId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.segments && data.segments.length > 1) {
+          setCurrentVideo((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  embedVideoId: newVideoId,
+                  segments: data.segments,
+                }
+              : prev
+          );
+        }
+      }
+    } catch {}
+  };
+
   // Rastreamento de progresso de estudo: conclui aula após assistir pelo menos 60%
   const handleTimeUpdate = (time: number) => {
     setCurrentTime(time);
@@ -551,6 +572,8 @@ export default function HomePage() {
                     currentVideo.embedVideoId ||
                     (currentVideo.videoId === "kPa7bsKwL-c"
                       ? "zgaCZOQCpp8"
+                      : currentVideo.videoId === "k2qgadSvNyU"
+                      ? "ClhLNUPqv8Q"
                       : undefined)
                   }
                   title={currentVideo.title}
@@ -558,6 +581,7 @@ export default function HomePage() {
                   currentTime={currentTime}
                   onTimeUpdate={handleTimeUpdate}
                   playerRef={playerRef}
+                  onAlternativeSwitched={handleAlternativeSwitched}
                 />
               </div>
 

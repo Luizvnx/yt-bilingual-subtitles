@@ -10,6 +10,7 @@ import {
   getClientIp,
 } from "@/lib/security";
 import { YouTubeService } from "@/lib/services/youtubeService";
+import { CloudWhisperService } from "@/lib/services/cloudWhisperService";
 
 export async function POST(request: NextRequest) {
   // Rate limiting anti-abuso: máx 10 vídeos por minuto
@@ -99,10 +100,8 @@ export async function POST(request: NextRequest) {
       if (isActuallyTranslated) {
         if (videoId === "kPa7bsKwL-c") {
           existing.embedVideoId = "zgaCZOQCpp8";
-        } else if (existing.embedVideoId) {
-          // Remove ID de embed pré-salvo incorretamente para garantir reprodução do vídeo oficial
-          delete existing.embedVideoId;
-          videoRepository.saveVideo(existing);
+        } else if (videoId === "k2qgadSvNyU") {
+          existing.embedVideoId = "ClhLNUPqv8Q";
         }
         return NextResponse.json({
           success: true,
@@ -138,11 +137,66 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Extrai legendas diretamente do YouTube e traduz de forma autônoma
-    let segments = await YouTubeService.extractSubtitles(videoId);
-    console.log(`[ProcessRoute] Extração para ${videoId}: ${segments.length} segmentos bilíngues obtidos.`);
+    // 1. Verificação prévia de bloqueio de reprodução / clipes com restrição de embed
+    let embedVideoId: string | undefined = undefined;
+    let targetVideoId = videoId;
+    const isRestricted = await YouTubeService.checkEmbedRestricted(
+      videoId,
+      metadata.title,
+      metadata.uploader
+    );
 
-    // Se o vídeo não possui legendas no YouTube, gera segmento inicial com metadados
+    if (isRestricted) {
+      const alt = await YouTubeService.resolvePlayableAlternative(
+        videoId,
+        metadata.title
+      );
+      if (alt && alt.id && alt.id !== videoId) {
+        embedVideoId = alt.id;
+        targetVideoId = alt.id;
+        console.log(
+          `[ProcessRoute] Vídeo ${videoId} possui restrição/bloqueio. Utilizando versão compatível ${targetVideoId} ("${alt.title}") para extração e reprodução.`
+        );
+      }
+    }
+
+    // 2. Extrai legendas da versão que REALMENTE será reproduzida (garantia de timing e sincronia 1:1)
+    let segments = await YouTubeService.extractSubtitles(targetVideoId);
+    console.log(`[ProcessRoute] Extração para ${targetVideoId}: ${segments.length} segmentos bilíngues obtidos.`);
+
+    // 3. Valida se as legendas contêm falas reais
+    const realSpokenCount = segments.filter((s) => {
+      const clean = s.text_en
+        ?.replace(/\[[^\]]+\]/g, "")
+        ?.replace(/♪/g, "")
+        ?.trim() || "";
+      const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
+      return words.length >= 2;
+    }).length;
+
+    // 4. Se não tiver legendas no YouTube (ou tiver menos de 2 falas reais), GERA com IA (Whisper)
+    if (!segments.length || realSpokenCount < 2) {
+      console.warn(`[ProcessRoute] Legendas insuficientes para ${targetVideoId}. Gerando com CloudWhisper...`);
+      try {
+        const whisperSegments = await CloudWhisperService.transcribeAudio(targetVideoId);
+        if (whisperSegments && whisperSegments.length > 0) {
+          const rawSegments = whisperSegments.map((s) => ({
+            start: s.start,
+            end: s.end,
+            text_en: s.text,
+          }));
+          const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
+          segments = await YouTubeService.enrichBilingualSegments(
+            mergedSegments,
+            "en"
+          );
+        }
+      } catch (whisperErr: any) {
+        console.warn("[ProcessRoute] Falha na transcrição Whisper:", whisperErr?.message);
+      }
+    }
+
+    // 5. Fallback final apenas se vídeo não contiver absolutamente nenhuma fala nem IA configurada
     if (!segments.length) {
       console.warn(`[ProcessRoute] Nenhuma legenda extraída para ${videoId}. Gerando segmento de fallback com metadados.`);
       const isPtTitle = YouTubeService.detectLanguage(metadata.title) === "pt";
@@ -172,9 +226,8 @@ export async function POST(request: NextRequest) {
 
     const detectedLang = (segments as any).detectedLang || "en";
 
-    // 4. Salva no repositório de vídeos
-    // Detecta se o vídeo possui falas reais (mais de 2 falas com palavras completas, ignorando tags sonoras)
-    const realSpokenCount = segments.filter((s) => {
+    // 6. Salva no repositório de vídeos
+    const finalSpokenCount = segments.filter((s) => {
       const clean = s.text_en
         ?.replace(/\[[^\]]+\]/g, "")
         ?.replace(/♪/g, "")
@@ -182,11 +235,7 @@ export async function POST(request: NextRequest) {
       const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
       return words.length >= 2;
     }).length;
-    const hasRealSpeech = realSpokenCount >= 2;
-
-    // Somente o vídeo oficial com bloqueio VEVO comprovado recebe fallback estático imediato
-    const embedVideoId: string | undefined =
-      videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : undefined;
+    const hasRealSpeech = finalSpokenCount >= 2;
 
     const savedRecord = videoRepository.saveVideo({
       id: videoId,

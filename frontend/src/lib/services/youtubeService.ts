@@ -123,11 +123,40 @@ export class YouTubeService {
   }
 
   /**
-   * Valida no backend se o vídeo possui restrição de reprodução externa (Error 150 / Embedding disabled).
+   * Valida no backend se o vídeo possui restrição de reprodução externa (Error 150 / Embedding disabled)
+   * ou se trata-se de videoclipe oficial sujeito a bloqueios de gravadoras e intros cinematográficas descompassadas.
    */
-  static async checkEmbedRestricted(videoId: string): Promise<boolean> {
+  static async checkEmbedRestricted(
+    videoId: string,
+    title?: string,
+    uploader?: string
+  ): Promise<boolean> {
     if (videoId === "kPa7bsKwL-c" || videoId === "k2qgadSvNyU") {
       return true;
+    }
+
+    // Heurística de metadados: clipes musicais oficiais de grandes gravadoras
+    if (title || uploader) {
+      const lowerTitle = (title || "").toLowerCase();
+      const lowerUploader = (uploader || "").toLowerCase();
+
+      const isOfficialClip =
+        /\b(official\s+(music\s+)?video|videoclipe\s+oficial|clipe\s+oficial|official\s+audio)\b/i.test(
+          lowerTitle
+        ) ||
+        lowerTitle.includes("(official video)") ||
+        lowerTitle.includes("[official video]") ||
+        lowerTitle.includes("(official music video)") ||
+        lowerTitle.includes("[official music video]");
+
+      const isMajorLabel =
+        /\b(vevo|warner\s+records|atlantic\s+records|columbia\s+records|sony\s+music|universal\s+music|republic\s+records|interscope|rca\s+records)\b/i.test(
+          lowerUploader
+        ) || lowerUploader.endsWith("vevo");
+
+      if (isOfficialClip && isMajorLabel) {
+        return true;
+      }
     }
 
     try {
@@ -136,14 +165,14 @@ export class YouTubeService {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(3000),
       });
       if (res.ok) {
         const text = await res.text();
         return (
           text.includes("UNPLAYABLE") ||
           text.includes("playback restricted") ||
-          text.includes("status\":\"ERROR")
+          text.includes('status":"ERROR')
         );
       }
     } catch {}
@@ -152,16 +181,17 @@ export class YouTubeService {
 
   /**
    * Resolve uma versão alternativa reproduzível garantindo áudio e letra compatíveis.
+   * Prioriza vídeos que possuam selo "CC" (Closed Captions) e exclui canais VEVO com intros teatrais.
    */
   static async resolvePlayableAlternative(
     videoId: string,
     title: string
-  ): Promise<{ id: string; title: string } | null> {
+  ): Promise<{ id: string; title: string; hasCC?: boolean } | null> {
     if (videoId === "kPa7bsKwL-c") {
       return { id: "zgaCZOQCpp8", title: "Die With A Smile (Lyrics)" };
     }
     if (videoId === "k2qgadSvNyU") {
-      return { id: "jzbiRNaj_v0", title: "New Rules (Live Lounge BBC Radio 1)" };
+      return { id: "ClhLNUPqv8Q", title: "Dua Lipa ‒ New Rules (Lyrics) 🎤", hasCC: true };
     }
 
     try {
@@ -191,7 +221,7 @@ export class YouTubeService {
           },
           query,
         }),
-        signal: AbortSignal.timeout(4500),
+        signal: AbortSignal.timeout(5000),
       });
 
       if (res.ok) {
@@ -200,15 +230,40 @@ export class YouTubeService {
           data?.contents?.twoColumnSearchResultsRenderer?.primaryContents
             ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
 
+        const candidates: { id: string; title: string; hasCC: boolean }[] = [];
+
         for (const item of contents) {
           const v = item.videoRenderer;
           if (v && v.videoId && v.videoId !== videoId) {
             const t = v.title?.runs?.[0]?.text || "Versão Compatível";
             const owner = (v.ownerText?.runs?.[0]?.text || "").toLowerCase();
-            if (!owner.includes("vevo")) {
-              return { id: v.videoId, title: t };
+            const lowerT = t.toLowerCase();
+
+            // Evita canais VEVO ou outros clipes com possíveis intros teatrais
+            if (
+              !owner.includes("vevo") &&
+              !lowerT.includes("(official video)") &&
+              !lowerT.includes("[official video]")
+            ) {
+              const hasCC = Boolean(
+                v.badges?.some(
+                  (b: any) =>
+                    b?.metadataBadgeRenderer?.label === "CC" ||
+                    b?.metadataBadgeRenderer?.icon?.iconType === "CLOSED_CAPTIONS"
+                )
+              );
+              candidates.push({ id: v.videoId, title: t, hasCC });
             }
           }
+        }
+
+        if (candidates.length > 0) {
+          // Prioriza vídeos com selo CC (legendas nativas garantidas)
+          const bestWithCC = candidates.find((c) => c.hasCC);
+          if (bestWithCC) {
+            return bestWithCC;
+          }
+          return candidates[0];
         }
       }
     } catch {}

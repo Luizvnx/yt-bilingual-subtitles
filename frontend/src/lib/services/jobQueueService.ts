@@ -1,5 +1,6 @@
 import { videoRepository, VideoRecord, usageRepository } from "../security";
 import { YouTubeService } from "./youtubeService";
+import { CloudWhisperService } from "./cloudWhisperService";
 
 export type JobStatus = "pending" | "processing" | "completed" | "error";
 
@@ -128,9 +129,8 @@ class JobQueueServiceSingleton {
       if (isActuallyTranslated) {
         if (videoId === "kPa7bsKwL-c") {
           existing.embedVideoId = "zgaCZOQCpp8";
-        } else if (existing.embedVideoId) {
-          delete existing.embedVideoId;
-          videoRepository.saveVideo(existing);
+        } else if (videoId === "k2qgadSvNyU") {
+          existing.embedVideoId = "ClhLNUPqv8Q";
         }
         this.notify(videoId, {
           stage: 100,
@@ -179,21 +179,104 @@ class JobQueueServiceSingleton {
         throw new Error(quotaCheck.reason || "Limite de uso mensal atingido.");
       }
 
+      // 1. Verificação prévia de bloqueio de reprodução / clipes com restrição de embed
       this.notify(videoId, {
-        stage: 30,
-        message: `Vídeo: "${metadata.title.slice(0, 45)}...". Extraindo falas...`,
+        stage: 25,
+        message: "Verificando permissões e compatibilidade de reprodução...",
       });
 
-      let segments = await YouTubeService.extractSubtitles(
+      let embedVideoId: string | undefined = undefined;
+      let targetVideoId = videoId;
+      const isRestricted = await YouTubeService.checkEmbedRestricted(
         videoId,
+        metadata.title,
+        metadata.uploader
+      );
+
+      if (isRestricted) {
+        this.notify(videoId, {
+          stage: 30,
+          message: "Vídeo com restrição de reprodução externa. Buscando versão compatível...",
+        });
+        const alt = await YouTubeService.resolvePlayableAlternative(
+          videoId,
+          metadata.title
+        );
+        if (alt && alt.id && alt.id !== videoId) {
+          embedVideoId = alt.id;
+          targetVideoId = alt.id;
+          console.log(
+            `[JobQueueService] Vídeo ${videoId} possui restrição/bloqueio. Utilizando versão compatível ${targetVideoId} ("${alt.title}") para extração e reprodução.`
+          );
+        }
+      }
+
+      this.notify(videoId, {
+        stage: 40,
+        message: `Vídeo: "${metadata.title.slice(0, 45)}...". Extraindo falas sincronizadas...`,
+      });
+
+      // 2. Extrai legendas da versão que REALMENTE será reproduzida (garantia de timing e sincronia 1:1)
+      let segments = await YouTubeService.extractSubtitles(
+        targetVideoId,
         (stage, message) => {
           this.notify(videoId, { stage, message });
         }
       );
 
+      // 3. Valida se as legendas contêm falas reais (mais de 2 falas com palavras completas, ignorando tags sonoras)
+      const realSpokenCount = segments.filter((s) => {
+        const clean = s.text_en
+          ?.replace(/\[[^\]]+\]/g, "")
+          ?.replace(/♪/g, "")
+          ?.trim() || "";
+        const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
+        return words.length >= 2;
+      }).length;
+
+      // 4. Se não tiver legendas no YouTube (ou tiver menos de 2 falas reais), GERA com IA (Whisper)
+      if (!segments.length || realSpokenCount < 2) {
+        this.notify(videoId, {
+          stage: 65,
+          message: "Legendas nativas indisponíveis. Gerando transcrição automática com IA (Whisper)...",
+        });
+
+        try {
+          const whisperSegments = await CloudWhisperService.transcribeAudio(
+            targetVideoId,
+            (stage, message) => {
+              this.notify(videoId, { stage, message });
+            }
+          );
+
+          if (whisperSegments && whisperSegments.length > 0) {
+            this.notify(videoId, {
+              stage: 80,
+              message: `Traduzindo ${whisperSegments.length} falas da IA para português...`,
+            });
+            const rawSegments = whisperSegments.map((s) => ({
+              start: s.start,
+              end: s.end,
+              text_en: s.text,
+            }));
+            const mergedSegments = YouTubeService.mergeNaturalSentences(rawSegments);
+            segments = await YouTubeService.enrichBilingualSegments(
+              mergedSegments,
+              "en",
+              (stage, message) => {
+                this.notify(videoId, { stage, message });
+              }
+            );
+          }
+        } catch (whisperErr: any) {
+          console.warn("[JobQueueService] Falha na transcrição Whisper:", whisperErr?.message);
+        }
+      }
+
+      // 5. Fallback final apenas se vídeo não contiver absolutamente nenhuma fala nem IA configurada
       if (!segments.length) {
         this.notify(videoId, {
-          stage: 80,
+          stage: 85,
           message: "Gerando segmento inicial contextual...",
         });
         const isPtTitle = YouTubeService.detectLanguage(metadata.title) === "pt";
@@ -228,7 +311,7 @@ class JobQueueServiceSingleton {
 
       const detectedLang = (segments as any).detectedLang || "en";
 
-      const realSpokenCount = segments.filter((s) => {
+      const finalSpokenCount = segments.filter((s) => {
         const clean = s.text_en
           ?.replace(/\[[^\]]+\]/g, "")
           ?.replace(/♪/g, "")
@@ -236,17 +319,7 @@ class JobQueueServiceSingleton {
         const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
         return words.length >= 2;
       }).length;
-      const hasRealSpeech = realSpokenCount >= 2;
-
-      // Validação de reprodução externa e resolução de embedVideoId no backend
-      let embedVideoId: string | undefined = undefined;
-      const isRestricted = await YouTubeService.checkEmbedRestricted(videoId);
-      if (isRestricted || videoId === "kPa7bsKwL-c" || videoId === "k2qgadSvNyU") {
-        const alt = await YouTubeService.resolvePlayableAlternative(videoId, metadata.title);
-        if (alt && alt.id) {
-          embedVideoId = alt.id;
-        }
-      }
+      const hasRealSpeech = finalSpokenCount >= 2;
 
       const saved = videoRepository.saveVideo({
         id: videoId,
