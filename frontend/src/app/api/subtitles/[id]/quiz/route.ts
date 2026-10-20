@@ -5,6 +5,9 @@ import {
   QuizQuestion,
   getAuthTokenFromCookies,
   CryptoService,
+  checkRateLimit,
+  getClientIp,
+  YOUTUBE_ID_REGEX,
 } from "@/lib/security";
 
 export async function GET(
@@ -12,8 +15,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  if (!id) {
-    return NextResponse.json({ error: "ID do vídeo é obrigatório." }, { status: 400 });
+  if (!id || !YOUTUBE_ID_REGEX.test(id)) {
+    return NextResponse.json({ error: "ID do vídeo é inválido ou ausente." }, { status: 400 });
+  }
+
+  // Rate limiting anti-abuso de tokens de IA
+  const ip = getClientIp(request);
+  const { allowed, retryAfter } = checkRateLimit(`quiz:${ip}`, 10, 60);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Muitas requisições de Quiz. Aguarde um minuto.", retryAfter },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
   }
 
   // 1. Verificação Estrita de Autenticação e Plano PRO no Backend

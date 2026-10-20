@@ -3,6 +3,7 @@ import path from "path";
 import os from "os";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { YOUTUBE_ID_REGEX } from "@/lib/security/validators";
 
 const execAsync = promisify(exec);
 
@@ -25,6 +26,10 @@ export class CloudWhisperService {
     videoId: string,
     onProgress?: (stage: number, message: string) => void
   ): Promise<WhisperSegment[]> {
+    if (!videoId || !YOUTUBE_ID_REGEX.test(videoId)) {
+      throw new Error("Identificador de vídeo inválido para transcrição.");
+    }
+
     const groqKey = process.env.GROQ_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
 
@@ -67,9 +72,9 @@ export class CloudWhisperService {
       );
       const cookieFlag = cookieFile ? `--cookies "${cookieFile}"` : "";
 
-      // Baixa apenas o áudio compactado (bitrate leve 48k/64k) em 1 a 3 segundos
+      // Baixa apenas o áudio compactado (bitrate leve 48k/64k) em 1 a 3 segundos com limite estrito de tamanho (anti-DoS)
       await execAsync(
-        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 ${proxyFlag} ${cookieFlag} -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,ios,web" -o "${audioPath}" "${canonicalUrl}"`,
+        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 ${proxyFlag} ${cookieFlag} --max-filesize 30M -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,ios,web" -o "${audioPath}" "${canonicalUrl}"`,
         { timeout: 35000 }
       );
 

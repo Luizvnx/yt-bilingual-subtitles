@@ -1,10 +1,20 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET_STRING =
-  process.env.JWT_SECRET ||
-  "bilingual-subtitles-saas-secret-key-2026-ultra-secure";
-const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
+let secretString = process.env.JWT_SECRET;
+if (!secretString) {
+  if (process.env.NODE_ENV === "production") {
+    console.warn(
+      "⚠️ [SECURITY ALERT] JWT_SECRET não foi configurado nas variáveis de ambiente! Utilizando chave aleatória de alta entropia para prevenir falsificação de tokens."
+    );
+    secretString = crypto.randomBytes(32).toString("hex");
+  } else {
+    secretString = "bilingual-subtitles-dev-secret-key-2026-local";
+  }
+}
+
+const JWT_SECRET = new TextEncoder().encode(secretString);
 
 export interface TokenPayload {
   uid: string;
