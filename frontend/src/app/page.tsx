@@ -477,6 +477,21 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Aviso se o vídeo possuir pouca ou nenhuma fala detectada */}
+            {(currentVideo.hasRealSpeech === false || currentVideo.segmentsCount <= 1) && (
+              <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm">
+                <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-white">
+                    Aviso: Poucas ou nenhuma fala detectada neste vídeo
+                  </p>
+                  <p className="text-zinc-300 text-xs leading-relaxed">
+                    Este conteúdo possui apenas música ou efeitos sonoros sem diálogos falados. Para treinar sua audição, shadowing e vocabulário com máxima eficácia, recomendamos escolher vídeos de diálogos reais no catálogo curado abaixo.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Layout Grid: Player à Esquerda, Studio à Direita */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start w-full">
               {/* Coluna do Player YouTube (7 de 12 colunas) */}
@@ -503,6 +518,8 @@ export default function HomePage() {
                   currentTime={currentTime}
                   onSeek={handleSeek}
                   onWordClick={handleWordClick}
+                  videoId={currentVideo.videoId}
+                  videoTitle={currentVideo.title}
                 />
               </div>
             </div>

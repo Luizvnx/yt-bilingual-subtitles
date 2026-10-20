@@ -20,6 +20,7 @@ export interface VideoRecord {
   detectedLang: string;
   segmentsCount: number;
   segments: SubtitleSegment[];
+  hasRealSpeech?: boolean;
   userId?: string;
   createdAt: string;
   updatedAt: string;

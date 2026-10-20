@@ -139,6 +139,17 @@ export async function POST(request: NextRequest) {
     const detectedLang = (segments as any).detectedLang || "en";
 
     // 4. Salva no repositório de vídeos
+    // Detecta se o vídeo possui falas reais (mais de 2 falas com palavras completas, ignorando tags sonoras)
+    const realSpokenCount = segments.filter((s) => {
+      const clean = s.text_en
+        ?.replace(/\[[^\]]+\]/g, "")
+        ?.replace(/♪/g, "")
+        ?.trim() || "";
+      const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
+      return words.length >= 2;
+    }).length;
+    const hasRealSpeech = realSpokenCount >= 2;
+
     // Somente o vídeo oficial com bloqueio VEVO comprovado recebe fallback estático imediato
     const embedVideoId: string | undefined =
       videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : undefined;
@@ -155,6 +166,7 @@ export async function POST(request: NextRequest) {
       detectedLang,
       segmentsCount: segments.length,
       segments,
+      hasRealSpeech,
       userId,
     });
 
