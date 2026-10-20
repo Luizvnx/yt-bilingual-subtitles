@@ -13,6 +13,7 @@ import {
   Loader2,
   Volume2,
   Lightbulb,
+  BookOpen,
 } from "lucide-react";
 
 export interface QuizQuestion {
@@ -29,9 +30,16 @@ interface VideoQuizProps {
   videoTitle: string;
   onSeek?: (seconds: number) => void;
   onAddXp?: (amount: number) => void;
+  onBackToTranscript?: () => void;
 }
 
-export function VideoQuiz({ videoId, videoTitle, onSeek, onAddXp }: VideoQuizProps) {
+export function VideoQuiz({
+  videoId,
+  videoTitle,
+  onSeek,
+  onAddXp,
+  onBackToTranscript,
+}: VideoQuizProps) {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -169,15 +177,26 @@ export function VideoQuiz({ videoId, videoTitle, onSeek, onAddXp }: VideoQuizPro
           <span>+{earnedXp} XP adicionados à sua ofensiva!</span>
         </div>
 
-        <div className="pt-2 flex justify-center gap-3">
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={fetchQuiz}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span>Refazer Quiz</span>
           </button>
+
+          {onBackToTranscript && (
+            <button
+              type="button"
+              onClick={onBackToTranscript}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:brightness-110 active:scale-95 text-xs font-bold text-white shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>Voltar à Transcrição</span>
+            </button>
+          )}
         </div>
       </div>
     );

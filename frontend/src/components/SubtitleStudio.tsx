@@ -405,6 +405,7 @@ export function SubtitleStudio({
             videoId={videoId || ""}
             videoTitle={videoTitle || ""}
             onSeek={onSeek}
+            onBackToTranscript={() => setActiveTab("transcript")}
           />
         </div>
       ) : (
