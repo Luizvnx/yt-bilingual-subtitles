@@ -238,9 +238,20 @@ class JobQueueServiceSingleton {
       }).length;
       const hasRealSpeech = realSpokenCount >= 2;
 
+      // Validação de reprodução externa e resolução de embedVideoId no backend
+      let embedVideoId: string | undefined = undefined;
+      const isRestricted = await YouTubeService.checkEmbedRestricted(videoId);
+      if (isRestricted || videoId === "kPa7bsKwL-c" || videoId === "k2qgadSvNyU") {
+        const alt = await YouTubeService.resolvePlayableAlternative(videoId, metadata.title);
+        if (alt && alt.id) {
+          embedVideoId = alt.id;
+        }
+      }
+
       const saved = videoRepository.saveVideo({
         id: videoId,
         videoId,
+        embedVideoId,
         title: metadata.title,
         uploader: metadata.uploader,
         duration: metadata.duration,

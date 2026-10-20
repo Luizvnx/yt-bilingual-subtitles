@@ -14,6 +14,8 @@ import {
   Volume2,
   Lightbulb,
   BookOpen,
+  Lock,
+  Crown,
 } from "lucide-react";
 
 export interface QuizQuestion {
@@ -31,6 +33,9 @@ interface VideoQuizProps {
   onSeek?: (seconds: number) => void;
   onAddXp?: (amount: number) => void;
   onBackToTranscript?: () => void;
+  user?: any;
+  onOpenAuth?: () => void;
+  onOpenUpgrade?: () => void;
 }
 
 export function VideoQuiz({
@@ -39,6 +44,9 @@ export function VideoQuiz({
   onSeek,
   onAddXp,
   onBackToTranscript,
+  user,
+  onOpenAuth,
+  onOpenUpgrade,
 }: VideoQuizProps) {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -47,10 +55,14 @@ export function VideoQuiz({
   const [score, setScore] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isProRequired, setIsProRequired] = useState(false);
+  const [isAuthRequired, setIsAuthRequired] = useState(false);
 
   const fetchQuiz = async () => {
     setLoading(true);
     setErrorMessage("");
+    setIsProRequired(false);
+    setIsAuthRequired(false);
     setCurrentIndex(0);
     setSelectedOption(null);
     setScore(0);
@@ -58,15 +70,21 @@ export function VideoQuiz({
 
     try {
       const res = await fetch(`/api/subtitles/${videoId}/quiz`);
+      const data = await res.json().catch(() => null);
+
       if (res.ok) {
-        const data = await res.json();
         if (data?.quiz?.questions && Array.isArray(data.quiz.questions)) {
           setQuestions(data.quiz.questions);
         } else {
           setErrorMessage("Nenhum quiz disponível para este vídeo no momento.");
         }
       } else {
-        setErrorMessage("Não foi possível gerar as perguntas com IA para este vídeo.");
+        if (data?.requireUpgrade || data?.code === "PRO_REQUIRED" || res.status === 403) {
+          setIsProRequired(true);
+        } else if (data?.requireAuth || data?.code === "AUTH_REQUIRED" || res.status === 401) {
+          setIsAuthRequired(true);
+        }
+        setErrorMessage(data?.error || "Acesso exclusivo para membros assinantes.");
       }
     } catch {
       setErrorMessage("Erro de conexão ao carregar o quiz de IA.");
@@ -111,6 +129,16 @@ export function VideoQuiz({
           if (onAddXp) onAddXp(earnedXp);
         } catch {}
       }
+      // Se concluiu o quiz e há lição ativa, salva como concluída
+      try {
+        const activeLessonId = localStorage.getItem("ytsubs_current_lesson_id");
+        if (activeLessonId) {
+          const completedRaw = localStorage.getItem("ytsubs_completed");
+          const completedSet = new Set(completedRaw ? JSON.parse(completedRaw) : []);
+          completedSet.add(activeLessonId);
+          localStorage.setItem("ytsubs_completed", JSON.stringify(Array.from(completedSet)));
+        }
+      } catch {}
     }
   };
 
@@ -124,6 +152,80 @@ export function VideoQuiz({
         <p className="text-[11px] text-zinc-400 max-w-xs">
           Analisando as falas e vocabulário para criar seu desafio de fixação
         </p>
+      </div>
+    );
+  }
+
+  if (isProRequired) {
+    return (
+      <div className="p-6 text-center space-y-4 bg-zinc-900/90 rounded-2xl border border-amber-500/30 shadow-2xl backdrop-blur-xl animate-in fade-in duration-200">
+        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+          <Lock className="h-7 w-7" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-extrabold text-white">
+            Quiz com IA Exclusivo do Plano PRO
+          </h3>
+          <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+            {errorMessage ||
+              "O Quiz gerado por Inteligência Artificial testa sua audição e vocabulário com perguntas pedagógicas sob medida."}
+          </p>
+        </div>
+        <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <button
+            type="button"
+            onClick={onOpenUpgrade}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 text-zinc-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+          >
+            <Crown className="h-4 w-4" />
+            <span>Assinar Plano PRO</span>
+          </button>
+          {onBackToTranscript && (
+            <button
+              type="button"
+              onClick={onBackToTranscript}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/10 text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              Voltar à Transcrição
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthRequired) {
+    return (
+      <div className="p-6 text-center space-y-4 bg-zinc-900/90 rounded-2xl border border-indigo-500/30 shadow-2xl backdrop-blur-xl animate-in fade-in duration-200">
+        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">
+          <Lock className="h-7 w-7" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-extrabold text-white">
+            Acesso Restrito ao Quiz
+          </h3>
+          <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+            Faça login ou crie sua conta para acessar o Quiz com Inteligência Artificial.
+          </p>
+        </div>
+        <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <button
+            type="button"
+            onClick={onOpenAuth}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+          >
+            <span>Fazer Login / Criar Conta</span>
+          </button>
+          {onBackToTranscript && (
+            <button
+              type="button"
+              onClick={onBackToTranscript}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/10 text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              Voltar à Transcrição
+            </button>
+          )}
+        </div>
       </div>
     );
   }

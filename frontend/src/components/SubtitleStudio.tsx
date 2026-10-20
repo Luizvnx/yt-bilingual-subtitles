@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Trophy,
   Zap,
+  Lock,
 } from "lucide-react";
 import { VideoQuiz } from "./VideoQuiz";
 
@@ -29,6 +30,9 @@ interface SubtitleStudioProps {
   onWordClick: (word: string, event: React.MouseEvent) => void;
   videoId?: string;
   videoTitle?: string;
+  user?: any;
+  onOpenAuth?: () => void;
+  onOpenUpgrade?: () => void;
 }
 
 export function SubtitleStudio({
@@ -38,6 +42,9 @@ export function SubtitleStudio({
   onWordClick,
   videoId,
   videoTitle,
+  user,
+  onOpenAuth,
+  onOpenUpgrade,
 }: SubtitleStudioProps) {
   const [activeTab, setActiveTab] = useState<"transcript" | "quiz">("transcript");
   const [searchTerm, setSearchTerm] = useState("");
@@ -327,18 +334,50 @@ export function SubtitleStudio({
 
             <button
               type="button"
-              onClick={() => setActiveTab("quiz")}
+              onClick={() => {
+                if (!user) {
+                  onOpenAuth?.();
+                  return;
+                }
+                if (user.tier !== "pro") {
+                  onOpenUpgrade?.();
+                  return;
+                }
+                setActiveTab("quiz");
+              }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "quiz"
                   ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-md shadow-amber-500/30 font-bold"
-                  : "text-zinc-400 hover:text-amber-300"
+                  : user?.tier === "pro"
+                  ? "text-zinc-400 hover:text-amber-300"
+                  : "text-zinc-500 hover:text-amber-300/80"
               }`}
             >
-              <Trophy className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-300" />
-              <span>Quiz IA</span>
-              <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                +30 XP
-              </span>
+              {!user ? (
+                <>
+                  <Lock className="h-3.5 w-3.5 text-zinc-400" />
+                  <span>Quiz IA</span>
+                  <span className="bg-zinc-800 text-zinc-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    Login
+                  </span>
+                </>
+              ) : user.tier !== "pro" ? (
+                <>
+                  <Lock className="h-3.5 w-3.5 text-amber-400" />
+                  <span>Quiz IA</span>
+                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    PRO
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Trophy className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-300" />
+                  <span>Quiz IA</span>
+                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    +30 XP
+                  </span>
+                </>
+              )}
             </button>
           </div>
 
@@ -406,6 +445,9 @@ export function SubtitleStudio({
             videoTitle={videoTitle || ""}
             onSeek={onSeek}
             onBackToTranscript={() => setActiveTab("transcript")}
+            user={user}
+            onOpenAuth={onOpenAuth}
+            onOpenUpgrade={onOpenUpgrade}
           />
         </div>
       ) : (

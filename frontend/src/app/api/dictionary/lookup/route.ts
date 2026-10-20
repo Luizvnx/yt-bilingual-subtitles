@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { YouTubeService } from "@/lib/services/youtubeService";
+import {
+  getAuthTokenFromCookies,
+  CryptoService,
+  getClientIp,
+  usageRepository,
+} from "@/lib/security";
 
 // Cache em memória de alta performance para o dicionário
 const DICT_CACHE = new Map<string, any>();
@@ -16,8 +22,39 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Identificação do Usuário e Checagem de Quota no Backend
+  let userId: string | undefined = undefined;
+  let userTier: "free" | "pro" = "free";
+
+  try {
+    const token = await getAuthTokenFromCookies();
+    if (token) {
+      const payload = await CryptoService.verifyAuthToken(token);
+      if (payload?.uid) {
+        userId = payload.uid;
+        userTier = (payload.tier as "free" | "pro") || "free";
+      }
+    }
+  } catch {}
+
+  const ip = getClientIp(request);
+  const quota = usageRepository.checkTranslationQuota(userId, userTier, ip);
+
+  if (!quota.allowed) {
+    return NextResponse.json(
+      {
+        error: quota.reason,
+        code: quota.code,
+        requireUpgrade: quota.code === "QUOTA_EXCEEDED",
+        requireAuth: quota.code === "AUTH_REQUIRED",
+      },
+      { status: quota.code === "AUTH_REQUIRED" ? 401 : 403 }
+    );
+  }
+
   // 1. Resposta instantânea via cache (0ms)
   if (DICT_CACHE.has(word)) {
+    usageRepository.recordTranslationUsage(userId, ip);
     return NextResponse.json(DICT_CACHE.get(word));
   }
 
@@ -104,6 +141,7 @@ export async function GET(request: NextRequest) {
 
     // Guarda no cache
     DICT_CACHE.set(word, result);
+    usageRepository.recordTranslationUsage(userId, ip);
 
     return NextResponse.json(result);
   } catch (error: any) {

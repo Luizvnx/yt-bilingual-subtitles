@@ -255,6 +255,46 @@ export default function HomePage() {
     }
   };
 
+  // Rastreamento de progresso de estudo: conclui aula após assistir pelo menos 60%
+  const handleTimeUpdate = (time: number) => {
+    setCurrentTime(time);
+    if (
+      currentVideo &&
+      currentVideo.duration &&
+      currentVideo.duration > 0 &&
+      time > 0
+    ) {
+      const progressRatio = time / currentVideo.duration;
+      if (progressRatio >= 0.6) {
+        try {
+          const activeLessonId = localStorage.getItem("ytsubs_current_lesson_id");
+          if (activeLessonId) {
+            const savedCompleted = localStorage.getItem("ytsubs_completed");
+            const completedSet = new Set(
+              savedCompleted ? JSON.parse(savedCompleted) : []
+            );
+            if (!completedSet.has(activeLessonId)) {
+              completedSet.add(activeLessonId);
+              localStorage.setItem(
+                "ytsubs_completed",
+                JSON.stringify(Array.from(completedSet))
+              );
+              const currentXp = parseInt(
+                localStorage.getItem("ytsubs_xp") || "50",
+                10
+              );
+              const newXp = currentXp + 35;
+              localStorage.setItem("ytsubs_xp", newXp.toString());
+              window.dispatchEvent(
+                new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } })
+              );
+            }
+          }
+        } catch {}
+      }
+    }
+  };
+
   const handleWordClick = (word: string, e: React.MouseEvent) => {
     setPopoverWord(word);
     setPopoverPos({ x: e.clientX, y: e.clientY });
@@ -374,26 +414,35 @@ export default function HomePage() {
                   <span>Vídeos ilimitados de até 60 minutos</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1 text-zinc-300 shadow-sm">
+                <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl sm:rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1 text-zinc-300 shadow-sm text-xs">
                   <span>
-                    Vídeos gratuitos este mês:{" "}
+                    Vídeos gratuitos hoje:{" "}
                     <strong className="text-white font-semibold">
-                      {usage ? usage.videosUsed : 0} de 3
+                      {(usage as any)?.dailyVideosUsed || 0} de 2
                     </strong>
                   </span>
-                  {/* Barrinhas visuais de 3 slots */}
+                  {/* Barrinhas visuais de 2 slots diários */}
                   <div className="flex items-center gap-1">
-                    {[0, 1, 2].map((idx) => {
-                      const isFilled = (usage ? usage.videosUsed : 0) > idx;
+                    {[0, 1].map((idx) => {
+                      const isFilled =
+                        ((usage as any)?.dailyVideosUsed || 0) > idx;
                       return (
                         <div
                           key={idx}
-                          className={`h-1.5 w-3 rounded-full transition-all ${isFilled ? "bg-indigo-400" : "bg-zinc-700"
-                            }`}
+                          className={`h-1.5 w-3 rounded-full transition-all ${
+                            isFilled ? "bg-indigo-400" : "bg-zinc-700"
+                          }`}
                         />
                       );
                     })}
                   </div>
+                  <span className="hidden sm:inline text-zinc-600">•</span>
+                  <span className="hidden sm:inline">
+                    Semana:{" "}
+                    <strong className="text-white font-semibold">
+                      {(usage as any)?.weeklyVideosUsed || 0} de 6
+                    </strong>
+                  </span>
                   <button
                     type="button"
                     onClick={() => setUpgradeModalOpen(true)}
@@ -499,14 +548,15 @@ export default function HomePage() {
                 <YouTubePlayer
                   videoId={currentVideo.videoId}
                   embedVideoId={
-                    currentVideo.videoId === "kPa7bsKwL-c"
+                    currentVideo.embedVideoId ||
+                    (currentVideo.videoId === "kPa7bsKwL-c"
                       ? "zgaCZOQCpp8"
-                      : undefined
+                      : undefined)
                   }
                   title={currentVideo.title}
                   segments={currentVideo.segments}
                   currentTime={currentTime}
-                  onTimeUpdate={setCurrentTime}
+                  onTimeUpdate={handleTimeUpdate}
                   playerRef={playerRef}
                 />
               </div>
@@ -520,6 +570,12 @@ export default function HomePage() {
                   onWordClick={handleWordClick}
                   videoId={currentVideo.videoId}
                   videoTitle={currentVideo.title}
+                  user={user}
+                  onOpenAuth={() => {
+                    setAuthMessage("Faça login ou crie sua conta para acessar o Quiz com IA.");
+                    setAuthModalOpen(true);
+                  }}
+                  onOpenUpgrade={() => setUpgradeModalOpen(true)}
                 />
               </div>
             </div>
@@ -539,6 +595,7 @@ export default function HomePage() {
               );
               setAuthModalOpen(true);
             }}
+            onRequireUpgrade={() => setUpgradeModalOpen(true)}
           />
         )}
 
@@ -549,6 +606,15 @@ export default function HomePage() {
               handleProcess(undefined, videoUrl);
             }}
             isLoading={loading}
+            user={user}
+            onRequireLogin={(msg) => {
+              setAuthMessage(
+                msg ||
+                  "Crie sua conta gratuita ou faça login para acessar os vídeos do catálogo."
+              );
+              setAuthModalOpen(true);
+            }}
+            onRequireUpgrade={() => setUpgradeModalOpen(true)}
           />
         </div>
 

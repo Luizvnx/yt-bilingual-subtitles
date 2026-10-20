@@ -123,6 +123,99 @@ export class YouTubeService {
   }
 
   /**
+   * Valida no backend se o vídeo possui restrição de reprodução externa (Error 150 / Embedding disabled).
+   */
+  static async checkEmbedRestricted(videoId: string): Promise<boolean> {
+    if (videoId === "kPa7bsKwL-c" || videoId === "k2qgadSvNyU") {
+      return true;
+    }
+
+    try {
+      const res = await fetch(`https://www.youtube.com/embed/${videoId}`, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        signal: AbortSignal.timeout(3500),
+      });
+      if (res.ok) {
+        const text = await res.text();
+        return (
+          text.includes("UNPLAYABLE") ||
+          text.includes("playback restricted") ||
+          text.includes("status\":\"ERROR")
+        );
+      }
+    } catch {}
+    return false;
+  }
+
+  /**
+   * Resolve uma versão alternativa reproduzível garantindo áudio e letra compatíveis.
+   */
+  static async resolvePlayableAlternative(
+    videoId: string,
+    title: string
+  ): Promise<{ id: string; title: string } | null> {
+    if (videoId === "kPa7bsKwL-c") {
+      return { id: "zgaCZOQCpp8", title: "Die With A Smile (Lyrics)" };
+    }
+    if (videoId === "k2qgadSvNyU") {
+      return { id: "jzbiRNaj_v0", title: "New Rules (Live Lounge BBC Radio 1)" };
+    }
+
+    try {
+      const cleanTitle = title
+        .replace(/\(Official\s+(Music\s+)?Video\)/gi, "")
+        .replace(/\[Official\s+(Music\s+)?Video\]/gi, "")
+        .replace(/\(Official\s+Audio\)/gi, "")
+        .replace(/Official\s+Video/gi, "")
+        .trim();
+      const query = cleanTitle ? `${cleanTitle} lyrics` : `${videoId} lyrics`;
+
+      const res = await fetch("https://www.youtube.com/youtubei/v1/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        body: JSON.stringify({
+          context: {
+            client: {
+              clientName: "WEB",
+              clientVersion: "2.20240101.00.00",
+              hl: "en",
+              gl: "US",
+            },
+          },
+          query,
+        }),
+        signal: AbortSignal.timeout(4500),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const contents =
+          data?.contents?.twoColumnSearchResultsRenderer?.primaryContents
+            ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
+
+        for (const item of contents) {
+          const v = item.videoRenderer;
+          if (v && v.videoId && v.videoId !== videoId) {
+            const t = v.title?.runs?.[0]?.text || "Versão Compatível";
+            const owner = (v.ownerText?.runs?.[0]?.text || "").toLowerCase();
+            if (!owner.includes("vevo")) {
+              return { id: v.videoId, title: t };
+            }
+          }
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  /**
    * Traduz um único texto com cadeia de fallbacks resiliente:
    * 1. Google Chrome Extension Translation (clients5)
    * 2. MyMemory Translated API
