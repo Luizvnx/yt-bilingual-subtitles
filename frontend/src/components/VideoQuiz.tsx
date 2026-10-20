@@ -161,10 +161,10 @@ export function VideoQuiz({
         <div className="space-y-1">
           <h3 className="text-lg sm:text-xl font-black text-white">
             {finalScore === total
-              ? "Perfeito! Você dominou o vídeo! 🎉"
+              ? "Perfeito! Você dominou o vídeo!"
               : finalScore > 0
-              ? "Muito bem! Bom aproveitamento! 👏"
-              : "Bom esforço! Revise o vídeo e tente de novo! 💪"}
+              ? "Muito bem! Bom aproveitamento!"
+              : "Bom esforço! Revise o vídeo e tente de novo!"}
           </h3>
           <p className="text-xs sm:text-sm text-zinc-400">
             Você acertou <strong className="text-white">{finalScore}</strong> de{" "}

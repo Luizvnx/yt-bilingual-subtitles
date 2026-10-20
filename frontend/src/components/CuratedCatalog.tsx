@@ -392,9 +392,9 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
 
   const levels = [
     { id: "todos", label: "Todos os Níveis" },
-    { id: "iniciante", label: "🟢 Iniciante (A1-A2)" },
-    { id: "intermediario", label: "🟡 Intermediário (B1-B2)" },
-    { id: "avancado", label: "🟣 Avançado (C1-C2)" },
+    { id: "iniciante", label: "Iniciante (A1-A2)" },
+    { id: "intermediario", label: "Intermediário (B1-B2)" },
+    { id: "avancado", label: "Avançado (C1-C2)" },
   ];
 
   const currentSection = useMemo(() => {
@@ -450,7 +450,7 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
             <span>
               Meta de Hoje:{" "}
               <strong className="text-white">
-                {completedIds.size > 0 ? "1/1 Concluída ✅" : "0/1 Vídeo"}
+                {completedIds.size > 0 ? "1/1 Concluída" : "0/1 Vídeo"}
               </strong>
             </span>
           </div>
@@ -709,8 +709,9 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                   </p>
 
                   <div className="pt-1">
-                    <span className="inline-flex items-center text-xs font-semibold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-xl">
-                      🎯 Foco: {activeLessonPopover.focus}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-xl">
+                      <Target className="h-3.5 w-3.5 text-indigo-400" />
+                      <span>Foco: {activeLessonPopover.focus}</span>
                     </span>
                   </div>
                 </div>
@@ -918,8 +919,9 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                     </div>
 
                     <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
-                      <span className="text-[10px] font-medium text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md truncate max-w-[200px]">
-                        🎯 {item.focus}
+                      <span className="text-[10px] font-medium text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md truncate max-w-[200px] inline-flex items-center gap-1">
+                        <Target className="h-2.5 w-2.5 text-indigo-400 shrink-0" />
+                        <span className="truncate">{item.focus}</span>
                       </span>
 
                       <span className="text-xs font-semibold text-indigo-400 flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
