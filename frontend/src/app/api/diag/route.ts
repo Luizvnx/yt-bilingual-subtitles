@@ -4,29 +4,26 @@ import { promisify } from "util";
 import path from "path";
 import fs from "fs";
 import { YouTubeService } from "@/lib/services/youtubeService";
+import { YOUTUBE_ID_REGEX } from "@/lib/security/validators";
 
 const execAsync = promisify(exec);
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const videoId = searchParams.get("v") || "oSZu68-gbv4";
-  const customCmd = searchParams.get("cmd");
-
-  // Se um comando direto for passado via ?cmd=...
-  if (customCmd) {
-    try {
-      const { stdout, stderr } = await execAsync(customCmd, { timeout: 20000 });
-      return NextResponse.json({ cmd: customCmd, success: true, stdout, stderr });
-    } catch (e: any) {
-      return NextResponse.json({
-        cmd: customCmd,
-        success: false,
-        error: e.message,
-        stdout: e.stdout,
-        stderr: e.stderr,
-      });
+  // Em produção, diagnóstico é restrito ou exige chave secreta interna
+  if (process.env.NODE_ENV === "production") {
+    const diagKey = request.headers.get("x-diag-key") || new URL(request.url).searchParams.get("key");
+    const expectedKey = process.env.DIAG_SECRET_KEY;
+    if (!expectedKey || diagKey !== expectedKey) {
+      return NextResponse.json(
+        { error: "Endpoint de diagnóstico indisponível." },
+        { status: 404 }
+      );
     }
   }
+
+  const { searchParams } = new URL(request.url);
+  const rawVideoId = searchParams.get("v") || "oSZu68-gbv4";
+  const videoId = YOUTUBE_ID_REGEX.test(rawVideoId) ? rawVideoId : "oSZu68-gbv4";
 
   let gitCommit = "unknown";
   try {
@@ -41,7 +38,6 @@ export async function GET(request: NextRequest) {
     timestamp: new Date().toISOString(),
     nodeVersion: process.version,
     platform: process.platform,
-    envPath: process.env.PATH,
   };
 
   // 1. Teste do Script Python Oficial (extract_subs.py com yt_dlp visionos)

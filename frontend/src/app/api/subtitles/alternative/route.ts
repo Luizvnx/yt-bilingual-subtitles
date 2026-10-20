@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import path from "path";
+import { checkRateLimit, getClientIp, YOUTUBE_ID_REGEX } from "@/lib/security";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 interface AltCandidate {
   id: string;
@@ -17,23 +18,37 @@ interface AltCandidate {
 const ALT_CACHE = new Map<string, AltCandidate[]>();
 
 export async function GET(request: NextRequest) {
+  // Rate limiting anti-abuso e anti-DoS: máx 30 consultas por minuto por IP
+  const ip = getClientIp(request);
+  const { allowed, retryAfter } = checkRateLimit(`alt:${ip}`, 30, 60);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Muitas requisições. Aguarde um momento.", retryAfter },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
-  const videoId = searchParams.get("v") || "";
+  const rawVideoId = searchParams.get("v") || "";
   const rawTitle = searchParams.get("title") || "";
   const rawExclude = searchParams.get("exclude") || "";
 
-  if (!videoId && !rawTitle) {
+  const videoId = YOUTUBE_ID_REGEX.test(rawVideoId) ? rawVideoId : "";
+  const cleanRawTitle = rawTitle.slice(0, 150).replace(/[^\w\s\u00C0-\u00FF\-.,?!'"]/gi, " ").trim();
+
+  if (!videoId && !cleanRawTitle) {
     return NextResponse.json(
-      { error: "Parâmetros 'v' ou 'title' são obrigatórios." },
+      { error: "Parâmetros 'v' ou 'title' válidos são obrigatórios." },
       { status: 400 }
     );
   }
 
+  // Sanitização estrita da lista de exclusão (apenas IDs válidos de 11 caracteres)
   const excludeIds = new Set(
     rawExclude
       .split(",")
       .map((s) => s.trim())
-      .filter(Boolean)
+      .filter((id) => YOUTUBE_ID_REGEX.test(id))
   );
   if (videoId) excludeIds.add(videoId);
 
@@ -162,8 +177,12 @@ export async function GET(request: NextRequest) {
       const excludeParam = Array.from(excludeIds).join(",");
       for (const pyBin of pyCandidates) {
         try {
-          const cmd = `"${pyBin}" "${scriptPath}" "${query.replace(/"/g, '\\"')}" "${excludeParam}"`;
-          const { stdout } = await execAsync(cmd, { timeout: 10000 });
+          // Utiliza execFile com array de argumentos para evitar invocação de shell (/bin/sh)
+          const { stdout } = await execFileAsync(
+            pyBin,
+            [scriptPath, query, excludeParam],
+            { timeout: 10000, maxBuffer: 5 * 1024 * 1024 }
+          );
           if (stdout && stdout.trim().startsWith("{")) {
             const result = JSON.parse(stdout.trim());
             if (result.success && result.id && !excludeIds.has(result.id)) {
