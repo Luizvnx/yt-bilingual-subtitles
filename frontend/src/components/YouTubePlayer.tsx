@@ -26,6 +26,7 @@ interface YouTubePlayerProps {
   currentTime: number;
   onTimeUpdate: (time: number) => void;
   playerRef: React.MutableRefObject<any>;
+  onAlternativeSwitched?: (newVideoId: string) => void;
 }
 
 export function YouTubePlayer({
@@ -36,6 +37,7 @@ export function YouTubePlayer({
   currentTime,
   onTimeUpdate,
   playerRef,
+  onAlternativeSwitched,
 }: YouTubePlayerProps) {
   const [subMode, setSubMode] = useState<"bilingual" | "en" | "pt" | "none">(
     "bilingual"
@@ -43,7 +45,12 @@ export function YouTubePlayer({
 
   // Determina o ID de vídeo inicial reproduzível
   const initialId =
-    embedVideoId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : videoId);
+    embedVideoId ||
+    (videoId === "kPa7bsKwL-c"
+      ? "zgaCZOQCpp8"
+      : videoId === "k2qgadSvNyU"
+      ? "ClhLNUPqv8Q"
+      : videoId);
 
   const [activeVideoId, setActiveVideoId] = useState(initialId);
   const [isUsingAlternative, setIsUsingAlternative] = useState(
@@ -73,7 +80,12 @@ export function YouTubePlayer({
   // Atualiza activeVideoId se as props externas mudarem (ex: escolha de outra música na biblioteca)
   useEffect(() => {
     const target =
-      embedVideoId || (videoId === "kPa7bsKwL-c" ? "zgaCZOQCpp8" : videoId);
+      embedVideoId ||
+      (videoId === "kPa7bsKwL-c"
+        ? "zgaCZOQCpp8"
+        : videoId === "k2qgadSvNyU"
+        ? "ClhLNUPqv8Q"
+        : videoId);
 
     setActiveVideoId(target);
     setIsUsingAlternative(target !== videoId);
@@ -122,6 +134,7 @@ export function YouTubePlayer({
         setHasEmbedRestriction(false);
         setIsSearchingAlt(false);
         isSwitchingRef.current = false;
+        onAlternativeSwitched?.(altVideo.id);
         return true;
       }
 
@@ -180,6 +193,7 @@ export function YouTubePlayer({
             setAltVideo(targetCandidate);
             setIsUsingAlternative(true);
             setHasEmbedRestriction(false);
+            onAlternativeSwitched?.(targetCandidate.id);
             return true;
           }
         }

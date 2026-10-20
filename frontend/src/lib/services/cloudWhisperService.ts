@@ -51,9 +51,25 @@ export class CloudWhisperService {
         "Vídeo sem legendas nativas. Baixando faixa de áudio otimizada..."
       );
 
+      const proxy = process.env.YOUTUBE_PROXY;
+      const proxyFlag = proxy ? `--proxy "${proxy}"` : "";
+
+      const cookieCandidates = [
+        "/app/data/cookies.txt",
+        "/app/host_data/cookies.txt",
+        "/app/cookies.txt",
+        "/tmp/cookies.txt",
+        path.join(process.cwd(), "data", "cookies.txt"),
+        path.join(process.cwd(), "cookies.txt"),
+      ];
+      const cookieFile = cookieCandidates.find(
+        (p) => fs.existsSync(p) && fs.statSync(p).size > 10
+      );
+      const cookieFlag = cookieFile ? `--cookies "${cookieFile}"` : "";
+
       // Baixa apenas o áudio compactado (bitrate leve 48k/64k) em 1 a 3 segundos
       await execAsync(
-        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,ios,web" -o "${audioPath}" "${canonicalUrl}"`,
+        `yt-dlp --no-cache-dir --no-warnings --force-ipv4 ${proxyFlag} ${cookieFlag} -x --audio-format m4a --audio-quality 8 --extractor-args "youtube:player_client=android,ios,web" -o "${audioPath}" "${canonicalUrl}"`,
         { timeout: 35000 }
       );
 
