@@ -228,6 +228,16 @@ class JobQueueServiceSingleton {
 
       const detectedLang = (segments as any).detectedLang || "en";
 
+      const realSpokenCount = segments.filter((s) => {
+        const clean = s.text_en
+          ?.replace(/\[[^\]]+\]/g, "")
+          ?.replace(/♪/g, "")
+          ?.trim() || "";
+        const words = clean.split(/\s+/).filter((w) => /[a-zA-Z]{2,}/.test(w));
+        return words.length >= 2;
+      }).length;
+      const hasRealSpeech = realSpokenCount >= 2;
+
       const saved = videoRepository.saveVideo({
         id: videoId,
         videoId,
@@ -239,6 +249,7 @@ class JobQueueServiceSingleton {
         detectedLang,
         segmentsCount: segments.length,
         segments,
+        hasRealSpeech,
         userId,
       });
 

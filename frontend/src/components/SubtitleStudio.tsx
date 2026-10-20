@@ -17,13 +17,18 @@ import {
   Loader2,
   ShieldAlert,
   AlertCircle,
+  Trophy,
+  Zap,
 } from "lucide-react";
+import { VideoQuiz } from "./VideoQuiz";
 
 interface SubtitleStudioProps {
   segments: SubtitleSegment[];
   currentTime: number;
   onSeek: (seconds: number) => void;
   onWordClick: (word: string, event: React.MouseEvent) => void;
+  videoId?: string;
+  videoTitle?: string;
 }
 
 export function SubtitleStudio({
@@ -31,8 +36,15 @@ export function SubtitleStudio({
   currentTime,
   onSeek,
   onWordClick,
+  videoId,
+  videoTitle,
 }: SubtitleStudioProps) {
+  const [activeTab, setActiveTab] = useState<"transcript" | "quiz">("transcript");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    setActiveTab("transcript");
+  }, [videoId]);
   const [autoScroll, setAutoScroll] = useState(true);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const activeSegmentRef = useRef<HTMLDivElement>(null);
@@ -292,72 +304,114 @@ export function SubtitleStudio({
 
   return (
     <div className="flex h-full flex-col rounded-3xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl shadow-2xl overflow-hidden">
-      {/* Topo do Studio: Busca e Opções */}
-      <div className="border-b border-white/10 p-4 space-y-3 bg-zinc-900/30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-indigo-400" />
-            <h3 className="text-sm font-bold text-white tracking-wide">
-              Transcrição Bilíngue Interativa
-            </h3>
+      {/* Topo do Studio: Abas, Busca e Opções */}
+      <div className="border-b border-white/10 p-3 sm:p-4 space-y-3 bg-zinc-900/30">
+        <div className="flex items-center justify-between gap-2">
+          {/* Navegação por Abas: Transcrição vs Quiz */}
+          <div className="flex items-center bg-zinc-900/90 p-1 rounded-2xl border border-white/10 shadow-inner">
+            <button
+              type="button"
+              onClick={() => setActiveTab("transcript")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "transcript"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5 text-indigo-200" />
+              <span>Transcrição</span>
+              <span className="hidden sm:inline-block text-[10px] opacity-75">
+                ({segments.length})
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("quiz")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "quiz"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-md shadow-amber-500/30 font-bold"
+                  : "text-zinc-400 hover:text-amber-300"
+              }`}
+            >
+              <Trophy className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-300" />
+              <span>Quiz IA</span>
+              <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                +30 XP
+              </span>
+            </button>
           </div>
-          <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-zinc-400 border border-white/5">
+
+          <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-zinc-400 border border-white/5 hidden sm:inline-block">
             {segments.length} frases
           </span>
         </div>
 
-        {/* Input de Busca */}
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Buscar palavra ou frase (inglês ou português)..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Toggle Auto-scroll & Dica */}
-        <div className="flex items-center justify-between text-xs pt-1 select-none">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={autoScroll}
-            onClick={() => setAutoScroll((prev) => !prev)}
-            className="flex items-center gap-2.5 cursor-pointer group focus:outline-none"
-          >
-            {/* Custom Pill Switch */}
-            <div
-              className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out ${
-                autoScroll
-                  ? "bg-indigo-600 shadow-sm shadow-indigo-500/30"
-                  : "bg-zinc-800 border border-zinc-700"
-              }`}
-            >
-              <span
-                className={`inline-block h-3 w-3 transform rounded-full bg-white transition duration-200 ease-in-out shadow-sm ${
-                  autoScroll ? "translate-x-3.5" : "translate-x-0.5"
-                }`}
+        {activeTab === "transcript" && (
+          <>
+            {/* Input de Busca */}
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+              <input
+                type="text"
+                placeholder="Buscar palavra ou frase (inglês ou português)..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
-            <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors">
-              Rolagem automática
-            </span>
-          </button>
 
-          <span className="hidden sm:flex text-[11px] text-zinc-500 items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
-            Clique em qualquer palavra para abrir o dicionário
-          </span>
-        </div>
+            {/* Toggle Auto-scroll & Dica */}
+            <div className="flex items-center justify-between text-xs pt-1 select-none">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={autoScroll}
+                onClick={() => setAutoScroll((prev) => !prev)}
+                className="flex items-center gap-2.5 cursor-pointer group focus:outline-none"
+              >
+                {/* Custom Pill Switch */}
+                <div
+                  className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out ${
+                    autoScroll
+                      ? "bg-indigo-600 shadow-sm shadow-indigo-500/30"
+                      : "bg-zinc-800 border border-zinc-700"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition duration-200 ease-in-out shadow-sm ${
+                      autoScroll ? "translate-x-3.5" : "translate-x-0.5"
+                    }`}
+                  />
+                </div>
+                <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors">
+                  Rolagem automática
+                </span>
+              </button>
+
+              <span className="hidden sm:flex text-[11px] text-zinc-500 items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                Clique em qualquer palavra para abrir o dicionário
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Lista de Frases Sincronizadas */}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-white/5"
-      >
+      {/* Conteúdo: Abas de Quiz ou Lista de Frases Sincronizadas */}
+      {activeTab === "quiz" ? (
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+          <VideoQuiz
+            videoId={videoId || ""}
+            videoTitle={videoTitle || ""}
+            onSeek={onSeek}
+          />
+        </div>
+      ) : (
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-white/5"
+        >
         {filteredSegments.length === 0 ? (
           <div className="py-12 text-center text-xs text-zinc-500">
             Nenhuma frase encontrada para a busca informada.
@@ -625,6 +679,7 @@ export function SubtitleStudio({
           })
         )}
       </div>
+      )}
     </div>
   );
 }
