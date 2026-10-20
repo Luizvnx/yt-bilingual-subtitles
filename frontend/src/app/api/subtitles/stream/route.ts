@@ -64,6 +64,22 @@ export async function GET(request: NextRequest) {
     }
   } catch {}
 
+  // Usuários não logados não têm acesso a processar vídeos no streaming
+  if (!userId) {
+    const errorBody = `event: error\ndata: ${JSON.stringify({
+      error: "Crie sua conta gratuita ou faça login para acessar os vídeos e estúdios de estudo.",
+      code: "AUTH_REQUIRED",
+      requireAuth: true,
+    })}\n\n`;
+    return new Response(errorBody, {
+      status: 401,
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-transform",
+      },
+    });
+  }
+
   let unsubscribe: (() => void) | null = null;
 
   const stream = new ReadableStream({

@@ -18,6 +18,7 @@ interface WordPopoverProps {
   onClose: () => void;
   user: any;
   onRequireLogin: () => void;
+  onRequireUpgrade?: () => void;
   onWordSaved?: () => void;
 }
 
@@ -27,6 +28,7 @@ export function WordPopover({
   onClose,
   user,
   onRequireLogin,
+  onRequireUpgrade,
   onWordSaved,
 }: WordPopoverProps) {
   const [loading, setLoading] = useState(true);
@@ -51,13 +53,23 @@ export function WordPopover({
 
     // Busca dados em paralelo no cache / API de dicionário
     fetch(`/api/dictionary/lookup?word=${encodeURIComponent(word)}`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        const resData = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw resData || new Error("Erro na consulta.");
+        }
+        return resData;
+      })
       .then((resData) => {
         setData(resData);
         setLoading(false);
       })
-      .catch(() => {
-        setData({ word, translationPt: word, phonetics: `/${word}/` });
+      .catch((err) => {
+        if (err?.code === "QUOTA_EXCEEDED" || err?.code === "AUTH_REQUIRED") {
+          setData({ error: err.error, code: err.code });
+        } else {
+          setData({ word, translationPt: word, phonetics: `/${word}/` });
+        }
         setLoading(false);
       });
   }, [word]);
@@ -145,6 +157,40 @@ export function WordPopover({
         <div className="flex flex-col items-center justify-center py-6 gap-2">
           <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
           <span className="text-[11px] text-zinc-400">Carregando tradução...</span>
+        </div>
+      ) : data?.error ? (
+        <div className="p-3 text-center space-y-3 bg-zinc-900/80 rounded-xl border border-amber-500/20">
+          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
+            <Lock className="h-5 w-5" />
+          </div>
+          <p className="text-xs text-zinc-300 font-medium leading-relaxed">
+            {data.error}
+          </p>
+          <div className="pt-1">
+            {data.code === "QUOTA_EXCEEDED" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onRequireUpgrade?.();
+                }}
+                className="w-full py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 font-bold hover:brightness-110 cursor-pointer text-xs shadow-md transition-all"
+              >
+                Assinar Plano PRO
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onRequireLogin();
+                }}
+                className="w-full py-2 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer text-xs shadow-md transition-all"
+              >
+                Fazer Login
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="space-y-3">

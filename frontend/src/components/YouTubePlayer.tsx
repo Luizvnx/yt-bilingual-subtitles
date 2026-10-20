@@ -109,8 +109,24 @@ export function YouTubePlayer({
   // Função para alternar para a versão sem restrição de reprodução externa
   const switchToAlternative = useCallback(
     async (manual: boolean = false) => {
+      // Se já temos uma versão alternativa em cache que não falhou, aplica imediatamente
+      if (
+        altVideo &&
+        altVideo.id &&
+        altVideo.id !== activeVideoId &&
+        !failedVideoIdsRef.current.has(altVideo.id)
+      ) {
+        retryCountRef.current += 1;
+        setActiveVideoId(altVideo.id);
+        setIsUsingAlternative(true);
+        setHasEmbedRestriction(false);
+        setIsSearchingAlt(false);
+        isSwitchingRef.current = false;
+        return true;
+      }
+
       // Bloqueio de concorrência e limite estrito do circuit breaker automático
-      if (!manual && (isSwitchingRef.current || retryCountRef.current >= 2)) {
+      if (!manual && (isSwitchingRef.current || retryCountRef.current >= 3)) {
         console.warn(
           "[YouTubePlayer] Circuit breaker ativo: limite automático atingido."
         );
@@ -233,12 +249,8 @@ export function YouTubePlayer({
                 errorCode === 153 ||
                 errorCode === 2
               ) {
-                // Dispara troca apenas se não ultrapassou o limite do circuit breaker automático
-                if (retryCountRef.current < 2) {
-                  switchToAlternativeRef.current(false);
-                } else {
-                  setHasEmbedRestriction(true);
-                }
+                // Alterna automaticamente e de forma transparente sem exigir múltiplos cliques do usuário
+                switchToAlternativeRef.current(false);
               }
             },
           },

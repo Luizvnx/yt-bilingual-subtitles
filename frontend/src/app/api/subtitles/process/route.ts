@@ -44,7 +44,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 1. Verifica se o vídeo já foi processado anteriormente (Cache Instantâneo)
+    // 1. Validação Estrita de Autenticação no Backend (Conforme Requisito de Acesso)
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: "Crie sua conta gratuita ou faça login para acessar os vídeos e estúdios de estudo.",
+          code: "AUTH_REQUIRED",
+          requireAuth: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    // 2. Validação Prévia de Quota (se vídeo ainda não foi processado pelo usuário)
+    const quotaCheckPre = usageRepository.checkQuota(
+      userId,
+      userTier,
+      videoId
+    );
+    if (!quotaCheckPre.canProcess) {
+      return NextResponse.json(
+        {
+          error: quotaCheckPre.reason,
+          code: quotaCheckPre.code,
+          requireUpgrade:
+            quotaCheckPre.code === "QUOTA_EXCEEDED" ||
+            quotaCheckPre.code === "DURATION_EXCEEDED",
+          requireAuth: quotaCheckPre.code === "AUTH_REQUIRED",
+          quota: quotaCheckPre,
+        },
+        { status: quotaCheckPre.code === "AUTH_REQUIRED" ? 401 : 403 }
+      );
+    }
+
+    // 3. Verifica se o vídeo já foi processado anteriormente (Cache Instantâneo)
     const existing = videoRepository.getById(videoId);
     if (
       existing &&
@@ -80,10 +113,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Extrai metadados do YouTube sem baixar o vídeo
+    // 4. Extrai metadados do YouTube sem baixar o vídeo
     const metadata = await YouTubeService.getMetadata(videoId);
 
-    // Validação de Quota e Duração (Fase 5 do Roadmap)
+    // Validação de Quota e Duração Final
     const quotaCheck = usageRepository.checkQuota(
       userId,
       userTier,
@@ -98,9 +131,10 @@ export async function POST(request: NextRequest) {
           requireUpgrade:
             quotaCheck.code === "QUOTA_EXCEEDED" ||
             quotaCheck.code === "DURATION_EXCEEDED",
+          requireAuth: quotaCheck.code === "AUTH_REQUIRED",
           quota: quotaCheck,
         },
-        { status: 403 }
+        { status: quotaCheck.code === "AUTH_REQUIRED" ? 401 : 403 }
       );
     }
 

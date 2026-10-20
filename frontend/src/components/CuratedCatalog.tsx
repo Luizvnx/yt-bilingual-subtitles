@@ -23,6 +23,7 @@ import {
   RotateCcw,
   Compass,
   Layers,
+  Lock,
 } from "lucide-react";
 
 export interface CuratedLesson {
@@ -175,17 +176,17 @@ export const DUOLINGO_SECTIONS: CuratedSection[] = [
     lessons: [
       {
         id: "dua-lipa-new-rules",
-        videoId: "k2qgadSvNyU",
-        url: "https://www.youtube.com/watch?v=k2qgadSvNyU",
-        title: "New Rules (Official Music Video)",
+        videoId: "jzbiRNaj_v0",
+        url: "https://www.youtube.com/watch?v=jzbiRNaj_v0",
+        title: "New Rules (Live Lounge BBC Radio 1)",
         creator: "Dua Lipa",
         category: "musica",
         level: "intermediario",
         levelLabel: "B2 • Música",
-        duration: "3:44",
-        thumbnail: "https://i.ytimg.com/vi/k2qgadSvNyU/hqdefault.jpg",
-        focus: "Phrasal Verbs & Expressões Modernas",
-        description: "Excelente para aprender conselhos e conversação cotidiana moderna entre amigas.",
+        duration: "3:40",
+        thumbnail: "https://i.ytimg.com/vi/jzbiRNaj_v0/hqdefault.jpg",
+        focus: "Voz Acústica Limpa, Phrasal Verbs & Ritmo",
+        description: "Versão ao vivo na BBC Radio 1 com voz nítida, sem introduções de diálogos de clipe, perfeita para decodificação auditiva e canto em sincronia.",
         tag: "Pop Internacional",
         xp: 40,
       },
@@ -232,33 +233,33 @@ export const DUOLINGO_SECTIONS: CuratedSection[] = [
     lessons: [
       {
         id: "job-interview-tell-me",
-        videoId: "5v-wyR5emRw",
-        url: "https://www.youtube.com/watch?v=5v-wyR5emRw",
-        title: "Tell Me About Yourself (Entrevista Modelo)",
-        creator: "CareerVidz",
+        videoId: "TQHW7gGjrCQ",
+        url: "https://www.youtube.com/watch?v=TQHW7gGjrCQ",
+        title: "Tell Me About Yourself (Resposta Modelo de Sucesso)",
+        creator: "Bill - The Company's Expert",
         category: "dialogo",
         level: "intermediario",
         levelLabel: "B2 • Carreira",
-        duration: "5:20",
-        thumbnail: "https://i.ytimg.com/vi/5v-wyR5emRw/hqdefault.jpg",
-        focus: "Carreira, Apresentação & 'Pitch' Pessoal",
-        description: "Mais de 200 falas da resposta modelo para entrevistas seletivas em empresas globais.",
+        duration: "5:15",
+        thumbnail: "https://i.ytimg.com/vi/TQHW7gGjrCQ/hqdefault.jpg",
+        focus: "Carreira, Apresentação & Entrevista de Emprego",
+        description: "Estratégia e dicção profissional para responder à pergunta mais comum em entrevistas seletivas globais em 5 minutos.",
         tag: "Inglês para Negócios",
         xp: 50,
       },
       {
-        id: "steve-jobs-stanford",
-        videoId: "UF8uR6Z6KLc",
-        url: "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
-        title: "Stay Hungry, Stay Foolish (Stanford)",
-        creator: "Stanford University",
+        id: "steve-jobs-secrets-of-life",
+        videoId: "kYfNvmF0Bqw",
+        url: "https://www.youtube.com/watch?v=kYfNvmF0Bqw",
+        title: "Secrets of Life (O Segredo da Vida - Steve Jobs)",
+        creator: "Silicon Valley Historical Association",
         category: "ted",
         level: "intermediario",
         levelLabel: "B2 • Oratória",
-        duration: "5:00",
-        thumbnail: "https://i.ytimg.com/vi/UF8uR6Z6KLc/hqdefault.jpg",
-        focus: "Storytelling, Pausas & Retórica",
-        description: "Mais de 240 falas de Steve Jobs. Aprenda como emocionar e reter a atenção do público.",
+        duration: "1:40",
+        thumbnail: "https://i.ytimg.com/vi/kYfNvmF0Bqw/hqdefault.jpg",
+        focus: "Oratória Inspiradora, Pausas & Pronúncia Precisa",
+        description: "O clássico conselho de Steve Jobs sobre não aceitar a vida como ela é e construir seu próprio impacto no mundo.",
         tag: "Discurso Histórico",
         xp: 55,
       },
@@ -288,9 +289,19 @@ export const ALL_LESSONS = DUOLINGO_SECTIONS.flatMap((sec) => sec.lessons);
 interface CuratedCatalogProps {
   onSelectVideo: (url: string) => void;
   isLoading?: boolean;
+  user?: any;
+  onRequireLogin?: (message?: string) => void;
+  onRequireUpgrade?: () => void;
 }
 
-export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCatalogProps) {
+export function CuratedCatalog({
+  onSelectVideo,
+  isLoading = false,
+  user,
+  onRequireLogin,
+  onRequireUpgrade,
+}: CuratedCatalogProps) {
+  const isGuest = !user;
   // Modo de visualização: "path" (Trilha Duolingo) ou "grid" (Explorar Livre)
   const [viewMode, setViewMode] = useState<"path" | "grid">("path");
   const [activeSectionId, setActiveSectionId] = useState<number>(1);
@@ -360,24 +371,17 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
   }, []);
 
   const handleStartLesson = (lesson: CuratedLesson) => {
-    try {
-      // Registra ganho de XP e marca como concluído
-      const newXp = xp + lesson.xp;
-      setXp(newXp);
-      localStorage.setItem("ytsubs_xp", newXp.toString());
-
-      const nextCompleted = new Set(completedIds);
-      nextCompleted.add(lesson.id);
-      setCompletedIds(nextCompleted);
-      localStorage.setItem(
-        "ytsubs_completed",
-        JSON.stringify(Array.from(nextCompleted))
+    if (isGuest) {
+      onRequireLogin?.(
+        "Crie sua conta gratuita ou faça login para acessar as aulas do catálogo e salvar seu progresso!"
       );
-
-      localStorage.setItem("ytsubs_last_active", new Date().toDateString());
-    } catch {}
+      return;
+    }
 
     setActiveLessonPopover(null);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ytsubs_current_lesson_id", lesson.id);
+    }
     onSelectVideo(lesson.url);
   };
 
@@ -616,14 +620,33 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
 
                 return (
                   <div key={lesson.id} className={`flex ${alignmentClass} relative`}>
-                    <div className="relative group flex flex-col items-center">
+                    <div className={`relative group flex flex-col items-center ${isGuest ? "opacity-75 contrast-90" : ""}`}>
                       {/* Botão circular 3D Duolingo com efeito de clique e pulsação */}
                       <button
                         type="button"
-                        onClick={() => setActiveLessonPopover(lesson)}
-                        className={`relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-b-[6px] transition-all cursor-pointer active:translate-y-1 active:border-b-0 shadow-xl ${btnColor}`}
+                        onClick={() => {
+                          if (isGuest) {
+                            onRequireLogin?.(
+                              "Crie sua conta gratuita ou faça login para acessar as aulas do catálogo!"
+                            );
+                            return;
+                          }
+                          setActiveLessonPopover(lesson);
+                        }}
+                        className={`relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-b-[6px] transition-all cursor-pointer active:translate-y-1 active:border-b-0 shadow-xl ${
+                          isGuest
+                            ? "bg-zinc-800 border-zinc-900 text-zinc-400 hover:bg-zinc-700 shadow-zinc-900/30"
+                            : btnColor
+                        }`}
                       >
-                        {isCompleted ? (
+                        {isGuest ? (
+                          <div className="flex flex-col items-center justify-center">
+                            <Lock className="h-6 w-6 text-amber-400" />
+                            <span className="text-[9px] font-black text-amber-400/90 mt-0.5 uppercase tracking-wide">
+                              Bloqueado
+                            </span>
+                          </div>
+                        ) : isCompleted ? (
                           <div className="relative flex items-center justify-center">
                             <Check className="h-8 w-8 stroke-[3.5] text-white" />
                             <span className="absolute -bottom-4 bg-emerald-950 border border-emerald-400 text-[10px] font-black px-1.5 py-0.2 rounded-full text-emerald-300">
@@ -640,7 +663,7 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                         )}
 
                         {/* Halo pulsante no nó ativo */}
-                        {!isCompleted && idx === 0 && (
+                        {!isGuest && !isCompleted && idx === 0 && (
                           <span className="absolute -inset-1 rounded-full border-2 border-white/50 animate-ping pointer-events-none" />
                         )}
                       </button>
@@ -732,12 +755,21 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                     disabled={isLoading}
                     className="w-2/3 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 text-xs sm:text-sm font-black text-white shadow-xl shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-b-4 border-emerald-800"
                   >
-                    <Play className="h-4 w-4 fill-current" />
-                    <span>
-                      {completedIds.has(activeLessonPopover.id)
-                        ? "REVISAR VÍDEO"
-                        : `COMEÇAR (+${activeLessonPopover.xp} XP)`}
-                    </span>
+                    {isGuest ? (
+                      <>
+                        <Lock className="h-4 w-4" />
+                        <span>FAZER LOGIN PARA ASSISTIR</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 fill-current" />
+                        <span>
+                          {completedIds.has(activeLessonPopover.id)
+                            ? "REVISAR VÍDEO"
+                            : `COMEÇAR (+${activeLessonPopover.xp} XP)`}
+                        </span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -849,12 +881,24 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                 const isBeginner = item.level === "iniciante";
                 const isIntermediate = item.level === "intermediario";
                 const isDone = completedIds.has(item.id);
+                const isCardLocked = isGuest;
 
                 return (
                   <div
                     key={item.id}
-                    onClick={() => !isLoading && handleStartLesson(item)}
-                    className="group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden"
+                    onClick={() => {
+                      if (isLoading) return;
+                      if (isCardLocked) {
+                        onRequireLogin?.(
+                          "Crie sua conta gratuita ou faça login para acessar os vídeos do catálogo!"
+                        );
+                        return;
+                      }
+                      handleStartLesson(item);
+                    }}
+                    className={`group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden ${
+                      isCardLocked ? "opacity-75 hover:opacity-90 contrast-90" : ""
+                    }`}
                   >
                     <div className="space-y-3">
                       <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/60">
@@ -865,15 +909,27 @@ export function CuratedCatalog({ onSelectVideo, isLoading = false }: CuratedCata
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
 
+                        {/* Selo de Bloqueio com Cadeado para Não Logados */}
+                        {isCardLocked && (
+                          <div className="absolute top-2 right-2 rounded-md bg-zinc-950/90 text-amber-400 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-md z-20 backdrop-blur-md">
+                            <Lock className="h-3 w-3" />
+                            <span>Bloqueado</span>
+                          </div>
+                        )}
+
                         {/* Overlay com Play */}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/40 scale-75 group-hover:scale-100 transition-transform">
-                            <Play className="h-5 w-5 fill-current ml-0.5" />
+                            {isCardLocked ? (
+                              <Lock className="h-5 w-5 text-amber-400" />
+                            ) : (
+                              <Play className="h-5 w-5 fill-current ml-0.5" />
+                            )}
                           </div>
                         </div>
 
                         {/* Selo Concluído */}
-                        {isDone && (
+                        {!isCardLocked && isDone && (
                           <div className="absolute top-2 right-2 rounded-md bg-emerald-500/90 text-white px-1.5 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-md">
                             <Check className="h-3 w-3" />
                             <span>Concluído</span>

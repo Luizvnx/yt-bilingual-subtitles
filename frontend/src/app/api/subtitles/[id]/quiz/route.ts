@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { videoRepository, quizRepository, QuizQuestion } from "@/lib/security";
+import {
+  videoRepository,
+  quizRepository,
+  QuizQuestion,
+  getAuthTokenFromCookies,
+  CryptoService,
+} from "@/lib/security";
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +16,44 @@ export async function GET(
     return NextResponse.json({ error: "ID do vídeo é obrigatório." }, { status: 400 });
   }
 
-  // 1. Verifica se já existe um quiz gerado e salvo para este vídeo (compartilhado entre todos os usuários)
+  // 1. Verificação Estrita de Autenticação e Plano PRO no Backend
+  let userId: string | undefined = undefined;
+  let userTier: "free" | "pro" = "free";
+
+  try {
+    const token = await getAuthTokenFromCookies();
+    if (token) {
+      const payload = await CryptoService.verifyAuthToken(token);
+      if (payload?.uid) {
+        userId = payload.uid;
+        userTier = (payload.tier as "free" | "pro") || "free";
+      }
+    }
+  } catch {}
+
+  if (!userId) {
+    return NextResponse.json(
+      {
+        error: "Faça login ou crie sua conta para acessar o Quiz com IA.",
+        code: "AUTH_REQUIRED",
+        requireAuth: true,
+      },
+      { status: 401 }
+    );
+  }
+
+  if (userTier !== "pro") {
+    return NextResponse.json(
+      {
+        error: "O Quiz com IA é exclusivo para assinantes do Plano PRO. Faça upgrade para desbloquear quizzes pedagógicos ilimitados!",
+        code: "PRO_REQUIRED",
+        requireUpgrade: true,
+      },
+      { status: 403 }
+    );
+  }
+
+  // 2. Verifica se já existe um quiz gerado e salvo para este vídeo (compartilhado entre todos os usuários)
   const existingQuiz = quizRepository.getByVideoId(id);
   if (existingQuiz && existingQuiz.questions && existingQuiz.questions.length > 0) {
     return NextResponse.json({
