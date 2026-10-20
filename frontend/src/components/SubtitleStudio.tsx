@@ -541,7 +541,7 @@ export function SubtitleStudio({
                           Por segurança, navegadores modernos (Chrome, Edge e Safari) não exibem a janela de permissão do microfone em endereços IP sem certificado SSL (HTTPS).
                         </p>
                         <div className="rounded-lg bg-black/60 p-2.5 text-[10px] text-zinc-300 space-y-1 font-mono">
-                          <p className="text-amber-400 font-sans font-semibold">💡 Como liberar no Chrome agora para testar nesta VPS:</p>
+                          <p className="text-amber-400 font-sans font-semibold">Como liberar no Chrome agora para testar nesta VPS:</p>
                           <p>1. Abra uma nova aba e acesse: <span className="text-white select-all">chrome://flags/#unsafely-treat-insecure-origin-as-secure</span></p>
                           <p>2. No campo de texto, adicione: <span className="text-emerald-400 font-bold select-all">{typeof window !== "undefined" ? window.location.origin : "http://137.131.164.202"}</span></p>
                           <p>3. Altere o seletor para <strong className="text-white">Enabled</strong> e clique em <strong className="text-white">Relaunch</strong>.</p>
