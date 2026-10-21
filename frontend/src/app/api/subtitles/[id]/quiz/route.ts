@@ -3,7 +3,7 @@ import {
   videoRepository,
   quizRepository,
   QuizQuestion,
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   checkRateLimit,
   getClientIp,
@@ -34,7 +34,7 @@ export async function GET(
   let userTier: "free" | "pro" = "free";
 
   try {
-    const token = await getAuthTokenFromCookies();
+    const token = await getAuthTokenFromRequest(request);
     if (token) {
       const payload = await CryptoService.verifyAuthToken(token);
       if (payload?.uid) {

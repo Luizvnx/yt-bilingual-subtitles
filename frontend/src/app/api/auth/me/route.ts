@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   userRepository,
   paymentRepository,
   usageRepository,
 } from "@/lib/security";
 
-export async function GET() {
-  const token = await getAuthTokenFromCookies();
+export async function GET(request: NextRequest) {
+  const token = await getAuthTokenFromRequest(request);
   if (!token) {
     return NextResponse.json(
       { error: "Não autenticado.", code: "AUTH_REQUIRED" },
@@ -51,8 +51,16 @@ export async function GET() {
   const weeklyVideosUsed = weeklySet.size;
   const translationsToday = usage.translationsByDay?.[today] || 0;
 
+  // Emite token para sincronização de fallback no cliente
+  const tokenForClient = await CryptoService.generateAuthToken(
+    user.id,
+    user.role,
+    user.tier
+  );
+
   return NextResponse.json({
     user,
+    token: tokenForClient,
     usage: {
       videosUsed: usage.videosProcessedIds.length,
       videosLimit: user.tier === "pro" ? 9999 : 6,

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   vocabularyRepository,
 } from "@/lib/security";
 
-export async function GET() {
-  const token = await getAuthTokenFromCookies();
+export async function GET(request: NextRequest) {
+  const token = await getAuthTokenFromRequest(request);
   if (!token) {
     return NextResponse.json(
       { error: "Você precisa estar conectado para acessar seu vocabulário." },
@@ -27,7 +27,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const token = await getAuthTokenFromCookies();
+  const token = await getAuthTokenFromRequest(request);
   if (!token) {
     return NextResponse.json(
       {

@@ -53,11 +53,12 @@ export async function POST(request: NextRequest) {
       {
         message: "Conta criada com sucesso!",
         user,
+        token,
       },
       { status: 201 }
     );
 
-    return setAuthCookieOnResponse(response, token);
+    return setAuthCookieOnResponse(response, token, request);
   } catch (error: any) {
     if (error?.name === "ZodError") {
       return NextResponse.json(

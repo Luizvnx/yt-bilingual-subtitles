@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { speakInEnglish } from "@/lib/tts";
+import { fetchWithAuth } from "@/lib/apiClient";
 
 interface WordPopoverProps {
   word: string;
@@ -52,7 +53,7 @@ export function WordPopover({
     speakImmediate(word);
 
     // Busca dados em paralelo no cache / API de dicionário
-    fetch(`/api/dictionary/lookup?word=${encodeURIComponent(word)}`)
+    fetchWithAuth(`/api/dictionary/lookup?word=${encodeURIComponent(word)}`)
       .then(async (res) => {
         const resData = await res.json().catch(() => null);
         if (!res.ok) {
@@ -96,7 +97,7 @@ export function WordPopover({
     setSaveError("");
 
     try {
-      const res = await fetch("/api/vocabulary", {
+      const res = await fetchWithAuth("/api/vocabulary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

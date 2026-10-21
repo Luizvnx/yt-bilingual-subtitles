@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     // Redireciona para a home com Cookie HttpOnly seguro ativado
     const response = NextResponse.redirect(`${baseUrl}/?auth=success`);
-    return setAuthCookieOnResponse(response, token);
+    return setAuthCookieOnResponse(response, token, request);
   } catch (err: any) {
     console.error("[Google OAuth Callback Error]:", err);
     return NextResponse.redirect(

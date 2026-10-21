@@ -62,6 +62,12 @@ export function AuthModal({
         throw new Error(data.error || "Erro ao autenticar.");
       }
 
+      if (data.token && typeof window !== "undefined") {
+        try {
+          localStorage.setItem("ytsubs_auth_token", data.token);
+        } catch {}
+      }
+
       onSuccess(data.user);
       onClose();
     } catch (err: any) {

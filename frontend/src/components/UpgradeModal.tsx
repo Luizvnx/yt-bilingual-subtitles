@@ -13,6 +13,7 @@ import {
   Mic,
   BookOpen,
 } from "lucide-react";
+import { fetchWithAuth } from "@/lib/apiClient";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export function UpgradeModal({
     setSuccessMessage("");
 
     try {
-      const res = await fetch("/api/billing/checkout", {
+      const res = await fetchWithAuth("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan: billingCycle }),
@@ -88,7 +89,7 @@ export function UpgradeModal({
 
     setLoading(true);
     try {
-      const res = await fetch("/api/billing/dev-toggle", { method: "POST" });
+      const res = await fetchWithAuth("/api/billing/dev-toggle", { method: "POST" });
       const data = await res.json();
       if (res.ok) {
         onUpgradeSuccess(data.newTier);
