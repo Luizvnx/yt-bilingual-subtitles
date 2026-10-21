@@ -301,11 +301,15 @@ export function SubtitleStudio({
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  // Divide o texto da frase em palavras individuais interativas
+  // Divide o texto da frase em palavras individuais interativas sem quebrar contrações (I'll, don't, it's)
   const renderInteractiveSentence = (text: string) => {
-    const tokens = text.split(/(\s+|[.,!?;:"'()]+)/);
+    // Mantém contrações e palavras com apóstrofo íntegras (ex: "I'll", "don't", "it's")
+    const tokens = text
+      .split(/([a-zA-Z0-9À-ÿ]+(?:['’][a-zA-Z0-9À-ÿ]+)*|[.,!?;:"()]+|\s+)/)
+      .filter(Boolean);
+
     return tokens.map((token, idx) => {
-      const isWord = /^[a-zA-Z0-9'-]+$/.test(token);
+      const isWord = /^[a-zA-Z0-9À-ÿ]+(?:['’][a-zA-Z0-9À-ÿ]+)*$/.test(token);
       if (!isWord) {
         return <span key={idx}>{token}</span>;
       }
