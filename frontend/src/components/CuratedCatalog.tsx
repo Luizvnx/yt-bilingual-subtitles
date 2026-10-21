@@ -469,63 +469,114 @@ export function CuratedCatalog({
   return (
     <section className="space-y-6 pt-2">
       {/* 1. BARRA SUPERIOR DE GAMIFICAÇÃO DUOLINGO (Streak, XP, Meta e Alternador de Modo) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border border-white/10 bg-zinc-900/80 p-3 sm:p-4 backdrop-blur-xl shadow-2xl">
-        {/* Métricas de Ofensiva (Streak) e XP */}
-        <div className="flex items-center gap-3 sm:gap-6">
-          {/* Streak */}
+      <div className="relative flex flex-wrap items-center justify-between gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0B0D14]/95 p-3 sm:p-4 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.7)] overflow-hidden">
+        {/* Specular highlight superior (padrão Gemini) */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
+        {/* Métricas de Ofensiva (Streak), XP e Meta Diária */}
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
+          {/* Streak 3D Token */}
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400 font-bold text-xs sm:text-sm"
-            title="Sua sequência de dias estudando inglês!"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-orange-500/15 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-[3px] border-b-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.2)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            title="Sua sequência diária de estudos de inglês"
           >
-            <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 animate-pulse fill-orange-500" />
-            <span>{streak} {streak === 1 ? "dia" : "dias"} de ofensiva</span>
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 text-white shadow-[0_0_12px_rgba(249,115,22,0.7)] shrink-0 border-b border-orange-700">
+              <Flame className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-white text-white drop-shadow" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="flex items-baseline gap-1">
+                <span className="font-display font-black text-white text-base sm:text-lg leading-none tracking-tight">
+                  {streak}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-orange-400 leading-none">
+                  {streak === 1 ? "dia" : "dias"}
+                </span>
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 leading-tight mt-0.5">
+                Ofensiva
+              </span>
+            </div>
           </div>
 
-          {/* XP Total */}
+          {/* XP Total 3D Token */}
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 font-bold text-xs sm:text-sm"
-            title="Pontos de experiência acumulados com seus estudos"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-amber-500/15 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.2)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            title="Pontos de experiência (XP) acumulados na plataforma"
           >
-            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400 fill-amber-400" />
-            <span>{xp} XP</span>
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.7)] shrink-0 border-b border-amber-700">
+              <Zap className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-current text-zinc-950 stroke-[2.5]" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="flex items-baseline gap-1">
+                <span className="font-display font-black text-amber-300 text-base sm:text-lg leading-none tracking-tight">
+                  {xp}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-400 leading-none">
+                  XP
+                </span>
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 leading-tight mt-0.5">
+                Acumulado
+              </span>
+            </div>
           </div>
 
-          {/* Meta do Dia */}
-          <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400">
-            <Target className="h-4 w-4 text-emerald-400" />
-            <span>
-              Meta de Hoje:{" "}
-              <strong className="text-white">
-                {completedIds.size > 0 ? "1/1 Concluída" : "0/1 Vídeo"}
-              </strong>
-            </span>
+          {/* Meta Diária Dopaminérgica */}
+          <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-zinc-900/60 border border-white/10 border-b-[3px] border-b-zinc-800">
+            <div
+              className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl text-white shrink-0 border-b ${
+                completedIds.size > 0
+                  ? "bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.6)] border-emerald-700"
+                  : "bg-zinc-800 text-zinc-400 border-zinc-700"
+              }`}
+            >
+              {completedIds.size > 0 ? (
+                <Check className="h-4 w-4 stroke-[3]" />
+              ) : (
+                <Target className="h-4 w-4" />
+              )}
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="flex items-baseline gap-1">
+                <span
+                  className={`font-display font-black text-xs sm:text-sm leading-none ${
+                    completedIds.size > 0 ? "text-emerald-300" : "text-white"
+                  }`}
+                >
+                  {completedIds.size > 0 ? "1/1 Concluída" : "0/1 Vídeo"}
+                </span>
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 leading-tight mt-0.5">
+                Meta do Dia
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Alternador de Modo: Trilha Duolingo vs. Explorar Catálogo Livre */}
-        <div className="flex items-center p-1 rounded-xl bg-black/60 border border-white/10 text-xs font-semibold">
+        {/* Alternador de Modo 3D (Trilha Duolingo vs. Explorar Catálogo) */}
+        <div className="flex items-center p-1 rounded-2xl bg-zinc-950/90 border border-white/10 text-xs shadow-inner">
           <button
             type="button"
             onClick={() => setViewMode("path")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all cursor-pointer font-display font-bold ${
               viewMode === "path"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-emerald-500 text-emerald-950 font-black shadow-[0_4px_14px_rgba(16,185,129,0.4)] border-b-[3px] border-emerald-700 active:translate-y-0.5 active:border-b"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Compass className="h-3.5 w-3.5" />
+            <Compass className="h-4 w-4" />
             <span>Trilha de Estudo</span>
           </button>
           <button
             type="button"
             onClick={() => setViewMode("grid")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all cursor-pointer font-display font-bold ${
               viewMode === "grid"
-                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25 font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-indigo-500 text-white font-black shadow-[0_4px_14px_rgba(99,102,241,0.4)] border-b-[3px] border-indigo-700 active:translate-y-0.5 active:border-b"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Layers className="h-3.5 w-3.5" />
+            <Layers className="h-4 w-4" />
             <span>Explorar Todos</span>
           </button>
         </div>
@@ -534,29 +585,45 @@ export function CuratedCatalog({
       {/* 2. MODO TRILHA DUOLINGO (The Learning Path) */}
       {viewMode === "path" && (
         <div className="space-y-6">
-          {/* Navegador de Seções do Duolingo (A1 -> A2 -> B1 -> B2/C1) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+          {/* Navegador de Seções do Duolingo (A1 -> A2 -> B1 -> B2/C1) - Estilo Game Quest Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
             {DUOLINGO_SECTIONS.map((sec) => {
               const isSelected = sec.id === activeSectionId;
               const isSectionUnlocked = sec.lessons.some((l) => isLessonUnlocked(l.id));
-              const isSectionCompleted = sec.lessons.every((l) => completedIds.has(l.id));
-              const hasCompleted = sec.lessons.some((l) => completedIds.has(l.id));
+              const completedCount = sec.lessons.filter((l) => completedIds.has(l.id)).length;
+              const isSectionCompleted = completedCount === sec.lessons.length;
+              const hasCompleted = completedCount > 0;
 
-              let colorClasses = "border-white/10 text-zinc-400 hover:bg-zinc-900";
+              // Estilos 3D dopaminérgicos ricos (sem visual genérico translúcido de IA)
+              let cardStyle = "";
+              let badgeColor = "";
+
               if (isSelected) {
                 if (sec.themeColor === "emerald") {
-                  colorClasses =
-                    "border-emerald-500/60 bg-emerald-500/15 text-emerald-300 ring-2 ring-emerald-500/20";
+                  cardStyle =
+                    "border-2 border-emerald-400 border-b-[5px] border-b-emerald-600 bg-gradient-to-b from-[#102018] via-[#0b1611] to-[#070e0a] shadow-[0_8px_25px_-4px_rgba(16,185,129,0.35)]";
+                  badgeColor = "bg-emerald-500 text-emerald-950";
                 } else if (sec.themeColor === "indigo") {
-                  colorClasses =
-                    "border-indigo-500/60 bg-indigo-500/15 text-indigo-300 ring-2 ring-indigo-500/20";
+                  cardStyle =
+                    "border-2 border-indigo-400 border-b-[5px] border-b-indigo-600 bg-gradient-to-b from-[#121630] via-[#0b0e20] to-[#070914] shadow-[0_8px_25px_-4px_rgba(99,102,241,0.35)]";
+                  badgeColor = "bg-indigo-500 text-white";
                 } else if (sec.themeColor === "amber") {
-                  colorClasses =
-                    "border-amber-500/60 bg-amber-500/15 text-amber-300 ring-2 ring-amber-500/20";
+                  cardStyle =
+                    "border-2 border-amber-400 border-b-[5px] border-b-amber-600 bg-gradient-to-b from-[#251808] via-[#160f05] to-[#0d0903] shadow-[0_8px_25px_-4px_rgba(245,158,11,0.35)]";
+                  badgeColor = "bg-amber-500 text-amber-950";
                 } else {
-                  colorClasses =
-                    "border-purple-500/60 bg-purple-500/15 text-purple-300 ring-2 ring-purple-500/20";
+                  cardStyle =
+                    "border-2 border-purple-400 border-b-[5px] border-b-purple-600 bg-gradient-to-b from-[#1e0f2b] via-[#130a1b] to-[#0a050e] shadow-[0_8px_25px_-4px_rgba(168,85,247,0.35)]";
+                  badgeColor = "bg-purple-500 text-white";
                 }
+              } else if (isSectionUnlocked) {
+                cardStyle =
+                  "border-2 border-zinc-800 border-b-[4px] border-b-zinc-850 bg-[#0C0E14] hover:border-zinc-700 hover:border-b-zinc-700 hover:-translate-y-0.5 text-zinc-300";
+                badgeColor = "bg-zinc-800 text-zinc-300";
+              } else {
+                cardStyle =
+                  "border-2 border-zinc-850/80 border-b-[4px] border-b-zinc-900 bg-[#090A0F]/70 text-zinc-500 opacity-60 hover:opacity-85";
+                badgeColor = "bg-zinc-850 text-zinc-500";
               }
 
               return (
@@ -567,73 +634,160 @@ export function CuratedCatalog({
                     setActiveSectionId(sec.id);
                     setActiveLessonPopover(null);
                   }}
-                  className={`flex flex-col text-left p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${colorClasses}`}
+                  className={`group flex flex-col justify-between text-left p-3.5 sm:p-4 rounded-2xl transition-all cursor-pointer relative overflow-hidden active:translate-y-0.5 select-none ${cardStyle}`}
                 >
-                  <div className="flex items-center justify-between text-[11px] font-bold mb-1">
-                    <span>SEÇÃO {sec.id}</span>
-                    {isSectionCompleted ? (
-                      <span className="flex items-center gap-0.5 text-emerald-400 text-[10px]">
-                        <Check className="h-3 w-3" />
-                        <span>Dominada</span>
+                  {/* Top Specular Line quando selecionado */}
+                  {isSelected && (
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  )}
+
+                  <div>
+                    {/* Header do Card: Tag da Seção e Status */}
+                    <div className="flex items-center justify-between gap-1 mb-2">
+                      <span
+                        className={`font-display font-black text-[10px] tracking-widest px-2 py-0.5 rounded-md uppercase ${badgeColor}`}
+                      >
+                        SEÇÃO {sec.id}
                       </span>
-                    ) : hasCompleted ? (
-                      <span className="flex items-center gap-0.5 text-amber-400 text-[10px]">
-                        <span>Em progresso</span>
-                      </span>
-                    ) : !isSectionUnlocked ? (
-                      <span className="flex items-center gap-0.5 text-zinc-500 text-[10px]">
-                        <Lock className="h-2.5 w-2.5" />
-                        <span>Bloqueada</span>
-                      </span>
-                    ) : null}
+
+                      {isSectionCompleted ? (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          <Check className="h-3 w-3 stroke-[3]" />
+                          <span>Dominada</span>
+                        </span>
+                      ) : hasCompleted ? (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          <span>{completedCount}/{sec.lessons.length}</span>
+                        </span>
+                      ) : !isSectionUnlocked ? (
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full border border-white/5">
+                          <Lock className="h-2.5 w-2.5" />
+                          <span>Bloqueada</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-zinc-400">
+                          {sec.lessons.length} lições
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Nível da Seção com Tipografia Bold Outfit */}
+                    <h4 className="font-display font-black text-xs sm:text-sm text-white line-clamp-1 tracking-tight">
+                      {sec.levelBadge}
+                    </h4>
                   </div>
-                  <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-1">
-                    {sec.levelBadge}
-                  </h4>
-                  <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">
-                    {sec.lessons.length} lições práticas
-                  </p>
+
+                  {/* Micro Barra de Progresso Segmentada por Lições */}
+                  <div className="mt-3 pt-2.5 border-t border-white/5">
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {sec.lessons.map((lesson, idx) => {
+                        const isDone = completedIds.has(lesson.id);
+                        return (
+                          <div
+                            key={lesson.id || idx}
+                            className={`h-1.5 rounded-full transition-all ${
+                              isDone
+                                ? isSelected
+                                  ? "bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_6px_rgba(16,185,129,0.7)]"
+                                  : "bg-emerald-500"
+                                : "bg-zinc-800"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-400 mt-1.5 block">
+                      {completedCount} de {sec.lessons.length} aulas concluídas
+                    </span>
+                  </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Banner da Seção Ativa (Estilo Duolingo Banner com Ícones e Recompensas) */}
+          {/* Banner da Seção Ativa (Gemini Cosmic Aurora + Duolingo Trophy Chest) */}
           <div
-            className={`rounded-3xl p-5 sm:p-6 text-white border relative overflow-hidden shadow-2xl transition-all ${
+            className={`rounded-3xl p-5 sm:p-7 text-white border-2 relative overflow-hidden shadow-2xl transition-all ${
               currentSection.themeColor === "emerald"
-                ? "bg-gradient-to-r from-emerald-950/80 via-emerald-900/50 to-zinc-950 border-emerald-500/30 shadow-emerald-950/30"
+                ? "bg-gradient-to-br from-[#0c2016] via-[#091410] to-[#070a09] border-emerald-500/40 border-b-[6px] border-b-emerald-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
                 : currentSection.themeColor === "indigo"
-                ? "bg-gradient-to-r from-indigo-950/80 via-indigo-900/50 to-zinc-950 border-indigo-500/30 shadow-indigo-950/30"
+                ? "bg-gradient-to-br from-[#121530] via-[#0b0e1e] to-[#070810] border-indigo-500/40 border-b-[6px] border-b-indigo-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
                 : currentSection.themeColor === "amber"
-                ? "bg-gradient-to-r from-amber-950/80 via-amber-900/50 to-zinc-950 border-amber-500/30 shadow-amber-950/30"
-                : "bg-gradient-to-r from-purple-950/80 via-purple-900/50 to-zinc-950 border-purple-500/30 shadow-purple-950/30"
+                ? "bg-gradient-to-br from-[#24170a] via-[#140e06] to-[#0a0703] border-amber-500/40 border-b-[6px] border-b-amber-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                : "bg-gradient-to-br from-[#1f102c] via-[#12091c] to-[#09040e] border-purple-500/40 border-b-[6px] border-b-purple-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
             }`}
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-              <div className="space-y-1.5 max-w-xl">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/80">
+            {/* Luminous Gemini Aurora Glows */}
+            <div
+              className={`pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full blur-3xl opacity-25 ${
+                currentSection.themeColor === "emerald"
+                  ? "bg-emerald-400"
+                  : currentSection.themeColor === "indigo"
+                  ? "bg-indigo-400"
+                  : currentSection.themeColor === "amber"
+                  ? "bg-amber-400"
+                  : "bg-purple-400"
+              }`}
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
+              <div className="space-y-2 max-w-xl">
+                {/* Level Tag */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white font-display font-black text-xs uppercase tracking-wider backdrop-blur-md">
                   <GraduationCap className="h-3.5 w-3.5" />
-                  {currentSection.levelBadge}
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                  <span>UNIDADE {currentSection.id} • {currentSection.levelBadge}</span>
+                </div>
+
+                <h3 className="font-display font-black text-2xl sm:text-3xl tracking-tight text-white leading-tight">
                   {currentSection.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-300">
+                <p className="text-xs sm:text-sm text-zinc-300 font-medium leading-relaxed">
                   {currentSection.subtitle}
                 </p>
               </div>
 
-              {/* Dica da Trilha */}
-              <div className="inline-flex items-center gap-2 rounded-2xl bg-black/40 border border-white/10 px-4 py-2.5 text-xs text-zinc-300 backdrop-blur-md shrink-0">
-                <Trophy className="h-4 w-4 text-amber-400 shrink-0" />
-                <span>
-                  Ganhe até{" "}
-                  <strong className="text-amber-300">
-                    +{currentSection.lessons.reduce((acc, l) => acc + l.xp, 0)} XP
-                  </strong>{" "}
-                  nesta seção
-                </span>
+              {/* 3D Golden Trophy Treasure Chest */}
+              <div className="relative group shrink-0 rounded-2xl bg-gradient-to-b from-amber-500/25 via-zinc-950 to-black p-3.5 sm:px-5 sm:py-4 border-2 border-amber-400/50 border-b-4 border-b-amber-600 shadow-[0_10px_30px_rgba(245,158,11,0.25)] flex items-center gap-3.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.7)] shrink-0 border-b-2 border-amber-700">
+                  <Trophy className="h-6 w-6 fill-current stroke-[2.5]" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-300/90 leading-tight">
+                    Recompensa da Seção
+                  </span>
+                  <span className="font-display font-black text-lg sm:text-xl text-white leading-tight mt-0.5">
+                    +{currentSection.lessons.reduce((acc, l) => acc + l.xp, 0)} XP{" "}
+                    <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wide">
+                      Bônus
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Barra de Progresso da Seção Integrada */}
+            <div className="mt-5 pt-4 border-t border-white/10 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <span className="text-xs font-bold text-zinc-300">
+                Progresso da Unidade:{" "}
+                <strong className="text-white font-display font-black">
+                  {currentSection.lessons.filter((l) => completedIds.has(l.id)).length} de{" "}
+                  {currentSection.lessons.length} aulas dominadas
+                </strong>
+              </span>
+
+              {/* Mini barra de preenchimento 3D */}
+              <div className="w-full sm:w-64 h-3.5 rounded-full bg-black/70 border border-white/10 overflow-hidden p-0.5 shadow-inner">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500 shadow-[0_0_10px_rgba(16,185,129,0.7)]"
+                  style={{
+                    width: `${Math.round(
+                      (currentSection.lessons.filter((l) => completedIds.has(l.id)).length /
+                        currentSection.lessons.length) *
+                        100
+                    )}%`,
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -735,16 +889,16 @@ export function CuratedCatalog({
                 );
               })}
 
-              {/* Baú / Troféu de Conclusão da Seção (Marco Duolingo) */}
+              {/* Baú / Troféu de Conclusão da Seção (Marco Duolingo 3D) */}
               <div className="flex justify-center pt-2">
-                <div className="flex flex-col items-center p-4 rounded-3xl border border-amber-500/30 bg-amber-500/10 backdrop-blur-md text-center max-w-xs shadow-xl shadow-amber-500/10">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 shadow-lg shadow-amber-500/30 mb-2">
-                    <Crown className="h-8 w-8 fill-current" />
+                <div className="flex flex-col items-center p-5 rounded-3xl border-2 border-amber-400/40 border-b-[5px] border-b-amber-600 bg-gradient-to-b from-amber-500/20 via-zinc-950 to-black text-center max-w-xs shadow-[0_12px_32px_rgba(245,158,11,0.25)]">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.7)] mb-2.5 border-b-2 border-amber-700">
+                    <Crown className="h-8 w-8 fill-current stroke-[2.5]" />
                   </div>
-                  <h4 className="font-extrabold text-sm text-amber-300">
+                  <h4 className="font-display font-black text-base text-amber-300">
                     Marco da Seção {currentSection.id}
                   </h4>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <p className="text-xs text-zinc-300 mt-1 font-medium leading-relaxed">
                     Complete todas as lições acima para dominar {currentSection.levelBadge}!
                   </p>
                 </div>
@@ -1044,12 +1198,12 @@ export function CuratedCatalog({
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span
-                            className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            className={`inline-flex items-center text-[10px] font-black px-2 py-0.5 rounded-md border uppercase tracking-wider ${
                               isBeginner
-                                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/25"
+                                ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-sm"
                                 : isIntermediate
-                                ? "bg-amber-500/10 text-amber-300 border-amber-500/25"
-                                : "bg-purple-500/10 text-purple-300 border-purple-500/25"
+                                ? "bg-amber-950/80 text-amber-300 border-amber-500/40 shadow-sm"
+                                : "bg-purple-950/80 text-purple-300 border-purple-500/40 shadow-sm"
                             }`}
                           >
                             {item.levelLabel}
