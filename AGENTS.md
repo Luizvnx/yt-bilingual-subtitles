@@ -46,6 +46,9 @@ Antes de realizar commits ou alterações, execute esta validação mental:
     └── Se SIM: Mantive o uso de `requests` com `pysocks` e o fallback?
 [ ] Minha alteração mexe no Dockerfile?
     └── Se SIM: O virtualenv `/opt/venv` continua com `pysocks`, `requests[socks]`, `yt-dlp` e `quickjs`?
+[ ] Minha alteração mexe no Frontend, CSS ou Componentes?
+    └── Se SIM: Li o DESIGN_SYSTEM.md e evitei o padrão genérico de IA (bg-color/10)?
+    └── Usei relevo físico 3D (border-b-4/border-b-[3px]) e Outfit (.font-display font-black)?
 [ ] Minha instrução de deploy indica o diretório correto?
     └── O caminho DEVE ser obrigatoriamente `/home/ubuntu/yt-bilingual-subtitles`!
 ```
@@ -114,4 +117,25 @@ Para testar novas features, migrações de banco e alterações de layout antes 
   bash deploy-stage.sh stop       # Desliga o stage para poupar memória
   ```
 * **Acesso Web Stage:** `http://137.131.164.202:3001` (Exibe badge âmbar `STAGE` na Navbar).
+
+---
+
+## 🎨 6. Diretrizes Visuais & Sistema de Design (Gemini Dark + Duolingo 3D)
+
+O projeto possui um guia de design canônico detalhado e obrigatório em [DESIGN_SYSTEM.md](file:///d:/projetos/yt-bilingual-subtitles-app/DESIGN_SYSTEM.md). Qualquer intervenção visual na aplicação Next.js **DEVE consultar e obedecer este guia**.
+
+### 6.1 Regras de Ouro de UI/UX
+1. **Banimento do Padrão Genérico de IA:**
+   - ❌ **TERMINANTEMENTE PROIBIDO:** Criar pílulas ou cartões com fundo claro translúcido e texto/borda fina lavada (`bg-[color]-500/10 border-[color]-500/25 text-[color]-400`). Esse é o padrão padrão de chatbots de IA que descaracteriza o app.
+2. **Afroldância Física 3D (Duolingo Feather):**
+   - ✅ Botões, fichas de gamificação e cartões de mundo/seção devem ter relevo chanfrado sólido (`border-b-[3px]`, `border-b-[4px]` ou `border-b-[5px]`).
+   - ✅ Resposta tátil ao clique: compressão mecânica no estado ativo (`active:translate-y-0.5 active:border-b`).
+3. **Ambiente Gemini Cosmic Dark:**
+   - ✅ Fundos cósmicos escuros e profundos (`#070A0F`, `#090A0F`, `#0B0D14`, `#0C0E14`).
+   - ✅ Specular highlights translúcidos no topo (`border-t border-white/20`).
+   - ✅ Auras e nébulas suaves difusas nos cantos (`blur-3xl opacity-25`), mantendo o contraste limpo.
+4. **Tipografia Diferenciada:**
+   - ✅ Contadores de XP, dias de ofensiva (Streak), números e títulos de seções usam **`Outfit`** (`.font-display font-black`).
+   - ✅ Legendas, diálogos bilíngues e textos de apoio usam **`Inter`** (`font-sans font-medium`).
+
 

@@ -1,0 +1,627 @@
+{
+  "communities": {
+    "0": [
+      "frontend_src_app_api_auth_google_callback_route",
+      "frontend_src_app_api_auth_google_callback_route_get",
+      "frontend_src_app_api_auth_google_route",
+      "frontend_src_app_api_auth_google_route_get",
+      "frontend_src_app_api_auth_google_route_post",
+      "frontend_src_app_api_auth_login_route",
+      "frontend_src_app_api_auth_login_route_post",
+      "frontend_src_app_api_auth_logout_route",
+      "frontend_src_app_api_auth_logout_route_post",
+      "frontend_src_app_api_auth_me_route",
+      "frontend_src_app_api_auth_me_route_get",
+      "frontend_src_app_api_auth_register_route",
+      "frontend_src_app_api_auth_register_route_post",
+      "frontend_src_app_api_billing_checkout_route",
+      "frontend_src_app_api_billing_checkout_route_post",
+      "frontend_src_app_api_billing_dev_toggle_route",
+      "frontend_src_app_api_billing_dev_toggle_route_post",
+      "frontend_src_app_api_dictionary_lookup_route",
+      "frontend_src_app_api_dictionary_lookup_route_dict_cache",
+      "frontend_src_app_api_dictionary_lookup_route_get",
+      "frontend_src_app_api_subtitles_history_route",
+      "frontend_src_app_api_subtitles_history_route_get",
+      "frontend_src_app_api_subtitles_id_quiz_route",
+      "frontend_src_app_api_subtitles_id_quiz_route_get",
+      "frontend_src_app_api_subtitles_id_route",
+      "frontend_src_app_api_subtitles_id_route_delete",
+      "frontend_src_app_api_subtitles_id_route_get",
+      "frontend_src_app_api_subtitles_stream_route",
+      "frontend_src_app_api_subtitles_stream_route_get",
+      "frontend_src_app_api_vocabulary_export_anki_route",
+      "frontend_src_app_api_vocabulary_export_anki_route_get",
+      "frontend_src_app_api_vocabulary_id_route",
+      "frontend_src_app_api_vocabulary_id_route_delete",
+      "frontend_src_app_api_vocabulary_route",
+      "frontend_src_app_api_vocabulary_route_get",
+      "frontend_src_app_api_vocabulary_route_post",
+      "frontend_src_app_api_webhooks_payment_route",
+      "frontend_src_app_api_webhooks_payment_route_post",
+      "frontend_src_lib_security_cookies",
+      "frontend_src_lib_security_cookies_auth_cookie_name",
+      "frontend_src_lib_security_cookies_clearauthcookieonresponse",
+      "frontend_src_lib_security_cookies_cookie_max_age",
+      "frontend_src_lib_security_cookies_getauthtokenfromcookies",
+      "frontend_src_lib_security_cookies_getauthtokenfromrequest",
+      "frontend_src_lib_security_cookies_setauthcookieonresponse",
+      "frontend_src_lib_security_cookies_shouldsetsecurecookie",
+      "frontend_src_lib_security_crypto",
+      "frontend_src_lib_security_crypto_cryptoservice",
+      "frontend_src_lib_security_crypto_cryptoservice_generateauthtoken",
+      "frontend_src_lib_security_crypto_cryptoservice_verifyauthtoken",
+      "frontend_src_lib_security_crypto_jwt_secret",
+      "frontend_src_lib_security_crypto_tokenpayload",
+      "frontend_src_lib_security_index"
+    ],
+    "1": [
+      "frontend_src_app_page",
+      "frontend_src_app_page_homepage",
+      "frontend_src_components_authmodal",
+      "frontend_src_components_authmodal_authmodal",
+      "frontend_src_components_authmodal_authmodalprops",
+      "frontend_src_components_curatedcatalog",
+      "frontend_src_components_curatedcatalog_all_lessons",
+      "frontend_src_components_curatedcatalog_curatedcatalog",
+      "frontend_src_components_curatedcatalog_curatedcatalogprops",
+      "frontend_src_components_curatedcatalog_curatedlesson",
+      "frontend_src_components_curatedcatalog_curatedsection",
+      "frontend_src_components_curatedcatalog_duolingo_sections",
+      "frontend_src_components_legalmodal",
+      "frontend_src_components_legalmodal_legalmodal",
+      "frontend_src_components_legalmodal_legalmodalprops",
+      "frontend_src_components_legalmodal_legalmodaltab",
+      "frontend_src_components_levelupcelebrationmodal",
+      "frontend_src_components_levelupcelebrationmodal_calculatelevel",
+      "frontend_src_components_levelupcelebrationmodal_levelinfo",
+      "frontend_src_components_levelupcelebrationmodal_levelupcelebrationmodal",
+      "frontend_src_components_levelupcelebrationmodal_levelupcelebrationmodalprops",
+      "frontend_src_components_navbar",
+      "frontend_src_components_navbar_navbar",
+      "frontend_src_components_navbar_navbarprops",
+      "frontend_src_components_subtitlestudio",
+      "frontend_src_components_subtitlestudio_subtitlestudio",
+      "frontend_src_components_subtitlestudio_subtitlestudioprops",
+      "frontend_src_components_upgrademodal",
+      "frontend_src_components_upgrademodal_upgrademodal",
+      "frontend_src_components_upgrademodal_upgrademodalprops",
+      "frontend_src_components_videoquiz",
+      "frontend_src_components_videoquiz_quizquestion",
+      "frontend_src_components_videoquiz_videoquiz",
+      "frontend_src_components_videoquiz_videoquizprops",
+      "frontend_src_components_vocabularymodal",
+      "frontend_src_components_vocabularymodal_vocabularymodal",
+      "frontend_src_components_vocabularymodal_vocabularymodalprops",
+      "frontend_src_components_wordpopover",
+      "frontend_src_components_wordpopover_wordpopover",
+      "frontend_src_components_wordpopover_wordpopoverprops",
+      "frontend_src_components_youtubeplayer",
+      "frontend_src_components_youtubeplayer_window",
+      "frontend_src_components_youtubeplayer_youtubeplayer",
+      "frontend_src_components_youtubeplayer_youtubeplayerprops",
+      "frontend_src_lib_apiclient",
+      "frontend_src_lib_apiclient_fetchwithauth",
+      "frontend_src_lib_apiclient_getclientauthheaders",
+      "frontend_src_lib_apiclient_getclientauthtoken",
+      "frontend_src_lib_security_repositories_videorepository_subtitlesegment",
+      "frontend_src_lib_tts",
+      "frontend_src_lib_tts_getenglishvoice",
+      "frontend_src_lib_tts_speakinenglish",
+      "ref_react"
+    ],
+    "2": [
+      "frontend_src_app_api_subtitles_process_route",
+      "frontend_src_app_api_subtitles_process_route_post",
+      "frontend_src_components_historygrid",
+      "frontend_src_components_historygrid_historygrid",
+      "frontend_src_components_historygrid_historygridprops",
+      "frontend_src_lib_security_repositories_videorepository_videorecord",
+      "frontend_src_lib_services_cloudwhisperservice",
+      "frontend_src_lib_services_cloudwhisperservice_cloudwhisperservice",
+      "frontend_src_lib_services_cloudwhisperservice_cloudwhisperservice_transcribeaudio",
+      "frontend_src_lib_services_cloudwhisperservice_execasync",
+      "frontend_src_lib_services_cloudwhisperservice_whispersegment",
+      "frontend_src_lib_services_jobqueueservice",
+      "frontend_src_lib_services_jobqueueservice_activejob",
+      "frontend_src_lib_services_jobqueueservice_joblistener",
+      "frontend_src_lib_services_jobqueueservice_jobprogress",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservice",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_getjob",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_isprocessing",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_notify",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_processvideo",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_subscribe",
+      "frontend_src_lib_services_jobqueueservice_jobstatus",
+      "frontend_src_lib_services_youtubeservice",
+      "frontend_src_lib_services_youtubeservice_execasync",
+      "frontend_src_lib_services_youtubeservice_subtitleitem",
+      "frontend_src_lib_services_youtubeservice_translation_cache",
+      "frontend_src_lib_services_youtubeservice_youtubemetadata",
+      "frontend_src_lib_services_youtubeservice_youtubeservice",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_checkembedrestricted",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_detectlanguage",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_enrichbilingualsegments",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_extractsubtitles",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_fetchinnertubesubtitles",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_findalternativevideo",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_getmetadata",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_getyoutubeauth",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_mergenaturalsentences",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_parsejson3content",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_parsetimedtextxml",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_parsevttcontent",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_parsevtttime",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_resolveplayablealternative",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_translatebatch",
+      "frontend_src_lib_services_youtubeservice_youtubeservice_translatesingletext"
+    ],
+    "3": [
+      "frontend_src_lib_security_repositories_base",
+      "frontend_src_lib_security_repositories_base_baserepository",
+      "frontend_src_lib_security_repositories_base_baserepository_constructor",
+      "frontend_src_lib_security_repositories_base_baserepository_enforcetenantscope",
+      "frontend_src_lib_security_repositories_base_baserepository_readdata",
+      "frontend_src_lib_security_repositories_base_baserepository_writedata",
+      "frontend_src_lib_security_repositories_paymentrepository",
+      "frontend_src_lib_security_repositories_paymentrepository_paymentrepository",
+      "frontend_src_lib_security_repositories_paymentrepository_paymentrepository_constructor",
+      "frontend_src_lib_security_repositories_paymentrepository_paymentrepository_getactivesubscriptiontier",
+      "frontend_src_lib_security_repositories_paymentrepository_paymentrepository_getbyuserid",
+      "frontend_src_lib_security_repositories_paymentrepository_paymentrepository_upsertsubscription",
+      "frontend_src_lib_security_repositories_paymentrepository_subscriptionrecord",
+      "frontend_src_lib_security_repositories_quizrepository",
+      "frontend_src_lib_security_repositories_quizrepository_quizquestion",
+      "frontend_src_lib_security_repositories_quizrepository_quizrecord",
+      "frontend_src_lib_security_repositories_quizrepository_quizrepository",
+      "frontend_src_lib_security_repositories_quizrepository_quizrepository_constructor",
+      "frontend_src_lib_security_repositories_quizrepository_quizrepository_getbyvideoid",
+      "frontend_src_lib_security_repositories_quizrepository_quizrepository_savequiz",
+      "frontend_src_lib_security_repositories_usagerepository",
+      "frontend_src_lib_security_repositories_usagerepository_guest_translations_by_ip",
+      "frontend_src_lib_security_repositories_usagerepository_quotacheckresult",
+      "frontend_src_lib_security_repositories_usagerepository_translationquotaresult",
+      "frontend_src_lib_security_repositories_usagerepository_usagerecord",
+      "frontend_src_lib_security_repositories_userrepository",
+      "frontend_src_lib_security_repositories_userrepository_safeuser",
+      "frontend_src_lib_security_repositories_userrepository_userrecord",
+      "frontend_src_lib_security_repositories_videorepository",
+      "frontend_src_lib_security_repositories_vocabularyrepository",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrecord",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrepository",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrepository_addword",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrepository_constructor",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrepository_deleteword",
+      "frontend_src_lib_security_repositories_vocabularyrepository_vocabularyrepository_getbyuserid"
+    ],
+    "4": [
+      "frontend_tsconfig",
+      "frontend_tsconfig_compileroptions",
+      "frontend_tsconfig_compileroptions_allowjs",
+      "frontend_tsconfig_compileroptions_esmoduleinterop",
+      "frontend_tsconfig_compileroptions_incremental",
+      "frontend_tsconfig_compileroptions_isolatedmodules",
+      "frontend_tsconfig_compileroptions_jsx",
+      "frontend_tsconfig_compileroptions_lib",
+      "frontend_tsconfig_compileroptions_module",
+      "frontend_tsconfig_compileroptions_moduleresolution",
+      "frontend_tsconfig_compileroptions_noemit",
+      "frontend_tsconfig_compileroptions_paths",
+      "frontend_tsconfig_compileroptions_plugins",
+      "frontend_tsconfig_compileroptions_resolvejsonmodule",
+      "frontend_tsconfig_compileroptions_skiplibcheck",
+      "frontend_tsconfig_compileroptions_strict",
+      "frontend_tsconfig_compileroptions_target",
+      "frontend_tsconfig_exclude",
+      "frontend_tsconfig_include",
+      "ref_dom",
+      "ref_dom_iterable",
+      "ref_esnext",
+      "ref_mts",
+      "ref_next_dev_types_ts",
+      "ref_next_env_d_ts",
+      "ref_next_types_ts",
+      "ref_node_modules",
+      "ref_ts",
+      "ref_tsx"
+    ],
+    "5": [
+      "eslint",
+      "eslint_config_next",
+      "frontend_package",
+      "frontend_package_devdependencies",
+      "frontend_package_devdependencies_eslint",
+      "frontend_package_devdependencies_eslint_config_next",
+      "frontend_package_devdependencies_tailwindcss",
+      "frontend_package_devdependencies_tailwindcss_turbopack",
+      "frontend_package_devdependencies_types_bcryptjs",
+      "frontend_package_devdependencies_types_node",
+      "frontend_package_devdependencies_types_react",
+      "frontend_package_devdependencies_types_react_dom",
+      "frontend_package_devdependencies_typescript",
+      "frontend_package_name",
+      "frontend_package_private",
+      "frontend_package_scripts",
+      "frontend_package_scripts_build",
+      "frontend_package_scripts_dev",
+      "frontend_package_scripts_lint",
+      "frontend_package_scripts_start",
+      "frontend_package_version",
+      "tailwindcss",
+      "tailwindcss_turbopack",
+      "types_bcryptjs",
+      "types_node",
+      "types_react",
+      "types_react_dom",
+      "typescript"
+    ],
+    "6": [
+      "anki_apkg_export",
+      "bcryptjs",
+      "frontend_package_dependencies",
+      "frontend_package_dependencies_anki_apkg_export",
+      "frontend_package_dependencies_bcryptjs",
+      "frontend_package_dependencies_jose",
+      "frontend_package_dependencies_lucide_react",
+      "frontend_package_dependencies_next",
+      "frontend_package_dependencies_prisma",
+      "frontend_package_dependencies_prisma_client",
+      "frontend_package_dependencies_react",
+      "frontend_package_dependencies_react_dom",
+      "frontend_package_dependencies_stripe",
+      "frontend_package_dependencies_zod",
+      "frontend_package_json_stripe",
+      "jose",
+      "lucide_react",
+      "next",
+      "prisma",
+      "prisma_client",
+      "react",
+      "react_dom",
+      "zod"
+    ],
+    "7": [
+      "package",
+      "package_author",
+      "package_description",
+      "package_keywords",
+      "package_license",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_deploy_prod",
+      "package_scripts_deploy_stage",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_stage_down",
+      "package_scripts_stage_logs",
+      "package_scripts_stage_up",
+      "package_scripts_start",
+      "package_version",
+      "ref_language_learning",
+      "ref_nextjs",
+      "ref_saas",
+      "ref_subtitles",
+      "ref_youtube"
+    ],
+    "8": [
+      "frontend_src_app_api_diag_route",
+      "frontend_src_app_api_diag_route_execasync",
+      "frontend_src_app_api_diag_route_get",
+      "frontend_src_lib_security_validators",
+      "frontend_src_lib_security_validators_allowed_youtube_hosts",
+      "frontend_src_lib_security_validators_forbidden_hosts",
+      "frontend_src_lib_security_validators_processvideoschema",
+      "frontend_src_lib_security_validators_userloginschema",
+      "frontend_src_lib_security_validators_userregisterschema",
+      "frontend_src_lib_security_validators_validateandextractyoutubeid",
+      "frontend_src_lib_security_validators_youtube_id_regex"
+    ],
+    "9": [
+      "frontend_src_lib_security_crypto_cryptoservice_hashpassword",
+      "frontend_src_lib_security_crypto_cryptoservice_verifypassword",
+      "frontend_src_lib_security_repositories_userrepository_userrepository",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_constructor",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_createuser",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_findbyemail",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_findbyid",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_sanitize",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_updateprofile",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_updatetier",
+      "frontend_src_lib_security_repositories_userrepository_userrepository_verifycredentials"
+    ],
+    "10": [
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_checkquota",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_checktranslationquota",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_constructor",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_getcurrentmonthkey",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_getpast7dayskeys",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_gettodaykey",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_getusage",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_recordtranslationusage",
+      "frontend_src_lib_security_repositories_usagerepository_usagerepository_recordvideousage"
+    ],
+    "11": [
+      "frontend_src_lib_security_ratelimiter",
+      "frontend_src_lib_security_ratelimiter_checkratelimit",
+      "frontend_src_lib_security_ratelimiter_getclientip",
+      "frontend_src_lib_security_ratelimiter_inmemoryratelimiter",
+      "frontend_src_lib_security_ratelimiter_inmemoryratelimiter_constructor",
+      "frontend_src_lib_security_ratelimiter_inmemoryratelimiter_getinstance",
+      "frontend_src_lib_security_ratelimiter_inmemoryratelimiter_isallowed",
+      "frontend_src_lib_security_ratelimiter_ratelimiter",
+      "frontend_src_lib_security_ratelimiter_ratelimitrecord"
+    ],
+    "12": [
+      "frontend_src_lib_security_repositories_videorepository_videorepository",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_constructor",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_deletebyid",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_getall",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_getbyid",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_sanitizesegments",
+      "frontend_src_lib_security_repositories_videorepository_videorepository_savevideo"
+    ],
+    "13": [
+      "frontend_src_app_api_subtitles_alternative_route",
+      "frontend_src_app_api_subtitles_alternative_route_alt_cache",
+      "frontend_src_app_api_subtitles_alternative_route_altcandidate",
+      "frontend_src_app_api_subtitles_alternative_route_execfileasync",
+      "frontend_src_app_api_subtitles_alternative_route_get"
+    ],
+    "14": [
+      "frontend_src_app_layout",
+      "frontend_src_app_layout_inter",
+      "frontend_src_app_layout_metadata",
+      "frontend_src_app_layout_outfit",
+      "frontend_src_app_layout_rootlayout"
+    ],
+    "15": [
+      "concept:deploy_automation",
+      "concept:preflight_proxy_check",
+      "concept:warp_sidecar_proxy",
+      "concept:yt_bilingual_subtitles"
+    ],
+    "16": [
+      "frontend_src_middleware",
+      "frontend_src_middleware_allowed_origins",
+      "frontend_src_middleware_config",
+      "frontend_src_middleware_middleware"
+    ],
+    "17": [
+      "frontend_src_app_api_tts_route",
+      "frontend_src_app_api_tts_route_get",
+      "frontend_src_app_api_tts_route_tts_audio_cache"
+    ],
+    "18": [
+      "frontend_src_lib_prisma",
+      "frontend_src_lib_prisma_globalforprisma",
+      "frontend_src_lib_prisma_prisma"
+    ],
+    "19": [
+      "scripts_verify_catalog_videos",
+      "scripts_verify_catalog_videos_get_title",
+      "scripts_verify_catalog_videos_search_yt"
+    ],
+    "20": [
+      "concept:interactive_subtitle_studio",
+      "concept:vevo_error_handling"
+    ],
+    "21": [
+      "deploy",
+      "deploy_sh__entry"
+    ],
+    "22": [
+      "deploy_stage",
+      "deploy_stage_sh__entry"
+    ],
+    "23": [
+      "frontend_eslint_config",
+      "frontend_eslint_config_eslintconfig"
+    ],
+    "24": [
+      "frontend_next_config",
+      "frontend_next_config_nextconfig"
+    ],
+    "25": [
+      "frontend_scripts_extract_subs",
+      "frontend_scripts_extract_subs_main"
+    ],
+    "26": [
+      "frontend_scripts_search_alternative",
+      "frontend_scripts_search_alternative_main"
+    ],
+    "27": [
+      "scripts_extract_subs",
+      "scripts_extract_subs_main"
+    ],
+    "28": [
+      "scripts_search_alternative",
+      "scripts_search_alternative_main"
+    ],
+    "29": [
+      "setup_ssl",
+      "setup_ssl_sh__entry"
+    ]
+  },
+  "cohesion": {
+    "0": 0.08272859216255443,
+    "1": 0.07474600870827286,
+    "2": 0.09191919191919191,
+    "3": 0.07142857142857142,
+    "4": 0.06896551724137931,
+    "5": 0.07142857142857142,
+    "6": 0.08695652173913043,
+    "7": 0.08695652173913043,
+    "8": 0.21818181818181817,
+    "9": 0.3090909090909091,
+    "10": 0.4222222222222222,
+    "11": 0.25,
+    "12": 0.42857142857142855,
+    "13": 0.5,
+    "14": 0.4,
+    "15": 0.5,
+    "16": 0.5,
+    "17": 0.6666666666666666,
+    "18": 0.6666666666666666,
+    "19": 0.6666666666666666,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0
+  },
+  "gods": [
+    {
+      "id": "frontend_src_lib_security_cookies_getauthtokenfromrequest",
+      "label": "getAuthTokenFromRequest()",
+      "degree": 25
+    },
+    {
+      "id": "frontend_src_lib_security_crypto_cryptoservice",
+      "label": "CryptoService",
+      "degree": 21
+    },
+    {
+      "id": "frontend_src_lib_services_youtubeservice_youtubeservice",
+      "label": "YouTubeService",
+      "degree": 21
+    },
+    {
+      "id": "frontend_tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "frontend_src_lib_security_repositories_base_baserepository",
+      "label": "BaseRepository",
+      "degree": 14
+    },
+    {
+      "id": "ref_react",
+      "label": "react",
+      "degree": 14
+    },
+    {
+      "id": "frontend_src_lib_apiclient_fetchwithauth",
+      "label": "fetchWithAuth()",
+      "degree": 12
+    },
+    {
+      "id": "frontend_src_app_api_subtitles_process_route_post",
+      "label": "POST()",
+      "degree": 12
+    },
+    {
+      "id": "frontend_src_lib_security_repositories_usagerepository_usagerepository",
+      "label": "UsageRepository",
+      "degree": 10
+    },
+    {
+      "id": "frontend_src_lib_security_repositories_userrepository_userrepository",
+      "label": "UserRepository",
+      "degree": 10
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Deploy Automation Script",
+      "target": "Cloudflare WARP SOCKS5 Sidecar",
+      "source_files": [
+        "deploy.sh",
+        "AGENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "MANAGES_LIFECYCLE_OF",
+      "why": "crosses file types (code ↔ doc); connects across different repos/directories"
+    },
+    {
+      "source": "Pre-flight Proxy Reachability Check",
+      "target": "Cloudflare WARP SOCKS5 Sidecar",
+      "source_files": [
+        "scripts/extract_subs.py",
+        "AGENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "VERIFIES_CONNECTIVITY_OF",
+      "why": "crosses file types (code ↔ doc); connects across different repos/directories"
+    },
+    {
+      "source": "Cloudflare WARP SOCKS5 Sidecar",
+      "target": "YT Bilingual Subtitles SaaS",
+      "source_files": [
+        "AGENTS.md",
+        "README.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "PROVIDES_PROXY_FOR",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "SubtitleStudioProps",
+      "target": "SubtitleSegment",
+      "source_files": [
+        "frontend/src/components/SubtitleStudio.tsx",
+        "frontend/src/lib/security/repositories/videoRepository.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "peripheral node `SubtitleStudioProps` unexpectedly reaches hub `SubtitleSegment`"
+    },
+    {
+      "source": "YouTubePlayerProps",
+      "target": "SubtitleSegment",
+      "source_files": [
+        "frontend/src/components/YouTubePlayer.tsx",
+        "frontend/src/lib/security/repositories/videoRepository.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "peripheral node `YouTubePlayerProps` unexpectedly reaches hub `SubtitleSegment`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `react` connect `page.tsx` to `YouTubeService`, `scripts`?",
+      "why": "High betweenness centrality (0.079) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `keywords` connect `scripts` to `page.tsx`?",
+      "why": "High betweenness centrality (0.073) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `YouTubeService` connect `YouTubeService` to `validators.ts`, `index.ts`?",
+      "why": "High betweenness centrality (0.036) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `TokenPayload`, `AuthModalProps`, `CuratedCatalogProps` to the rest of the system?",
+      "why": "133 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `index.ts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08272859216255443 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `page.tsx` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07474600870827286 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `YouTubeService` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09191919191919191 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
