@@ -5,7 +5,7 @@ import {
   checkRateLimit,
   videoRepository,
   usageRepository,
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   getClientIp,
 } from "@/lib/security";
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Identifica usuário logado (se houver) para vincular ao histórico
     let userId: string | undefined = undefined;
     let userTier: "free" | "pro" = "free";
-    const token = await getAuthTokenFromCookies();
+    const token = await getAuthTokenFromRequest(request);
     if (token) {
       const payload = await CryptoService.verifyAuthToken(token);
       if (payload?.uid) {

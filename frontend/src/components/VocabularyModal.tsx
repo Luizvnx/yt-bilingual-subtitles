@@ -12,6 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import { speakInEnglish } from "@/lib/tts";
+import { fetchWithAuth } from "@/lib/apiClient";
 
 interface VocabularyModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export function VocabularyModal({
     if (!isOpen || !user) return;
     setLoading(true);
 
-    fetch("/api/vocabulary")
+    fetchWithAuth("/api/vocabulary")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         setWords(data?.words || []);
@@ -50,7 +51,7 @@ export function VocabularyModal({
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/vocabulary/${id}`, { method: "DELETE" });
+      const res = await fetchWithAuth(`/api/vocabulary/${id}`, { method: "DELETE" });
       if (res.ok) {
         setWords((prev) => prev.filter((w) => w.id !== id));
       }
@@ -60,7 +61,7 @@ export function VocabularyModal({
   const handleDownloadApkg = async () => {
     try {
       setDownloadingAnki(true);
-      const res = await fetch("/api/vocabulary/export/anki");
+      const res = await fetchWithAuth("/api/vocabulary/export/anki");
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Erro ao gerar arquivo Anki.");

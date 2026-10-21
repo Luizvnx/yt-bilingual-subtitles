@@ -17,6 +17,7 @@ import {
   Lock,
   Crown,
 } from "lucide-react";
+import { fetchWithAuth } from "@/lib/apiClient";
 
 export interface QuizQuestion {
   id: number;
@@ -69,7 +70,7 @@ export function VideoQuiz({
     setIsCompleted(false);
 
     try {
-      const res = await fetch(`/api/subtitles/${videoId}/quiz`);
+      const res = await fetchWithAuth(`/api/subtitles/${videoId}/quiz`);
       const data = await res.json().catch(() => null);
 
       if (res.ok) {

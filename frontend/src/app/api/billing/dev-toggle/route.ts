@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   userRepository,
   paymentRepository,
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const token = await getAuthTokenFromCookies();
+  const token = await getAuthTokenFromRequest(request);
   if (!token) {
     return NextResponse.json(
       { error: "Você precisa estar conectado para alternar o plano." },

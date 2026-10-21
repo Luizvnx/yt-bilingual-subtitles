@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   vocabularyRepository,
 } from "@/lib/security";
 
-export async function GET() {
-  const token = await getAuthTokenFromCookies();
+export async function GET(request: NextRequest) {
+  const token = await getAuthTokenFromRequest(request);
   if (!token) {
     return NextResponse.json(
       { error: "Faça login para exportar seu vocabulário." },

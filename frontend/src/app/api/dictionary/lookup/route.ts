@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { YouTubeService } from "@/lib/services/youtubeService";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   getClientIp,
   usageRepository,
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   let userTier: "free" | "pro" = "free";
 
   try {
-    const token = await getAuthTokenFromCookies();
+    const token = await getAuthTokenFromRequest(request);
     if (token) {
       const payload = await CryptoService.verifyAuthToken(token);
       if (payload?.uid) {

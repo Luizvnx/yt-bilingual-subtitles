@@ -12,6 +12,7 @@ import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { CuratedCatalog } from "@/components/CuratedCatalog";
 import { VideoRecord } from "@/lib/security";
+import { fetchWithAuth, getClientAuthHeaders } from "@/lib/apiClient";
 import {
   Sparkles,
   Play,
@@ -70,9 +71,14 @@ export default function HomePage() {
 
   const fetchUserAndUsage = async () => {
     try {
-      const res = await fetch("/api/auth/me");
+      const res = await fetchWithAuth("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
+        if (data?.token && typeof window !== "undefined") {
+          try {
+            localStorage.setItem("ytsubs_auth_token", data.token);
+          } catch {}
+        }
         if (data?.user) setUser(data.user);
         if (data?.usage) setUsage(data.usage);
       }
@@ -144,11 +150,17 @@ export default function HomePage() {
     setProgressStage(5);
     setProgressStatus("Iniciando canal de streaming com o YouTube...");
 
+    const savedToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("ytsubs_auth_token") || ""
+        : "";
+    const tokenParam = savedToken ? `&token=${encodeURIComponent(savedToken)}` : "";
+
     const streamUrl = `/api/subtitles/stream?url=${encodeURIComponent(
       targetUrl
-    )}&model=${encodeURIComponent(model)}`;
+    )}&model=${encodeURIComponent(model)}${tokenParam}`;
 
-    const es = new EventSource(streamUrl);
+    const es = new EventSource(streamUrl, { withCredentials: true });
     eventSourceRef.current = es;
     let isCompleted = false;
 
@@ -209,7 +221,7 @@ export default function HomePage() {
       // Se foi desconexão transitória do streaming, tenta recuperar diretamente via endpoint REST
       setProgressStatus("Sincronizando estúdio com o servidor...");
       try {
-        const fallbackRes = await fetch("/api/subtitles/process", {
+        const fallbackRes = await fetchWithAuth("/api/subtitles/process", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: targetUrl, model }),
@@ -323,9 +335,15 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      setUser(null);
+      await fetchWithAuth("/api/auth/logout", { method: "POST" });
     } catch { }
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("ytsubs_auth_token");
+      } catch {}
+    }
+    setUser(null);
+    setUsage(null);
   };
 
   const handleDeleteHistory = async (id: string, e: React.MouseEvent) => {
@@ -669,7 +687,11 @@ export default function HomePage() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onSuccess={(loggedUser) => setUser(loggedUser)}
+        onSuccess={(loggedUser) => {
+          setUser(loggedUser);
+          fetchUserAndUsage();
+          fetchHistory();
+        }}
         initialMessage={authMessage}
       />
 

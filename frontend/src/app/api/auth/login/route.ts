@@ -56,9 +56,10 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       message: "Login efetuado com sucesso!",
       user,
+      token,
     });
 
-    return setAuthCookieOnResponse(response, token);
+    return setAuthCookieOnResponse(response, token, request);
   } catch (error: any) {
     if (error?.name === "ZodError") {
       return NextResponse.json(

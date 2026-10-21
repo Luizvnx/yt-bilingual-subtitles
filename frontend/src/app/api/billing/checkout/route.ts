@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   userRepository,
   paymentRepository,
@@ -8,7 +8,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getAuthTokenFromCookies();
+    const token = await getAuthTokenFromRequest(request);
     if (!token) {
       return NextResponse.json(
         {

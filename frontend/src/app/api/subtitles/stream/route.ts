@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import {
   validateAndExtractYouTubeId,
   checkRateLimit,
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   getClientIp,
 } from "@/lib/security";
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   let userId: string | undefined = undefined;
   let userTier: "free" | "pro" = "free";
   try {
-    const token = await getAuthTokenFromCookies();
+    const token = await getAuthTokenFromRequest(request);
     if (token) {
       const payload = await CryptoService.verifyAuthToken(token);
       if (payload?.uid) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   videoRepository,
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
 } from "@/lib/security";
 
@@ -31,7 +31,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  const token = await getAuthTokenFromCookies();
+  const token = await getAuthTokenFromRequest(request);
   let userId: string | undefined = undefined;
   if (token) {
     const payload = await CryptoService.verifyAuthToken(token);

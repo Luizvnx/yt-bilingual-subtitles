@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getAuthTokenFromCookies,
+  getAuthTokenFromRequest,
   CryptoService,
   vocabularyRepository,
 } from "@/lib/security";
@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const token = await getAuthTokenFromCookies();
+  const token = await getAuthTokenFromRequest(request);
 
   if (!token) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
