@@ -1047,15 +1047,16 @@ export class YouTubeService {
   }
 
   /**
-   * Agrupa fragmentos curtos em frases naturais (3 a 6 segundos).
-   * Melhora imensamente o estudo no player e reduz a quantidade de traduções em 60%.
+   * Agrupa e realinha fragmentos em frases gramaticais naturais e completas.
+   * Resolve de forma definitiva o problema de quebra artificial do teleprompter do YouTube
+   * (onde frases como "orange juice" e "I'll be right back" eram cortadas no meio).
    */
   static mergeNaturalSentences(
     raw: Omit<SubtitleItem, "text_pt">[]
   ): Omit<SubtitleItem, "text_pt">[] {
     if (!raw.length) return [];
 
-    // 1. Garante ordenação cronológica e ausência estrita de sobreposições
+    // 1. Ordenação cronológica estrita
     const sorted = [...raw].sort((a, b) => a.start - b.start);
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i].end > sorted[i + 1].start) {
@@ -1066,32 +1067,100 @@ export class YouTubeService {
       }
     }
 
+    // 2. Extrai fluxo de palavras com interpolação de timestamps
+    const words: { text: string; start: number; end: number }[] = [];
+    for (const seg of sorted) {
+      const rawTokens = seg.text_en.trim().split(/\s+/).filter(Boolean);
+      if (rawTokens.length === 0) continue;
+      const dur = Math.max(0.4, seg.end - seg.start);
+      const step = dur / rawTokens.length;
+
+      rawTokens.forEach((token, idx) => {
+        // Ignora marcadores automáticos de som de fundo como [Music] ou [Música]
+        if (/^\[[\w\sÀ-ÿ]+\]$/i.test(token)) return;
+        words.push({
+          text: token,
+          start: Math.round((seg.start + idx * step) * 100) / 100,
+          end: Math.round((seg.start + (idx + 1) * step) * 100) / 100,
+        });
+      });
+    }
+
+    // Desduplica palavras repetidas do modo teleprompter do YouTube (overlap < 0.25s)
+    const cleanWords: { text: string; start: number; end: number }[] = [];
+    for (const w of words) {
+      if (
+        cleanWords.length > 0 &&
+        cleanWords[cleanWords.length - 1].text.toLowerCase() === w.text.toLowerCase() &&
+        Math.abs(w.start - cleanWords[cleanWords.length - 1].start) < 0.25
+      ) {
+        continue;
+      }
+      cleanWords.push(w);
+    }
+
+    if (cleanWords.length === 0) return sorted;
+
+    // 3. Reagrupa palavras em frases gramaticais com base em pontuação (. ? !) e pausas
     const merged: Omit<SubtitleItem, "text_pt">[] = [];
-    let current = { ...sorted[0] };
+    let currentWords: { text: string; start: number; end: number }[] = [];
+    let sStart = cleanWords[0]?.start || 0;
 
-    for (let i = 1; i < sorted.length; i++) {
-      const next = sorted[i];
-      const duration = current.end - current.start;
-      const endsWithPunct = /[.!?]$/.test(current.text_en.trim());
-      const gap = Math.max(0, next.start - current.end);
+    for (let i = 0; i < cleanWords.length; i++) {
+      const w = cleanWords[i];
+      if (currentWords.length === 0) {
+        sStart = w.start;
+      }
+      currentWords.push(w);
 
-      // Agrupa se a frase atual não tiver pontuação final forte (. ? !) e o intervalo for contínuo (gap <= 1.5s),
-      // ou se a frase for excessivamente curta (< 2.8s) e sem pontuação.
-      const shouldMerge =
-        (!endsWithPunct && duration < 6.5 && gap <= 1.5) ||
-        (duration < 2.8 && gap <= 0.8 && !endsWithPunct);
+      const endsWithPunct = /[.!?]["']?$/.test(w.text);
+      const isAbbrev = /^(Mr|Mrs|Ms|Dr|Prof|St|vs)\.$/i.test(w.text);
+      const gap = i + 1 < cleanWords.length ? cleanWords[i + 1].start - w.end : 0;
+      const duration = w.end - sStart;
 
-      if (shouldMerge) {
-        current.text_en = `${current.text_en} ${next.text_en}`.trim();
-        current.end = next.end;
-      } else {
-        merged.push(current);
-        current = { ...next };
+      let shouldBreak = false;
+      if (endsWithPunct && !isAbbrev) {
+        // Se for exclamação/interjeição curtíssima (< 1.0s) seguida imediatamente de oração sem pausa, agrupa
+        if (duration < 1.0 && gap < 0.6 && i + 1 < cleanWords.length) {
+          shouldBreak = false;
+        } else {
+          shouldBreak = true;
+        }
+      } else if (gap >= 2.0 && duration >= 1.0) {
+        shouldBreak = true;
+      } else if (duration >= 7.5) {
+        shouldBreak = true;
+      }
+
+      if (shouldBreak) {
+        let sentenceText = currentWords.map((cw) => cw.text).join(" ").trim();
+        sentenceText = sentenceText.replace(/\s+([.,!?;:])/g, "$1");
+        if (sentenceText) {
+          merged.push({
+            start: Math.round(sStart * 100) / 100,
+            end: Math.round(w.end * 100) / 100,
+            text_en: sentenceText,
+          });
+        }
+        currentWords = [];
       }
     }
-    merged.push(current);
 
-    // 2. Passada final para garantir que as frases agrupadas continuem 100% sem sobreposição
+    if (currentWords.length > 0) {
+      const last = currentWords[currentWords.length - 1];
+      let sentenceText = currentWords.map((cw) => cw.text).join(" ").trim();
+      sentenceText = sentenceText.replace(/\s+([.,!?;:])/g, "$1");
+      if (sentenceText) {
+        merged.push({
+          start: Math.round(sStart * 100) / 100,
+          end: Math.round(last.end * 100) / 100,
+          text_en: sentenceText,
+        });
+      }
+    }
+
+    // 4. Passada final para garantir que as frases agrupadas continuem 100% sem sobreposição
+    merged.sort((a, b) => a.start - b.start);
     for (let i = 0; i < merged.length - 1; i++) {
       if (merged[i].end > merged[i + 1].start) {
         merged[i].end = merged[i + 1].start;
