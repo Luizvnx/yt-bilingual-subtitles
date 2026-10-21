@@ -31,30 +31,59 @@ export class VideoRepository extends BaseRepository<VideoRecord> {
     super("videos_saas.json");
   }
 
+  private sanitizeSegments(segments?: SubtitleSegment[]): SubtitleSegment[] {
+    if (!segments || !Array.isArray(segments) || segments.length === 0) return [];
+    const sorted = [...segments].sort((a, b) => a.start - b.start);
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (sorted[i].end > sorted[i + 1].start) {
+        sorted[i].end = sorted[i + 1].start;
+      }
+      if (sorted[i].end < sorted[i].start + 0.3) {
+        sorted[i].end = Math.round((sorted[i].start + 0.5) * 100) / 100;
+      }
+    }
+    return sorted;
+  }
+
   public getAll(): VideoRecord[] {
     const videos = this.readData();
-    return videos.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return videos
+      .map((v) => ({
+        ...v,
+        segments: this.sanitizeSegments(v.segments),
+      }))
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
   }
 
   public getById(id: string): VideoRecord | null {
     const videos = this.readData();
-    return videos.find((v) => v.id === id || v.videoId === id) || null;
+    const found = videos.find((v) => v.id === id || v.videoId === id) || null;
+    if (found && found.segments) {
+      found.segments = this.sanitizeSegments(found.segments);
+    }
+    return found;
   }
 
   public saveVideo(data: Omit<VideoRecord, "createdAt" | "updatedAt">): VideoRecord {
+    const cleanData = {
+      ...data,
+      segments: this.sanitizeSegments(data.segments),
+    };
+    cleanData.segmentsCount = cleanData.segments.length;
+
     const videos = this.readData();
     const existingIndex = videos.findIndex(
-      (v) => v.id === data.id || v.videoId === data.videoId
+      (v) => v.id === cleanData.id || v.videoId === cleanData.videoId
     );
     const nowIso = new Date().toISOString();
 
     if (existingIndex >= 0) {
       const updated: VideoRecord = {
         ...videos[existingIndex],
-        ...data,
+        ...cleanData,
         updatedAt: nowIso,
       };
       videos[existingIndex] = updated;
@@ -63,7 +92,7 @@ export class VideoRepository extends BaseRepository<VideoRecord> {
     }
 
     const created: VideoRecord = {
-      ...data,
+      ...cleanData,
       createdAt: nowIso,
       updatedAt: nowIso,
     };

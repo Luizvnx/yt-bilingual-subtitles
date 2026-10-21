@@ -986,6 +986,17 @@ export class YouTubeService {
       });
     }
 
+    // Elimina sobreposições do modo rolling teleprompter do YouTube
+    segments.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < segments.length - 1; i++) {
+      if (segments[i].end > segments[i + 1].start) {
+        segments[i].end = segments[i + 1].start;
+      }
+      if (segments[i].end < segments[i].start + 0.3) {
+        segments[i].end = Math.round((segments[i].start + 0.5) * 100) / 100;
+      }
+    }
+
     if (data?.track_lang || data?.detected_lang) {
       (segments as any).track_lang = data.track_lang || data.detected_lang;
     }
@@ -1021,6 +1032,17 @@ export class YouTubeService {
         });
       }
     }
+
+    segments.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < segments.length - 1; i++) {
+      if (segments[i].end > segments[i + 1].start) {
+        segments[i].end = segments[i + 1].start;
+      }
+      if (segments[i].end < segments[i].start + 0.3) {
+        segments[i].end = Math.round((segments[i].start + 0.5) * 100) / 100;
+      }
+    }
+
     return segments;
   }
 
@@ -1033,17 +1055,33 @@ export class YouTubeService {
   ): Omit<SubtitleItem, "text_pt">[] {
     if (!raw.length) return [];
 
+    // 1. Garante ordenação cronológica e ausência estrita de sobreposições
+    const sorted = [...raw].sort((a, b) => a.start - b.start);
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (sorted[i].end > sorted[i + 1].start) {
+        sorted[i].end = sorted[i + 1].start;
+      }
+      if (sorted[i].end < sorted[i].start + 0.3) {
+        sorted[i].end = Math.round((sorted[i].start + 0.5) * 100) / 100;
+      }
+    }
+
     const merged: Omit<SubtitleItem, "text_pt">[] = [];
-    let current = { ...raw[0] };
+    let current = { ...sorted[0] };
 
-    for (let i = 1; i < raw.length; i++) {
-      const next = raw[i];
+    for (let i = 1; i < sorted.length; i++) {
+      const next = sorted[i];
       const duration = current.end - current.start;
-      const endsWithPunct = /[.!?]$/.test(current.text_en);
-      const gap = next.start - current.end;
+      const endsWithPunct = /[.!?]$/.test(current.text_en.trim());
+      const gap = Math.max(0, next.start - current.end);
 
-      // Agrupa se a frase atual for muito curta (< 3.5s) e não terminar com pontuação forte
-      if (duration < 4.0 && !endsWithPunct && gap < 1.0) {
+      // Agrupa se a frase atual não tiver pontuação final forte (. ? !) e o intervalo for contínuo (gap <= 1.5s),
+      // ou se a frase for excessivamente curta (< 2.8s) e sem pontuação.
+      const shouldMerge =
+        (!endsWithPunct && duration < 6.5 && gap <= 1.5) ||
+        (duration < 2.8 && gap <= 0.8 && !endsWithPunct);
+
+      if (shouldMerge) {
         current.text_en = `${current.text_en} ${next.text_en}`.trim();
         current.end = next.end;
       } else {
@@ -1052,6 +1090,16 @@ export class YouTubeService {
       }
     }
     merged.push(current);
+
+    // 2. Passada final para garantir que as frases agrupadas continuem 100% sem sobreposição
+    for (let i = 0; i < merged.length - 1; i++) {
+      if (merged[i].end > merged[i + 1].start) {
+        merged[i].end = merged[i + 1].start;
+      }
+      if (merged[i].end < merged[i].start + 0.3) {
+        merged[i].end = Math.round((merged[i].start + 0.5) * 100) / 100;
+      }
+    }
 
     if ((raw as any).track_lang) {
       (merged as any).track_lang = (raw as any).track_lang;
