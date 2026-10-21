@@ -91,3 +91,27 @@ Antes de realizar commits ou alterações, execute esta validação mental:
   - OpenAI Whisper para transcrições diretas de áudio quando ativado.
 * **Domínio e SSL:**
   - Configuração de Nginx, Certbot e Cloudflare SSL na porta 443.
+
+---
+
+## 🧪 5. Ambiente de Homologação / Staging (`docker-compose.stage.yml`)
+
+Para testar novas features, migrações de banco e alterações de layout antes de publicar em Produção, o repositório conta com um ambiente de STAGE totalmente isolado:
+
+* **Portas Isoladas:**
+  - Aplicação Web: `3001` (Produção usa `3000`).
+  - PostgreSQL: `5434` (Produção usa `5433`).
+* **Isolamento de Containers & Rede:**
+  - Containers: `yt_subtitles_app_stage`, `yt_subtitles_postgres_stage`, `yt_subtitles_warp_stage`.
+  - Rede Docker: `yt_network_stage`.
+  - Volumes: `yt_app_data_stage`, `yt_postgres_data_stage`, `yt_warp_data_stage`.
+* **Deploy Rápido de Stage:**
+  ```bash
+  # Na VPS (/home/ubuntu/yt-bilingual-subtitles):
+  bash deploy-stage.sh            # Atualiza branch stage ou atual e sobe
+  bash deploy-stage.sh <branch>   # Sobe uma branch específica para testes
+  bash deploy-stage.sh logs       # Acompanha logs em tempo real
+  bash deploy-stage.sh stop       # Desliga o stage para poupar memória
+  ```
+* **Acesso Web Stage:** `http://137.131.164.202:3001` (Exibe badge âmbar `STAGE` na Navbar).
+
