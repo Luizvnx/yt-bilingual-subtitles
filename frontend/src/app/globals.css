@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
+  --background: #08090d;
   --foreground: #f4f4f5;
+  --font-inter: var(--font-inter);
+  --font-outfit: var(--font-outfit);
+}
+
+.font-display {
+  font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif;
 }
 
 body {
