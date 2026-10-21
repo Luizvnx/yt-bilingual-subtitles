@@ -10,7 +10,8 @@ import { VocabularyModal } from "@/components/VocabularyModal";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
-import { CuratedCatalog } from "@/components/CuratedCatalog";
+import { CuratedCatalog, ALL_LESSONS } from "@/components/CuratedCatalog";
+import { LevelUpCelebrationModal } from "@/components/LevelUpCelebrationModal";
 import { VideoRecord } from "@/lib/security";
 import { fetchWithAuth, getClientAuthHeaders } from "@/lib/apiClient";
 import {
@@ -58,6 +59,23 @@ export default function HomePage() {
 
   // Referência para o player do YouTube
   const playerRef = useRef<any>(null);
+
+  // Estados e controle da Animação de Fim de Vídeo / XP / Level Up
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<{
+    earnedXp: number;
+    previousXp: number;
+    newXp: number;
+    lessonTitle: string;
+    streak: number;
+    nextLesson?: any;
+  } | null>(null);
+  const celebratedVideoRef = useRef<string | null>(null);
+
+  // Reseta guard quando um novo vídeo é selecionado
+  useEffect(() => {
+    celebratedVideoRef.current = null;
+  }, [currentVideo?.videoId]);
 
   const fetchHistory = async () => {
     try {
@@ -288,49 +306,79 @@ export default function HomePage() {
     } catch {}
   };
 
-  // Rastreamento de progresso de estudo: conclui aula após assistir pelo menos 60%
+  // Rastreamento de tempo atual de reprodução
   const handleTimeUpdate = (time: number) => {
     setCurrentTime(time);
-    if (
-      currentVideo &&
-      currentVideo.duration &&
-      currentVideo.duration > 0 &&
-      time > 0
-    ) {
-      const progressRatio = time / currentVideo.duration;
-      if (progressRatio >= 0.6) {
-        try {
-          const activeLessonId = localStorage.getItem("ytsubs_current_lesson_id");
-          if (activeLessonId) {
-            const savedCompleted = localStorage.getItem("ytsubs_completed");
-            const completedSet = new Set(
-              savedCompleted ? JSON.parse(savedCompleted) : []
-            );
-            if (!completedSet.has(activeLessonId)) {
-              completedSet.add(activeLessonId);
-              localStorage.setItem(
-                "ytsubs_completed",
-                JSON.stringify(Array.from(completedSet))
-              );
-              const currentXp = parseInt(
-                localStorage.getItem("ytsubs_xp") || "50",
-                10
-              );
-              const newXp = currentXp + 35;
-              localStorage.setItem("ytsubs_xp", newXp.toString());
-              window.dispatchEvent(
-                new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } })
-              );
-              window.dispatchEvent(
-                new CustomEvent("ytsubs_lesson_completed", {
-                  detail: { lessonId: activeLessonId },
-                })
-              );
-            }
-          }
-        } catch {}
+  };
+
+  // Disparo da Animação de Fim de Vídeo, XP Ring e Subida de Nível
+  const handleVideoEnded = () => {
+    if (!currentVideo) return;
+    if (celebratedVideoRef.current === currentVideo.videoId) return;
+    celebratedVideoRef.current = currentVideo.videoId;
+
+    // Identifica se faz parte do catálogo curado ou da trilha Duolingo
+    const lessonIndex = ALL_LESSONS.findIndex(
+      (l) => l.videoId === currentVideo.videoId || l.url === currentVideo.url
+    );
+    const lesson = lessonIndex !== -1 ? ALL_LESSONS[lessonIndex] : null;
+    const nextLesson =
+      lessonIndex !== -1 && lessonIndex + 1 < ALL_LESSONS.length
+        ? ALL_LESSONS[lessonIndex + 1]
+        : null;
+
+    const earnedXp = lesson?.xp || 35;
+    let prevXp = 50;
+    let currentStreak = 1;
+
+    try {
+      if (typeof window !== "undefined") {
+        const savedXp = localStorage.getItem("ytsubs_xp");
+        if (savedXp) prevXp = parseInt(savedXp, 10);
+
+        const savedStreak = localStorage.getItem("ytsubs_streak");
+        if (savedStreak) currentStreak = parseInt(savedStreak, 10);
+
+        const newXp = prevXp + earnedXp;
+        localStorage.setItem("ytsubs_xp", String(newXp));
+
+        // Marca lição como concluída para desbloquear os próximos passos da trilha
+        const savedCompleted = localStorage.getItem("ytsubs_completed");
+        const completedSet = new Set<string>(
+          savedCompleted ? JSON.parse(savedCompleted) : []
+        );
+        if (lesson?.id) completedSet.add(lesson.id);
+        const storedLessonId = localStorage.getItem("ytsubs_current_lesson_id");
+        if (storedLessonId) completedSet.add(storedLessonId);
+        completedSet.add(currentVideo.videoId);
+        localStorage.setItem(
+          "ytsubs_completed",
+          JSON.stringify(Array.from(completedSet))
+        );
+
+        // Dispara eventos globais para atualizar imediatamente Navbar, Catálogo e Trilha
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } })
+        );
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_lesson_completed", {
+            detail: { videoId: currentVideo.videoId, lessonId: lesson?.id },
+          })
+        );
       }
+    } catch (err) {
+      console.warn("[page] Falha ao persistir XP e conclusão:", err);
     }
+
+    setCelebrationData({
+      earnedXp,
+      previousXp: prevXp,
+      newXp: prevXp + earnedXp,
+      lessonTitle: lesson?.title || currentVideo.title || "Lição Concluída",
+      streak: currentStreak,
+      nextLesson,
+    });
+    setCelebrationOpen(true);
   };
 
   const handleWordClick = (word: string, e: React.MouseEvent) => {
@@ -605,6 +653,7 @@ export default function HomePage() {
                   onTimeUpdate={handleTimeUpdate}
                   playerRef={playerRef}
                   onAlternativeSwitched={handleAlternativeSwitched}
+                  onVideoEnded={handleVideoEnded}
                 />
               </div>
 
@@ -729,6 +778,36 @@ export default function HomePage() {
         onClose={() => setLegalModalOpen(false)}
         initialTab={legalModalTab}
       />
+
+      {/* Modal Celebratório de Fim de Vídeo, XP Ring & Level Up */}
+      {celebrationData && (
+        <LevelUpCelebrationModal
+          isOpen={celebrationOpen}
+          onClose={() => setCelebrationOpen(false)}
+          user={user}
+          earnedXp={celebrationData.earnedXp}
+          previousXp={celebrationData.previousXp}
+          newXp={celebrationData.newXp}
+          lessonTitle={celebrationData.lessonTitle}
+          streak={celebrationData.streak}
+          onContinue={() => {
+            if (celebrationData.nextLesson) {
+              handleProcess(undefined, celebrationData.nextLesson.url);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              const el = document.getElementById("catalog-section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onReviewQuiz={() => {
+            window.dispatchEvent(
+              new CustomEvent("ytsubs_switch_tab", { detail: { tab: "quiz" } })
+            );
+            const el = document.getElementById("studio-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
+      )}
 
       {/* Rodapé Confiável e Profissional */}
       <footer className="border-t border-white/10 bg-black/60 py-10 text-xs text-zinc-500">

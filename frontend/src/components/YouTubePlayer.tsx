@@ -27,6 +27,7 @@ interface YouTubePlayerProps {
   onTimeUpdate: (time: number) => void;
   playerRef: React.MutableRefObject<any>;
   onAlternativeSwitched?: (newVideoId: string) => void;
+  onVideoEnded?: () => void;
 }
 
 export function YouTubePlayer({
@@ -38,6 +39,7 @@ export function YouTubePlayer({
   onTimeUpdate,
   playerRef,
   onAlternativeSwitched,
+  onVideoEnded,
 }: YouTubePlayerProps) {
   const [subMode, setSubMode] = useState<"bilingual" | "en" | "pt" | "none">(
     "bilingual"
@@ -77,6 +79,11 @@ export function YouTubePlayer({
   const onTimeUpdateRef = useRef(onTimeUpdate);
   onTimeUpdateRef.current = onTimeUpdate;
 
+  // Callback ref e deduplicação de fim de vídeo
+  const onVideoEndedRef = useRef(onVideoEnded);
+  onVideoEndedRef.current = onVideoEnded;
+  const endedFiredRef = useRef(false);
+
   // Atualiza activeVideoId se as props externas mudarem (ex: escolha de outra música na biblioteca)
   useEffect(() => {
     const target =
@@ -93,6 +100,7 @@ export function YouTubePlayer({
     retryCountRef.current = 0;
     isSwitchingRef.current = false;
     failedVideoIdsRef.current = new Set();
+    endedFiredRef.current = false;
     setAltVideo(
       target !== videoId ? { id: target, title: "Versão Sincronizada" } : null
     );
@@ -243,10 +251,31 @@ export function YouTubePlayer({
                     const t = ytInstance.getCurrentTime();
                     if (typeof t === "number" && !isNaN(t)) {
                       onTimeUpdateRef.current(t);
+
+                      // Detecção resiliente de fim de vídeo via duração
+                      if (typeof ytInstance.getDuration === "function") {
+                        const dur = ytInstance.getDuration();
+                        if (dur > 0 && t >= dur - 0.5) {
+                          if (!endedFiredRef.current) {
+                            endedFiredRef.current = true;
+                            onVideoEndedRef.current?.();
+                          }
+                        }
+                      }
                     }
                   } catch {}
                 }
               }, 100);
+            },
+            onStateChange: (event: any) => {
+              if (isCancelled) return;
+              // 0 === YT.PlayerState.ENDED
+              if (event?.data === 0) {
+                if (!endedFiredRef.current) {
+                  endedFiredRef.current = true;
+                  onVideoEndedRef.current?.();
+                }
+              }
             },
             onError: (event: any) => {
               if (isCancelled) return;
