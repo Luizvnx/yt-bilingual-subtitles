@@ -1,0 +1,99 @@
+version: '3.8'
+name: yt_stage
+
+services:
+  # Banco de Dados Relacional PostgreSQL (Ambiente Stage)
+  postgres_stage:
+    image: postgres:16-alpine
+    container_name: yt_subtitles_postgres_stage
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres_stage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_stage_secure_pass_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-yt_bilingual_subtitles_stage}
+    ports:
+      # Porta 5434 no host para evitar conflito com Prod (5433) ou Postgres local (5432)
+      - "${STAGE_POSTGRES_HOST_PORT:-5434}:5432"
+    volumes:
+      - yt_postgres_data_stage:/var/lib/postgresql/data
+      - ./frontend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres_stage} -d ${POSTGRES_DB:-yt_bilingual_subtitles_stage}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yt_network_stage
+
+  # Cloudflare WARP SOCKS5 Proxy Isolado (Ambiente Stage)
+  # Cumpre rigorosamente a regra mandatória de AGENTS.md (cgroup v2 + tun)
+  warp_stage:
+    image: caomingjun/warp:latest
+    container_name: yt_subtitles_warp_stage
+    restart: unless-stopped
+    device_cgroup_rules:
+      - 'c 10:200 rwm'
+    environment:
+      - WARP_SLEEP=2
+    cap_add:
+      - MKNOD
+      - AUDIT_WRITE
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - yt_warp_data_stage:/var/lib/cloudflare-warp
+    networks:
+      - yt_network_stage
+
+  # Aplicação Web Next.js Standalone (Ambiente Stage)
+  app_stage:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_ENVIRONMENT=stage
+    container_name: yt_subtitles_app_stage
+    restart: unless-stopped
+    depends_on:
+      postgres_stage:
+        condition: service_healthy
+      warp_stage:
+        condition: service_started
+    ports:
+      # Porta 3001 mapeada no host para rodar em paralelo sem derrubar a Produção (3000)
+      - "${STAGE_APP_PORT:-3001}:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_ENVIRONMENT: stage
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres_stage}:${POSTGRES_PASSWORD:-postgres_stage_secure_pass_2026}@postgres_stage:5432/${POSTGRES_DB:-yt_bilingual_subtitles_stage}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-secret_jwt_stage_test_subtitles_2026}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3001}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-${NEXT_PUBLIC_BASE_URL:-http://localhost:3001}}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      YOUTUBE_COOKIES: ${YOUTUBE_COOKIES:-}
+      YOUTUBE_PROXY: ${YOUTUBE_PROXY:-socks5://warp_stage:1080}
+    volumes:
+      - yt_app_data_stage:/app/data
+      - ./data:/app/host_data:ro
+    networks:
+      - yt_network_stage
+
+volumes:
+  yt_postgres_data_stage:
+    driver: local
+  yt_app_data_stage:
+    driver: local
+  yt_warp_data_stage:
+    driver: local
+
+networks:
+  yt_network_stage:
+    driver: bridge

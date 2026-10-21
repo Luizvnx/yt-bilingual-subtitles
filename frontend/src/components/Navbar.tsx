@@ -38,6 +38,12 @@ export function Navbar({
               <span className="rounded-md bg-zinc-800/80 border border-zinc-700/60 px-1 py-0.2 sm:px-1.5 sm:py-0.5 text-[9px] sm:text-[10px] font-medium text-zinc-400">
                 PRO
               </span>
+              {process.env.NEXT_PUBLIC_ENVIRONMENT === "stage" && (
+                <span className="flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-400 tracking-wider">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  STAGE
+                </span>
+              )}
             </div>
             <p className="hidden md:block text-[11px] text-zinc-500 font-normal">
               Imersão e prática com vídeos reais
