@@ -1,27 +1,9 @@
 {
-  "data/history.json": {
-    "mtime": 1792035149.9331052,
-    "seen": 1792361709.59814,
-    "ast_hash": "06b728349e0254a8534ff5dd836778dd",
-    "semantic_hash": "06b728349e0254a8534ff5dd836778dd"
-  },
-  "data/subscriptions.json": {
-    "mtime": 1792036051.2310977,
-    "seen": 1792361709.5981503,
-    "ast_hash": "4f5f92e2c2d0f365a9f7fcf9deb2b2f7",
-    "semantic_hash": "4f5f92e2c2d0f365a9f7fcf9deb2b2f7"
-  },
   "data/subscriptions_saas.json": {
     "mtime": 1792104024.2477853,
     "seen": 1792361709.5981543,
     "ast_hash": "129d09e31123f4ad8810af774861a844",
     "semantic_hash": "129d09e31123f4ad8810af774861a844"
-  },
-  "data/users.json": {
-    "mtime": 1792036051.203331,
-    "seen": 1792361709.5981562,
-    "ast_hash": "18c0cee46ee9de5f1a1465dead95aae9",
-    "semantic_hash": "18c0cee46ee9de5f1a1465dead95aae9"
   },
   "data/users_saas.json": {
     "mtime": 1792104024.263142,
@@ -192,8 +174,8 @@
     "semantic_hash": "7c2f24c6bbe39fac7e20e12e250fb7e0"
   },
   "frontend/src/app/page.tsx": {
-    "mtime": 1792618532.6211882,
-    "seen": 1792620687.0556397,
+    "mtime": 1792620918.6190875,
+    "seen": 1792621298.9967716,
     "ast_hash": "d5d2506f1f8260dcaaed315e79d82b76",
     "semantic_hash": "d5d2506f1f8260dcaaed315e79d82b76"
   },
@@ -448,12 +430,6 @@
     "seen": 1792620687.0695539,
     "ast_hash": "29f1e6f8c3529e9db4022a0a910c4272",
     "semantic_hash": "29f1e6f8c3529e9db4022a0a910c4272"
-  },
-  "scripts/verify_catalog_videos.py": {
-    "mtime": 1792470912.1253598,
-    "seen": 1792620687.0695562,
-    "ast_hash": "938d1e79c6dced5502a8c03dc3994e1f",
-    "semantic_hash": "938d1e79c6dced5502a8c03dc3994e1f"
   },
   "setup-ssl.sh": {
     "mtime": 1792591112.7051303,

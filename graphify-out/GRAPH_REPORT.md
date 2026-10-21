@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 385 nodes · 597 edges · 30 communities (18 shown, 12 thin omitted)
+- 382 nodes · 595 edges · 29 communities (17 shown, 12 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `af1273b8`
+- Built from commit: `2226ce85`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,8 +22,8 @@
 - devDependencies
 - dependencies
 - scripts
-- validators.ts
 - UserRepository
+- jobQueueService.ts
 - UsageRepository
 - rateLimiter.ts
 - VideoRepository
@@ -67,7 +67,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (30 total, 12 thin omitted)
+## Communities (29 total, 12 thin omitted)
 
 ### Community 0 - "index.ts"
 Cohesion: 0.08
@@ -79,7 +79,7 @@ Nodes (39): HomePage(), AuthModal(), AuthModalProps, ALL_LESSONS, CuratedCatalog
 
 ### Community 2 - "YouTubeService"
 Cohesion: 0.09
-Nodes (18): POST(), HistoryGrid(), HistoryGridProps, VideoRecord, CloudWhisperService, execAsync, WhisperSegment, ActiveJob (+10 more)
+Nodes (18): execAsync, GET(), POST(), ALLOWED_YOUTUBE_HOSTS, FORBIDDEN_HOSTS, ProcessVideoSchema, UserLoginSchema, UserRegisterSchema (+10 more)
 
 ### Community 3 - "BaseRepository"
 Cohesion: 0.07
@@ -101,9 +101,9 @@ Nodes (23): anki-apkg-export, bcryptjs, dependencies, anki-apkg-export, bcryptjs
 Cohesion: 0.09
 Nodes (22): author, description, keywords, license, name, private, scripts, build (+14 more)
 
-### Community 8 - "validators.ts"
-Cohesion: 0.22
-Nodes (8): execAsync, GET(), ALLOWED_YOUTUBE_HOSTS, FORBIDDEN_HOSTS, ProcessVideoSchema, UserLoginSchema, UserRegisterSchema, YOUTUBE_ID_REGEX
+### Community 9 - "jobQueueService.ts"
+Cohesion: 0.27
+Nodes (8): HistoryGrid(), HistoryGridProps, VideoRecord, ActiveJob, JobListener, JobProgress, jobQueueService, JobStatus
 
 ### Community 11 - "rateLimiter.ts"
 Cohesion: 0.25
@@ -129,12 +129,12 @@ Nodes (4): Deploy Automation Script, Pre-flight Proxy Reachability Check, Cloudf
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `page.tsx` to `YouTubeService`, `scripts`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+- **Why does `react` connect `page.tsx` to `jobQueueService.ts`, `scripts`?**
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
 - **Why does `keywords` connect `scripts` to `page.tsx`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
-- **Why does `YouTubeService` connect `YouTubeService` to `validators.ts`, `index.ts`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `YouTubeService` connect `YouTubeService` to `index.ts`, `jobQueueService.ts`?**
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **What connects `TokenPayload`, `AuthModalProps`, `CuratedCatalogProps` to the rest of the system?**
   _133 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `index.ts` be split into smaller, more focused modules?**
@@ -142,4 +142,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `page.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.07474600870827286 - nodes in this community are weakly interconnected._
 - **Should `YouTubeService` be split into smaller, more focused modules?**
-  _Cohesion score 0.09191919191919191 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._
