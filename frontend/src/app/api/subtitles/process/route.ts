@@ -97,7 +97,12 @@ export async function POST(request: NextRequest) {
       const isActuallyTranslated =
         checkable.length > 0 && (translatedCount / checkable.length) >= 0.85;
 
-      if (isActuallyTranslated) {
+      // Invalida cache antigo se possuir quebras artificiais de teleprompter (ex: "juice. Great. I'll be right")
+      const hasBrokenTeleprompterCuts = existing.segments.some((s) =>
+        /^[a-z]+[.,!?]\s+[A-Z]/.test(s.text_en.trim())
+      );
+
+      if (isActuallyTranslated && !hasBrokenTeleprompterCuts) {
         if (videoId === "kPa7bsKwL-c") {
           existing.embedVideoId = "zgaCZOQCpp8";
         } else if (videoId === "k2qgadSvNyU") {
