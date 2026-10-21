@@ -49,3 +49,8 @@ data/temp_audio/
 
 # Docker
 docker-data/
+
+# Graphify cache & backups
+graphify-out/cache/ast/
+graphify-out/20*/
+
