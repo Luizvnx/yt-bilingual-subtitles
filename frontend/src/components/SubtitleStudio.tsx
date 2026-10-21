@@ -52,6 +52,16 @@ export function SubtitleStudio({
   useEffect(() => {
     setActiveTab("transcript");
   }, [videoId]);
+
+  useEffect(() => {
+    const handleSwitchTab = (e: any) => {
+      if (e?.detail?.tab === "quiz" || e?.detail?.tab === "transcript") {
+        setActiveTab(e.detail.tab);
+      }
+    };
+    window.addEventListener("ytsubs_switch_tab", handleSwitchTab);
+    return () => window.removeEventListener("ytsubs_switch_tab", handleSwitchTab);
+  }, []);
   const [autoScroll, setAutoScroll] = useState(true);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const activeSegmentRef = useRef<HTMLDivElement>(null);
