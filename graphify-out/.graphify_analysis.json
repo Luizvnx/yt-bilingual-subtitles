@@ -111,29 +111,30 @@
       "ref_react"
     ],
     "2": [
+      "frontend_src_app_api_diag_route",
+      "frontend_src_app_api_diag_route_execasync",
+      "frontend_src_app_api_diag_route_get",
       "frontend_src_app_api_subtitles_process_route",
       "frontend_src_app_api_subtitles_process_route_post",
-      "frontend_src_components_historygrid",
-      "frontend_src_components_historygrid_historygrid",
-      "frontend_src_components_historygrid_historygridprops",
-      "frontend_src_lib_security_repositories_videorepository_videorecord",
+      "frontend_src_lib_security_validators",
+      "frontend_src_lib_security_validators_allowed_youtube_hosts",
+      "frontend_src_lib_security_validators_forbidden_hosts",
+      "frontend_src_lib_security_validators_processvideoschema",
+      "frontend_src_lib_security_validators_userloginschema",
+      "frontend_src_lib_security_validators_userregisterschema",
+      "frontend_src_lib_security_validators_validateandextractyoutubeid",
+      "frontend_src_lib_security_validators_youtube_id_regex",
       "frontend_src_lib_services_cloudwhisperservice",
       "frontend_src_lib_services_cloudwhisperservice_cloudwhisperservice",
       "frontend_src_lib_services_cloudwhisperservice_cloudwhisperservice_transcribeaudio",
       "frontend_src_lib_services_cloudwhisperservice_execasync",
       "frontend_src_lib_services_cloudwhisperservice_whispersegment",
-      "frontend_src_lib_services_jobqueueservice",
-      "frontend_src_lib_services_jobqueueservice_activejob",
-      "frontend_src_lib_services_jobqueueservice_joblistener",
-      "frontend_src_lib_services_jobqueueservice_jobprogress",
-      "frontend_src_lib_services_jobqueueservice_jobqueueservice",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_getjob",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_isprocessing",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_notify",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_processvideo",
       "frontend_src_lib_services_jobqueueservice_jobqueueservicesingleton_subscribe",
-      "frontend_src_lib_services_jobqueueservice_jobstatus",
       "frontend_src_lib_services_youtubeservice",
       "frontend_src_lib_services_youtubeservice_execasync",
       "frontend_src_lib_services_youtubeservice_subtitleitem",
@@ -307,19 +308,6 @@
       "ref_youtube"
     ],
     "8": [
-      "frontend_src_app_api_diag_route",
-      "frontend_src_app_api_diag_route_execasync",
-      "frontend_src_app_api_diag_route_get",
-      "frontend_src_lib_security_validators",
-      "frontend_src_lib_security_validators_allowed_youtube_hosts",
-      "frontend_src_lib_security_validators_forbidden_hosts",
-      "frontend_src_lib_security_validators_processvideoschema",
-      "frontend_src_lib_security_validators_userloginschema",
-      "frontend_src_lib_security_validators_userregisterschema",
-      "frontend_src_lib_security_validators_validateandextractyoutubeid",
-      "frontend_src_lib_security_validators_youtube_id_regex"
-    ],
-    "9": [
       "frontend_src_lib_security_crypto_cryptoservice_hashpassword",
       "frontend_src_lib_security_crypto_cryptoservice_verifypassword",
       "frontend_src_lib_security_repositories_userrepository_userrepository",
@@ -331,6 +319,18 @@
       "frontend_src_lib_security_repositories_userrepository_userrepository_updateprofile",
       "frontend_src_lib_security_repositories_userrepository_userrepository_updatetier",
       "frontend_src_lib_security_repositories_userrepository_userrepository_verifycredentials"
+    ],
+    "9": [
+      "frontend_src_components_historygrid",
+      "frontend_src_components_historygrid_historygrid",
+      "frontend_src_components_historygrid_historygridprops",
+      "frontend_src_lib_security_repositories_videorepository_videorecord",
+      "frontend_src_lib_services_jobqueueservice",
+      "frontend_src_lib_services_jobqueueservice_activejob",
+      "frontend_src_lib_services_jobqueueservice_joblistener",
+      "frontend_src_lib_services_jobqueueservice_jobprogress",
+      "frontend_src_lib_services_jobqueueservice_jobqueueservice",
+      "frontend_src_lib_services_jobqueueservice_jobstatus"
     ],
     "10": [
       "frontend_src_lib_security_repositories_usagerepository_usagerepository",
@@ -401,47 +401,42 @@
       "frontend_src_lib_prisma_prisma"
     ],
     "19": [
-      "scripts_verify_catalog_videos",
-      "scripts_verify_catalog_videos_get_title",
-      "scripts_verify_catalog_videos_search_yt"
-    ],
-    "20": [
       "concept:interactive_subtitle_studio",
       "concept:vevo_error_handling"
     ],
-    "21": [
+    "20": [
       "deploy",
       "deploy_sh__entry"
     ],
-    "22": [
+    "21": [
       "deploy_stage",
       "deploy_stage_sh__entry"
     ],
-    "23": [
+    "22": [
       "frontend_eslint_config",
       "frontend_eslint_config_eslintconfig"
     ],
-    "24": [
+    "23": [
       "frontend_next_config",
       "frontend_next_config_nextconfig"
     ],
-    "25": [
+    "24": [
       "frontend_scripts_extract_subs",
       "frontend_scripts_extract_subs_main"
     ],
-    "26": [
+    "25": [
       "frontend_scripts_search_alternative",
       "frontend_scripts_search_alternative_main"
     ],
-    "27": [
+    "26": [
       "scripts_extract_subs",
       "scripts_extract_subs_main"
     ],
-    "28": [
+    "27": [
       "scripts_search_alternative",
       "scripts_search_alternative_main"
     ],
-    "29": [
+    "28": [
       "setup_ssl",
       "setup_ssl_sh__entry"
     ]
@@ -449,14 +444,14 @@
   "cohesion": {
     "0": 0.08272859216255443,
     "1": 0.07474600870827286,
-    "2": 0.09191919191919191,
+    "2": 0.08695652173913043,
     "3": 0.07142857142857142,
     "4": 0.06896551724137931,
     "5": 0.07142857142857142,
     "6": 0.08695652173913043,
     "7": 0.08695652173913043,
-    "8": 0.21818181818181817,
-    "9": 0.3090909090909091,
+    "8": 0.3090909090909091,
+    "9": 0.26666666666666666,
     "10": 0.4222222222222222,
     "11": 0.25,
     "12": 0.42857142857142855,
@@ -466,7 +461,7 @@
     "16": 0.5,
     "17": 0.6666666666666666,
     "18": 0.6666666666666666,
-    "19": 0.6666666666666666,
+    "19": 1.0,
     "20": 1.0,
     "21": 1.0,
     "22": 1.0,
@@ -475,8 +470,7 @@
     "25": 1.0,
     "26": 1.0,
     "27": 1.0,
-    "28": 1.0,
-    "29": 1.0
+    "28": 1.0
   },
   "gods": [
     {
@@ -590,18 +584,18 @@
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `react` connect `page.tsx` to `YouTubeService`, `scripts`?",
-      "why": "High betweenness centrality (0.079) - this node is a cross-community bridge."
+      "question": "Why does `react` connect `page.tsx` to `jobQueueService.ts`, `scripts`?",
+      "why": "High betweenness centrality (0.080) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
       "question": "Why does `keywords` connect `scripts` to `page.tsx`?",
-      "why": "High betweenness centrality (0.073) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.074) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `YouTubeService` connect `YouTubeService` to `validators.ts`, `index.ts`?",
-      "why": "High betweenness centrality (0.036) - this node is a cross-community bridge."
+      "question": "Why does `YouTubeService` connect `YouTubeService` to `index.ts`, `jobQueueService.ts`?",
+      "why": "High betweenness centrality (0.037) - this node is a cross-community bridge."
     },
     {
       "type": "isolated_nodes",
@@ -621,7 +615,7 @@
     {
       "type": "low_cohesion",
       "question": "Should `YouTubeService` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.09191919191919191 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected."
     }
   ]
 }
