@@ -12,6 +12,7 @@ import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { CuratedCatalog, ALL_LESSONS } from "@/components/CuratedCatalog";
 import { LevelUpCelebrationModal } from "@/components/LevelUpCelebrationModal";
+import { StageDebugBar } from "@/components/StageDebugBar";
 import { VideoRecord } from "@/lib/security";
 import { fetchWithAuth, getClientAuthHeaders } from "@/lib/apiClient";
 import {
@@ -808,6 +809,20 @@ export default function HomePage() {
           }}
         />
       )}
+
+      {/* Barra de Testes e Ferramentas QA (Ativa Exclusivamente em Stage) */}
+      <StageDebugBar
+        onTriggerCelebration={({ earnedXp, previousXp, newXp, title }) => {
+          setCelebrationData({
+            earnedXp,
+            previousXp,
+            newXp,
+            lessonTitle: title,
+            streak: parseInt(localStorage.getItem("ytsubs_streak") || "1", 10),
+          });
+          setCelebrationOpen(true);
+        }}
+      />
 
       {/* Rodapé Confiável e Profissional */}
       <footer className="border-t border-white/10 bg-black/60 py-10 text-xs text-zinc-500">
