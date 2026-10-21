@@ -1,132 +1,145 @@
-# Graph Report - yt-bilingual-subtitles-app  (2026-10-18)
+# Graph Report - yt-bilingual-subtitles-app  (2026-10-21)
 
 ## Corpus Check
-- Corpus is ~32,989 words - fits in a single context window. You may not need a graph.
+- cluster-only mode — file stats not available
 
 ## Summary
-- 318 nodes · 488 edges · 24 communities (15 shown, 9 thin omitted)
+- 385 nodes · 597 edges · 30 communities (18 shown, 12 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `af1273b8`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- Subtitle Processing API Routes
-- Frontend Web UI & Modals
-- Stripe Billing & Payment Routes
-- TypeScript Compiler Options
-- ESLint & Build Dependencies
-- Diagnostic & Execution Routes
-- Production Node Dependencies
-- Auth & Vocabulary API Routes
-- Package Metadata Configuration
-- Job Queue & Video Processing
-- User Repository & Password Hashing
-- Session & Auth Cookie Service
-- Usage Limits & Plan Quotas
-- VPS & WARP Proxy Infrastructure
-- Root Layout & Metadata
-- Edge Middleware & Security
-- Prisma Database Client
-- Subtitle Studio & VEVO Player
-- Host Deploy Automation
-- ESLint Tooling Config
-- Next.js Standalone Config
+- index.ts
+- page.tsx
+- YouTubeService
+- BaseRepository
+- compilerOptions
+- devDependencies
+- dependencies
+- scripts
+- validators.ts
+- UserRepository
+- UsageRepository
+- rateLimiter.ts
+- VideoRepository
+- alternative/route.ts
+- layout.tsx
+- Cloudflare WARP SOCKS5 Sidecar
+- middleware.ts
+- tts/route.ts
+- prisma.ts
+- Interactive Subtitle Studio
+- deploy.sh
+- deploy-stage.sh
+- eslint.config.mjs
+- next.config.ts
+- setup-ssl.sh
 
 ## God Nodes (most connected - your core abstractions)
-1. `getAuthTokenFromCookies()` - 20 edges
-2. `CryptoService` - 19 edges
-3. `YouTubeService` - 16 edges
+1. `getAuthTokenFromRequest()` - 25 edges
+2. `CryptoService` - 21 edges
+3. `YouTubeService` - 21 edges
 4. `compilerOptions` - 16 edges
-5. `BaseRepository` - 15 edges
-6. `react` - 11 edges
-7. `checkRateLimit()` - 10 edges
-8. `UserRepository` - 10 edges
-9. `POST()` - 9 edges
-10. `getClientIp()` - 9 edges
+5. `BaseRepository` - 14 edges
+6. `react` - 14 edges
+7. `fetchWithAuth()` - 12 edges
+8. `POST()` - 12 edges
+9. `UsageRepository` - 10 edges
+10. `UserRepository` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Deploy Automation Script` --MANAGES_LIFECYCLE_OF--> `Cloudflare WARP SOCKS5 Sidecar`  [EXTRACTED]
   deploy.sh → AGENTS.md
 - `Pre-flight Proxy Reachability Check` --VERIFIES_CONNECTIVITY_OF--> `Cloudflare WARP SOCKS5 Sidecar`  [EXTRACTED]
   scripts/extract_subs.py → AGENTS.md
-- `HistoryGridProps` --references--> `VideoRecord`  [EXTRACTED]
-  frontend/src/components/HistoryGrid.tsx → frontend/src/lib/security/repositories/videoRepository.ts
 - `Cloudflare WARP SOCKS5 Sidecar` --PROVIDES_PROXY_FOR--> `YT Bilingual Subtitles SaaS`  [EXTRACTED]
   AGENTS.md → README.md
-- `POST()` --calls--> `getAuthTokenFromCookies()`  [EXTRACTED]
-  frontend/src/app/api/subtitles/process/route.ts → frontend/src/lib/security/cookies.ts
+- `SubtitleStudioProps` --references--> `SubtitleSegment`  [EXTRACTED]
+  frontend/src/components/SubtitleStudio.tsx → frontend/src/lib/security/repositories/videoRepository.ts
+- `YouTubePlayerProps` --references--> `SubtitleSegment`  [EXTRACTED]
+  frontend/src/components/YouTubePlayer.tsx → frontend/src/lib/security/repositories/videoRepository.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (24 total, 9 thin omitted)
+## Communities (30 total, 12 thin omitted)
 
-### Community 0 - "Subtitle Processing API Routes"
+### Community 0 - "index.ts"
+Cohesion: 0.08
+Nodes (26): GET(), POST(), POST(), GET(), POST(), POST(), POST(), DICT_CACHE (+18 more)
+
+### Community 1 - "page.tsx"
 Cohesion: 0.07
-Nodes (12): JWT_SECRET, TokenPayload, BaseRepository, PaymentRepository, SubscriptionRecord, QuotaCheckResult, UsageRecord, SafeUser (+4 more)
+Nodes (39): HomePage(), AuthModal(), AuthModalProps, ALL_LESSONS, CuratedCatalog(), CuratedCatalogProps, CuratedLesson, CuratedSection (+31 more)
 
-### Community 1 - "Frontend Web UI & Modals"
-Cohesion: 0.10
-Nodes (24): AuthModal(), AuthModalProps, HistoryGrid(), HistoryGridProps, LegalModal(), LegalModalProps, LegalModalTab, Navbar() (+16 more)
+### Community 2 - "YouTubeService"
+Cohesion: 0.09
+Nodes (18): POST(), HistoryGrid(), HistoryGridProps, VideoRecord, CloudWhisperService, execAsync, WhisperSegment, ActiveJob (+10 more)
 
-### Community 2 - "Stripe Billing & Payment Routes"
-Cohesion: 0.12
-Nodes (19): GET(), POST(), POST(), POST(), GET(), setAuthCookieOnResponse(), checkRateLimit(), getClientIp() (+11 more)
+### Community 3 - "BaseRepository"
+Cohesion: 0.07
+Nodes (14): BaseRepository, PaymentRepository, SubscriptionRecord, QuizQuestion, QuizRecord, QuizRepository, GUEST_TRANSLATIONS_BY_IP, QuotaCheckResult (+6 more)
 
-### Community 3 - "TypeScript Compiler Options"
+### Community 4 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+20 more)
 
-### Community 4 - "ESLint & Build Dependencies"
+### Community 5 - "devDependencies"
 Cohesion: 0.07
 Nodes (27): eslint, eslint-config-next, devDependencies, eslint, eslint-config-next, tailwindcss, @tailwindcss/turbopack, @types/bcryptjs (+19 more)
 
-### Community 5 - "Diagnostic & Execution Routes"
-Cohesion: 0.13
-Nodes (12): execAsync, GET(), DICT_CACHE, GET(), CloudWhisperService, execAsync, WhisperSegment, execAsync (+4 more)
-
-### Community 6 - "Production Node Dependencies"
+### Community 6 - "dependencies"
 Cohesion: 0.09
 Nodes (23): anki-apkg-export, bcryptjs, dependencies, anki-apkg-export, bcryptjs, jose, lucide-react, next (+15 more)
 
-### Community 7 - "Auth & Vocabulary API Routes"
-Cohesion: 0.19
-Nodes (10): GET(), POST(), POST(), DELETE(), GET(), DELETE(), GET(), POST() (+2 more)
+### Community 7 - "scripts"
+Cohesion: 0.09
+Nodes (22): author, description, keywords, license, name, private, scripts, build (+14 more)
 
-### Community 8 - "Package Metadata Configuration"
-Cohesion: 0.11
-Nodes (17): author, description, keywords, license, name, private, scripts, build (+9 more)
+### Community 8 - "validators.ts"
+Cohesion: 0.22
+Nodes (8): execAsync, GET(), ALLOWED_YOUTUBE_HOSTS, FORBIDDEN_HOSTS, ProcessVideoSchema, UserLoginSchema, UserRegisterSchema, YOUTUBE_ID_REGEX
 
-### Community 9 - "Job Queue & Video Processing"
-Cohesion: 0.24
-Nodes (6): VideoRecord, ActiveJob, JobListener, JobProgress, JobQueueServiceSingleton, JobStatus
+### Community 11 - "rateLimiter.ts"
+Cohesion: 0.25
+Nodes (4): checkRateLimit(), InMemoryRateLimiter, rateLimiter, RateLimitRecord
 
-### Community 11 - "Session & Auth Cookie Service"
+### Community 13 - "alternative/route.ts"
+Cohesion: 0.50
+Nodes (4): ALT_CACHE, AltCandidate, execFileAsync, GET()
+
+### Community 14 - "layout.tsx"
 Cohesion: 0.40
-Nodes (4): POST(), AUTH_COOKIE_NAME, clearAuthCookieOnResponse(), COOKIE_MAX_AGE
+Nodes (3): inter, metadata, outfit
 
-### Community 13 - "VPS & WARP Proxy Infrastructure"
+### Community 15 - "Cloudflare WARP SOCKS5 Sidecar"
 Cohesion: 0.50
 Nodes (4): Deploy Automation Script, Pre-flight Proxy Reachability Check, Cloudflare WARP SOCKS5 Sidecar, YT Bilingual Subtitles SaaS
 
 ## Knowledge Gaps
-- **109 isolated node(s):** `deploy.sh script`, `eslintConfig`, `nextConfig`, `name`, `version` (+104 more)
+- **133 isolated node(s):** `TokenPayload`, `AuthModalProps`, `CuratedCatalogProps`, `CuratedLesson`, `CuratedSection` (+128 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `Frontend Web UI & Modals` to `Package Metadata Configuration`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
-- **Why does `keywords` connect `Package Metadata Configuration` to `Frontend Web UI & Modals`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
-- **Why does `BaseRepository` connect `Subtitle Processing API Routes` to `User Repository & Password Hashing`, `Usage Limits & Plan Quotas`?**
+- **Why does `react` connect `page.tsx` to `YouTubeService`, `scripts`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+- **Why does `keywords` connect `scripts` to `page.tsx`?**
+  _High betweenness centrality (0.073) - this node is a cross-community bridge._
+- **Why does `YouTubeService` connect `YouTubeService` to `validators.ts`, `index.ts`?**
   _High betweenness centrality (0.036) - this node is a cross-community bridge._
-- **What connects `deploy.sh script`, `eslintConfig`, `nextConfig` to the rest of the system?**
-  _109 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Subtitle Processing API Routes` be split into smaller, more focused modules?**
-  _Cohesion score 0.06829268292682927 - nodes in this community are weakly interconnected._
-- **Should `Frontend Web UI & Modals` be split into smaller, more focused modules?**
-  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
-- **Should `Stripe Billing & Payment Routes` be split into smaller, more focused modules?**
-  _Cohesion score 0.12043010752688173 - nodes in this community are weakly interconnected._
+- **What connects `TokenPayload`, `AuthModalProps`, `CuratedCatalogProps` to the rest of the system?**
+  _133 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08272859216255443 - nodes in this community are weakly interconnected._
+- **Should `page.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.07474600870827286 - nodes in this community are weakly interconnected._
+- **Should `YouTubeService` be split into smaller, more focused modules?**
+  _Cohesion score 0.09191919191919191 - nodes in this community are weakly interconnected._
