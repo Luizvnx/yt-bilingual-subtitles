@@ -321,6 +321,11 @@ export default function HomePage() {
               window.dispatchEvent(
                 new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } })
               );
+              window.dispatchEvent(
+                new CustomEvent("ytsubs_lesson_completed", {
+                  detail: { lessonId: activeLessonId },
+                })
+              );
             }
           }
         } catch {}

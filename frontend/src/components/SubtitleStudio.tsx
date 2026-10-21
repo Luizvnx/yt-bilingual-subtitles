@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { SubtitleSegment } from "@/lib/security";
 import {
   Search,
@@ -71,10 +71,16 @@ export function SubtitleStudio({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const userAudioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
-  // Encontra o índice da frase atual
-  const activeIndex = segments.findIndex(
-    (s) => currentTime >= s.start && currentTime <= s.end
-  );
+  // Encontra o índice da frase atual (priorizando o segmento iniciado mais recentemente)
+  const activeIndex = useMemo(() => {
+    for (let i = segments.length - 1; i >= 0; i--) {
+      const s = segments[i];
+      if (currentTime >= s.start && currentTime <= s.end) {
+        return i;
+      }
+    }
+    return -1;
+  }, [segments, currentTime]);
 
   // Rolagem suave automática (*Auto-scroll*)
   useEffect(() => {

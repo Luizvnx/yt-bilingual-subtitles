@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { SubtitleSegment } from "@/lib/security";
 import {
   EyeOff,
@@ -295,9 +295,17 @@ export function YouTubePlayer({
   }, [activeVideoId, playerRef]);
 
   // Deriva o segmento de legenda ativo com base no tempo atual
-  const activeSegment =
-    segments?.find((s) => currentTime >= s.start && currentTime <= s.end) ||
-    null;
+  // Prioriza o segmento mais recente que já iniciou caso haja qualquer resquício de sobreposição
+  const activeSegment = useMemo(() => {
+    if (!segments || segments.length === 0) return null;
+    for (let i = segments.length - 1; i >= 0; i--) {
+      const s = segments[i];
+      if (currentTime >= s.start && currentTime <= s.end) {
+        return s;
+      }
+    }
+    return null;
+  }, [segments, currentTime]);
 
   return (
     <div className="relative flex flex-col rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-zinc-950 overflow-hidden shadow-2xl w-full">

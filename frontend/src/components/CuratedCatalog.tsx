@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Sparkles,
   Music,
@@ -352,29 +352,71 @@ export function CuratedCatalog({
         localStorage.setItem("ytsubs_streak", "1");
       }
 
-      const handleXpUpdate = (e: any) => {
+      const reloadProgress = () => {
         try {
-          if (e?.detail?.xp !== undefined) {
-            setXp(e.detail.xp);
-          } else {
-            const current = localStorage.getItem("ytsubs_xp");
-            if (current) setXp(parseInt(current, 10));
+          const savedXp = localStorage.getItem("ytsubs_xp");
+          if (savedXp) setXp(parseInt(savedXp, 10));
+          const savedCompleted = localStorage.getItem("ytsubs_completed");
+          if (savedCompleted) {
+            setCompletedIds(new Set(JSON.parse(savedCompleted)));
           }
         } catch {}
       };
 
+      const handleXpUpdate = (e: any) => {
+        try {
+          if (e?.detail?.xp !== undefined) {
+            setXp(e.detail.xp);
+          }
+          reloadProgress();
+        } catch {}
+      };
+
+      const handleLessonCompleted = () => {
+        reloadProgress();
+      };
+
       window.addEventListener("ytsubs_xp_updated", handleXpUpdate);
+      window.addEventListener("ytsubs_lesson_completed", handleLessonCompleted);
+      window.addEventListener("storage", reloadProgress);
       return () => {
         window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
+        window.removeEventListener("ytsubs_lesson_completed", handleLessonCompleted);
+        window.removeEventListener("storage", reloadProgress);
       };
     } catch {}
   }, []);
+
+  // Verifica se uma lição está desbloqueada na trilha progressiva
+  const isLessonUnlocked = useCallback(
+    (lessonId: string): boolean => {
+      const idx = ALL_LESSONS.findIndex((l) => l.id === lessonId);
+      if (idx <= 0) return true; // A primeira lição da trilha é sempre desbloqueada
+      const prevLesson = ALL_LESSONS[idx - 1];
+      // Desbloqueia apenas se a lição anterior já foi concluída ou se ela mesma já foi concluída
+      return completedIds.has(prevLesson.id) || completedIds.has(lessonId);
+    },
+    [completedIds]
+  );
+
+  const getPreviousLesson = useCallback(
+    (lessonId: string): CuratedLesson | null => {
+      const idx = ALL_LESSONS.findIndex((l) => l.id === lessonId);
+      return idx > 0 ? ALL_LESSONS[idx - 1] : null;
+    },
+    []
+  );
 
   const handleStartLesson = (lesson: CuratedLesson) => {
     if (isGuest) {
       onRequireLogin?.(
         "Crie sua conta gratuita ou faça login para acessar as aulas do catálogo e salvar seu progresso!"
       );
+      return;
+    }
+
+    if (!isLessonUnlocked(lesson.id)) {
+      setActiveLessonPopover(lesson);
       return;
     }
 
@@ -496,6 +538,8 @@ export function CuratedCatalog({
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             {DUOLINGO_SECTIONS.map((sec) => {
               const isSelected = sec.id === activeSectionId;
+              const isSectionUnlocked = sec.lessons.some((l) => isLessonUnlocked(l.id));
+              const isSectionCompleted = sec.lessons.every((l) => completedIds.has(l.id));
               const hasCompleted = sec.lessons.some((l) => completedIds.has(l.id));
 
               let colorClasses = "border-white/10 text-zinc-400 hover:bg-zinc-900";
@@ -527,12 +571,21 @@ export function CuratedCatalog({
                 >
                   <div className="flex items-center justify-between text-[11px] font-bold mb-1">
                     <span>SEÇÃO {sec.id}</span>
-                    {hasCompleted && (
+                    {isSectionCompleted ? (
                       <span className="flex items-center gap-0.5 text-emerald-400 text-[10px]">
                         <Check className="h-3 w-3" />
+                        <span>Dominada</span>
+                      </span>
+                    ) : hasCompleted ? (
+                      <span className="flex items-center gap-0.5 text-amber-400 text-[10px]">
                         <span>Em progresso</span>
                       </span>
-                    )}
+                    ) : !isSectionUnlocked ? (
+                      <span className="flex items-center gap-0.5 text-zinc-500 text-[10px]">
+                        <Lock className="h-2.5 w-2.5" />
+                        <span>Bloqueada</span>
+                      </span>
+                    ) : null}
                   </div>
                   <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-1">
                     {sec.levelBadge}
@@ -594,6 +647,11 @@ export function CuratedCatalog({
             <div className="w-full space-y-10 sm:space-y-12 relative z-10">
               {currentSection.lessons.map((lesson, idx) => {
                 const isCompleted = completedIds.has(lesson.id);
+                const isUnlocked = isLessonUnlocked(lesson.id);
+                const isLocked = !isUnlocked;
+                // É o nó ativo atual da trilha (desbloqueado, mas ainda não concluído)
+                const isCurrentStep = !isCompleted && isUnlocked;
+
                 // Serpenteamento Duolingo: centro, esquerda, centro, direita
                 const alignments = [
                   "justify-center",
@@ -634,15 +692,15 @@ export function CuratedCatalog({
                           setActiveLessonPopover(lesson);
                         }}
                         className={`relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-b-[6px] transition-all cursor-pointer active:translate-y-1 active:border-b-0 shadow-xl ${
-                          isGuest
-                            ? "bg-zinc-800 border-zinc-900 text-zinc-400 hover:bg-zinc-700 shadow-zinc-900/30"
+                          isGuest || isLocked
+                            ? "bg-zinc-850 border-zinc-900 text-zinc-500 hover:bg-zinc-800 shadow-zinc-950/40"
                             : btnColor
                         }`}
                       >
-                        {isGuest ? (
+                        {isGuest || isLocked ? (
                           <div className="flex flex-col items-center justify-center">
-                            <Lock className="h-6 w-6 text-amber-400" />
-                            <span className="text-[9px] font-black text-amber-400/90 mt-0.5 uppercase tracking-wide">
+                            <Lock className="h-6 w-6 text-zinc-400" />
+                            <span className="text-[9px] font-black text-zinc-400 mt-0.5 uppercase tracking-wide">
                               Bloqueado
                             </span>
                           </div>
@@ -662,9 +720,9 @@ export function CuratedCatalog({
                           </div>
                         )}
 
-                        {/* Halo pulsante no nó ativo */}
-                        {!isGuest && !isCompleted && idx === 0 && (
-                          <span className="absolute -inset-1 rounded-full border-2 border-white/50 animate-ping pointer-events-none" />
+                        {/* Halo pulsante apenas no nó ativo atual (desbloqueado e não feito) */}
+                        {!isGuest && isCurrentStep && (
+                          <span className="absolute -inset-1.5 rounded-full border-2 border-indigo-400 animate-ping pointer-events-none" />
                         )}
                       </button>
 
@@ -740,38 +798,66 @@ export function CuratedCatalog({
                 </div>
 
                 {/* Botões de Ação estilo Duolingo */}
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveLessonPopover(null)}
-                    className="w-1/3 py-3 rounded-2xl border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    Fechar
-                  </button>
+                {(() => {
+                  const isPopLocked = !isGuest && !isLessonUnlocked(activeLessonPopover.id);
+                  const prevPopLesson = getPreviousLesson(activeLessonPopover.id);
 
-                  <button
-                    type="button"
-                    onClick={() => handleStartLesson(activeLessonPopover)}
-                    disabled={isLoading}
-                    className="w-2/3 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 text-xs sm:text-sm font-black text-white shadow-xl shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-b-4 border-emerald-800"
-                  >
-                    {isGuest ? (
-                      <>
-                        <Lock className="h-4 w-4" />
-                        <span>FAZER LOGIN PARA ASSISTIR</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-4 w-4 fill-current" />
-                        <span>
-                          {completedIds.has(activeLessonPopover.id)
-                            ? "REVISAR VÍDEO"
-                            : `COMEÇAR (+${activeLessonPopover.xp} XP)`}
-                        </span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                  return (
+                    <div className="space-y-3 pt-2">
+                      {isPopLocked && (
+                        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs flex items-start gap-2">
+                          <Lock className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
+                          <span>
+                            Complete a aula anterior{" "}
+                            <strong>"{prevPopLesson?.title}"</strong> para desbloquear este próximo vídeo da trilha!
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveLessonPopover(null)}
+                          className="w-1/3 py-3 rounded-2xl border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                        >
+                          Fechar
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleStartLesson(activeLessonPopover)}
+                          disabled={isLoading || isPopLocked}
+                          className={`w-2/3 py-3 rounded-2xl text-xs sm:text-sm font-black text-white shadow-xl transition-all flex items-center justify-center gap-2 border-b-4 ${
+                            isPopLocked
+                              ? "bg-zinc-800 border-zinc-900 text-zinc-500 opacity-60 cursor-not-allowed"
+                              : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 shadow-emerald-500/25 border-emerald-800 cursor-pointer"
+                          }`}
+                        >
+                          {isGuest ? (
+                            <>
+                              <Lock className="h-4 w-4" />
+                              <span>FAZER LOGIN PARA ASSISTIR</span>
+                            </>
+                          ) : isPopLocked ? (
+                            <>
+                              <Lock className="h-4 w-4" />
+                              <span>BLOQUEADO NA TRILHA</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4 fill-current" />
+                              <span>
+                                {completedIds.has(activeLessonPopover.id)
+                                  ? "REVISAR VÍDEO"
+                                  : `COMEÇAR (+${activeLessonPopover.xp} XP)`}
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -881,14 +967,16 @@ export function CuratedCatalog({
                 const isBeginner = item.level === "iniciante";
                 const isIntermediate = item.level === "intermediario";
                 const isDone = completedIds.has(item.id);
-                const isCardLocked = isGuest;
+                const isUnlocked = isLessonUnlocked(item.id);
+                const isCardLocked = isGuest || !isUnlocked;
+                const prevItem = getPreviousLesson(item.id);
 
                 return (
                   <div
                     key={item.id}
                     onClick={() => {
                       if (isLoading) return;
-                      if (isCardLocked) {
+                      if (isGuest) {
                         onRequireLogin?.(
                           "Crie sua conta gratuita ou faça login para acessar os vídeos do catálogo!"
                         );
@@ -909,11 +997,18 @@ export function CuratedCatalog({
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
 
-                        {/* Selo de Bloqueio com Cadeado para Não Logados */}
+                        {/* Selo de Bloqueio com Cadeado para Não Logados ou Lições Bloqueadas */}
                         {isCardLocked && (
-                          <div className="absolute top-2 right-2 rounded-md bg-zinc-950/90 text-amber-400 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-md z-20 backdrop-blur-md">
+                          <div
+                            className="absolute top-2 right-2 rounded-md bg-zinc-950/90 text-amber-400 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-md z-20 backdrop-blur-md"
+                            title={
+                              isGuest
+                                ? "Faça login para acessar"
+                                : `Conclua "${prevItem?.title}" na trilha para liberar`
+                            }
+                          >
                             <Lock className="h-3 w-3" />
-                            <span>Bloqueado</span>
+                            <span>{isGuest ? "Bloqueado" : "Trilha Bloqueada"}</span>
                           </div>
                         )}
 
