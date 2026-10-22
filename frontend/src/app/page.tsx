@@ -12,6 +12,11 @@ import { LegalModal, LegalModalTab } from "@/components/LegalModal";
 import { HistoryGrid } from "@/components/HistoryGrid";
 import { CuratedCatalog, ALL_LESSONS } from "@/components/CuratedCatalog";
 import { LevelUpCelebrationModal } from "@/components/LevelUpCelebrationModal";
+import {
+  getUserGamification,
+  saveUserGamification,
+  cleanupLegacyGamification,
+} from "@/lib/gamification";
 import { VideoRecord } from "@/lib/security";
 import { fetchWithAuth, getClientAuthHeaders } from "@/lib/apiClient";
 import {
@@ -136,10 +141,21 @@ export default function HomePage() {
             localStorage.setItem("ytsubs_auth_token", data.token);
           } catch {}
         }
-        if (data?.user) setUser(data.user);
+        if (data?.user) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+          cleanupLegacyGamification();
+        }
         if (data?.usage) setUsage(data.usage);
+      } else {
+        setUser(null);
+        cleanupLegacyGamification();
       }
-    } catch { }
+    } catch {
+      setUser(null);
+      cleanupLegacyGamification();
+    }
   };
 
   // Carrega usuário atual, quotas e histórico ao montar a página
@@ -367,46 +383,27 @@ export default function HomePage() {
         : null;
 
     const earnedXp = lesson?.xp || 35;
-    let prevXp = 50;
-    let currentStreak = 1;
+    let prevXp = 0;
+    let currentStreak = 0;
 
-    try {
-      if (typeof window !== "undefined") {
-        const savedXp = localStorage.getItem("ytsubs_xp");
-        if (savedXp) prevXp = parseInt(savedXp, 10);
-
-        const savedStreak = localStorage.getItem("ytsubs_streak");
-        if (savedStreak) currentStreak = parseInt(savedStreak, 10);
-
+    if (user?.id) {
+      try {
+        const stats = getUserGamification(user.id);
+        prevXp = stats.xp;
+        currentStreak = stats.streak;
         const newXp = prevXp + earnedXp;
-        localStorage.setItem("ytsubs_xp", String(newXp));
-
-        // Marca lição como concluída para desbloquear os próximos passos da trilha
-        const savedCompleted = localStorage.getItem("ytsubs_completed");
-        const completedSet = new Set<string>(
-          savedCompleted ? JSON.parse(savedCompleted) : []
-        );
+        const completedSet = new Set(stats.completedIds);
         if (lesson?.id) completedSet.add(lesson.id);
-        const storedLessonId = localStorage.getItem("ytsubs_current_lesson_id");
-        if (storedLessonId) completedSet.add(storedLessonId);
         completedSet.add(currentVideo.videoId);
-        localStorage.setItem(
-          "ytsubs_completed",
-          JSON.stringify(Array.from(completedSet))
-        );
 
-        // Dispara eventos globais para atualizar imediatamente Navbar, Catálogo e Trilha
-        window.dispatchEvent(
-          new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } })
-        );
-        window.dispatchEvent(
-          new CustomEvent("ytsubs_lesson_completed", {
-            detail: { videoId: currentVideo.videoId, lessonId: lesson?.id },
-          })
-        );
+        saveUserGamification(user.id, {
+          xp: newXp,
+          streak: currentStreak,
+          completedIds: completedSet,
+        });
+      } catch (err) {
+        console.warn("[page] Falha ao persistir XP do usuário:", err);
       }
-    } catch (err) {
-      console.warn("[page] Falha ao persistir XP e conclusão:", err);
     }
 
     setCelebrationData({
@@ -414,7 +411,7 @@ export default function HomePage() {
       previousXp: prevXp,
       newXp: prevXp + earnedXp,
       lessonTitle: lesson?.title || currentVideo.title || "Lição Concluída",
-      streak: currentStreak,
+      streak: currentStreak || 1,
       nextLesson,
     });
     setCelebrationOpen(true);
@@ -432,6 +429,13 @@ export default function HomePage() {
     if (typeof window !== "undefined") {
       try {
         localStorage.removeItem("ytsubs_auth_token");
+        cleanupLegacyGamification();
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_xp_updated", { detail: { xp: 0, streak: 0 } })
+        );
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_lesson_completed", {})
+        );
       } catch {}
     }
     setUser(null);
