@@ -115,12 +115,46 @@ Configurada em `frontend/src/app/layout.tsx` e `frontend/src/app/globals.css`:
   </div>
   <div className="flex flex-col">
     <span className="text-[10px] font-black uppercase tracking-widest text-amber-300/90 leading-tight">Recompensa da Seção</span>
-    <span className="font-display font-black text-lg sm:text-xl text-white leading-tight mt-0.5">
-      +85 XP <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wide">Bônus</span>
-    </span>
+### 5.4 Arena do Boss Final (Arcade Battle Milestone)
+```tsx
+<div className="relative flex flex-col items-center p-6 sm:p-7 rounded-3xl text-center max-w-md w-full border-2 border-rose-500/40 border-b-[6px] border-b-rose-900 bg-gradient-to-b from-[#1C0913] via-[#0F050A] to-[#080205] shadow-[0_20px_50px_rgba(244,63,94,0.25)]">
+  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-xl bg-rose-600 border-b-2 border-rose-800 text-white font-display font-black text-xs uppercase tracking-wider shadow-md mb-4">
+    <Swords className="h-4 w-4" />
+    <span>ARENA • BOSS FINAL</span>
+  </div>
+  {/* HUD de Escudo do Boss (Game HP Bar) */}
+  <div className="w-full bg-black/70 border border-white/10 rounded-2xl p-3">
+    <div className="grid grid-cols-3 gap-1.5">
+      {/* 3 slots de vida que se rompem conforme o aluno domina as lições */}
+    </div>
   </div>
 </div>
 ```
+
+---
+
+## 🕹️ 6. Navegação & Modos de Estudo do Estúdio
+
+### 6.1 Fita de Mundos 3D (World Island Strip)
+- 4 abas horizontais táteis estilo console (`🌱 Fundações A1`, `🎵 Músicas & Ritmo`, `⚡ Conexão Nativa`, `👑 Fluência & Oratória`).
+- Relevo chanfrado sólido `border-b-[4px]` com aura luminosa no mundo ativo e cadeados nos mundos bloqueados.
+
+### 6.2 Modos de Visualização do Estúdio (Studio Modes)
+- **Dividido (`split`):** Player 7 colunas à esquerda, transcrição 5 colunas à direita (equilíbrio ideal).
+- **Cinema (`theater`):** Player em largura máxima centralizado no topo e transcrição abaixo (foco visual).
+- **Foco Leitura (`focus`):** Transcrição ocupando 8 colunas e player compacto com 4 colunas (leitura e shadowing profundo).
+
+### 6.3 Atalhos de Teclado Nativos
+- **`[ R ]`**: Repete a frase ativa instantaneamente.
+- **`[ Espaço ]`**: Alterna Play / Pausa.
+- **`[ 1-Clique na Palavra ]`**: Abre dicionário pop-up com áudio nativo.
+
+### 6.4 Nomenclatura Amigável & Regra de Estabilidade Estática
+- É **proibido** usar jargões de engenharia de IA na interface (ex: *Whisper Base, Tiny, Small*). Substituídos por:
+  - `Equilibrado (Recomendado)` (id: `base`)
+  - `Ultra Rápido` (id: `tiny`)
+  - `Alta Precisão` (id: `small`)
+- O formulário de entrada **NUNCA deve ter `transition-all`** em sua geometria externa, prevenindo saltos ou tremores (layout shift) ao alternar opções.
 
 ---
 

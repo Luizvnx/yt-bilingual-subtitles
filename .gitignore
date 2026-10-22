@@ -54,3 +54,7 @@ docker-data/
 graphify-out/cache/ast/
 graphify-out/20*/
 
+# AI agents & local skills
+.agents/
+data/usage_saas.json
+

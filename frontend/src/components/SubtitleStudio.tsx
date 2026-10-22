@@ -330,24 +330,27 @@ export function SubtitleStudio({
   };
 
   return (
-    <div className="flex h-full flex-col rounded-3xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl shadow-2xl overflow-hidden">
+    <div className="relative flex h-full flex-col rounded-3xl border border-white/10 border-b-[4px] border-b-zinc-900 bg-[#070A0F]/90 backdrop-blur-xl shadow-2xl overflow-hidden">
+      {/* Top specular highlight line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-10" />
+
       {/* Topo do Studio: Abas, Busca e Opções */}
-      <div className="border-b border-white/10 p-3 sm:p-4 space-y-3 bg-zinc-900/30">
+      <div className="border-b border-white/10 p-3 sm:p-4 space-y-3 bg-[#0B0D14]/80">
         <div className="flex items-center justify-between gap-2">
           {/* Navegação por Abas: Transcrição vs Quiz */}
-          <div className="flex items-center bg-zinc-900/90 p-1 rounded-2xl border border-white/10 shadow-inner">
+          <div className="flex items-center bg-[#070A0F] p-1 rounded-2xl border border-white/10 shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab("transcript")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "transcript"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border-b-[3px] border-b-indigo-800"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
               <Sparkles className="h-3.5 w-3.5 text-indigo-200" />
               <span>Transcrição</span>
-              <span className="hidden sm:inline-block text-[10px] opacity-75">
+              <span className="hidden sm:inline-block text-[10px] font-display opacity-80">
                 ({segments.length})
               </span>
             </button>
@@ -365,9 +368,9 @@ export function SubtitleStudio({
                 }
                 setActiveTab("quiz");
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "quiz"
-                  ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-md shadow-amber-500/30 font-bold"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-md shadow-amber-500/30 border-b-[3px] border-b-amber-700"
                   : user?.tier === "pro"
                   ? "text-zinc-400 hover:text-amber-300"
                   : "text-zinc-500 hover:text-amber-300/80"
@@ -385,7 +388,7 @@ export function SubtitleStudio({
                 <>
                   <Lock className="h-3.5 w-3.5 text-amber-400" />
                   <span>Quiz IA</span>
-                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-amber-400/30">
                     PRO
                   </span>
                 </>
@@ -393,7 +396,7 @@ export function SubtitleStudio({
                 <>
                   <Trophy className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-300" />
                   <span>Quiz IA</span>
-                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold font-display border border-amber-400/30">
                     +30 XP
                   </span>
                 </>
@@ -401,7 +404,7 @@ export function SubtitleStudio({
             </button>
           </div>
 
-          <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-zinc-400 border border-white/5 hidden sm:inline-block">
+          <span className="rounded-xl bg-white/5 px-2.5 py-1 text-xs font-display font-bold text-zinc-300 border border-white/10 hidden sm:inline-block shadow-sm">
             {segments.length} frases
           </span>
         </div>
@@ -490,7 +493,7 @@ export function SubtitleStudio({
                 onClick={() => onSeek(seg.start)}
                 className={`group relative rounded-2xl p-3.5 transition-all cursor-pointer ${
                   isActive
-                    ? "bg-gradient-to-r from-indigo-500/20 via-purple-500/10 to-transparent border-l-4 border-l-indigo-500 pl-4 shadow-lg shadow-indigo-500/10"
+                    ? "bg-gradient-to-r from-emerald-500/15 via-teal-500/5 to-transparent border-l-4 border-l-emerald-400 pl-4 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20"
                     : "hover:bg-white/5 border-l-4 border-l-transparent"
                 }`}
               >
@@ -498,13 +501,13 @@ export function SubtitleStudio({
                 <div className="flex items-center justify-between mb-1.5 text-xs text-zinc-400">
                   <span
                     className={`font-mono text-[11px] ${
-                      isActive ? "text-indigo-400 font-bold" : "text-zinc-500"
+                      isActive ? "text-emerald-400 font-bold" : "text-zinc-500"
                     }`}
                   >
                     {formatTime(seg.start)} - {formatTime(seg.end)}
                   </span>
 
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     {/* Shadowing / Treino de Pronúncia */}
                     <button
                       type="button"
@@ -514,10 +517,10 @@ export function SubtitleStudio({
                           activeShadowingIndex === idx ? null : idx
                         );
                       }}
-                      className={`rounded p-1 transition-colors ${
+                      className={`rounded-lg p-1.5 transition-all active:scale-95 border ${
                         activeShadowingIndex === idx
-                          ? "bg-indigo-600 text-white"
-                          : "text-zinc-400 hover:bg-white/10 hover:text-white"
+                          ? "bg-indigo-600 text-white border-indigo-500 shadow-sm"
+                          : "text-zinc-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                       }`}
                       title="Treinar Pronúncia (Gravar voz)"
                     >
@@ -530,7 +533,7 @@ export function SubtitleStudio({
                         e.stopPropagation();
                         onSeek(seg.start);
                       }}
-                      className="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+                      className="rounded-lg p-1.5 text-zinc-400 border border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95"
                       title="Repetir esta frase (Shadowing)"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
@@ -542,7 +545,7 @@ export function SubtitleStudio({
                         e.stopPropagation();
                         copyToAnki(seg, idx);
                       }}
-                      className="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+                      className="rounded-lg p-1.5 text-zinc-400 border border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95"
                       title="Copiar par bilíngue para o Anki"
                     >
                       {copiedIndex === idx ? (
@@ -557,14 +560,16 @@ export function SubtitleStudio({
                 {/* Frase em Inglês com palavras clicáveis */}
                 <p
                   className={`text-sm font-semibold leading-relaxed tracking-wide ${
-                    isActive ? "text-white" : "text-zinc-200"
+                    isActive ? "text-white drop-shadow-sm font-bold" : "text-zinc-200"
                   }`}
                 >
                   {renderInteractiveSentence(seg.text_en)}
                 </p>
 
                 {/* Frase em Português */}
-                <p className="text-xs font-medium text-emerald-400/90 mt-1 leading-normal">
+                <p className={`text-xs font-medium mt-1 leading-normal ${
+                  isActive ? "text-emerald-300 font-semibold" : "text-emerald-400/80"
+                }`}>
                   {seg.text_pt}
                 </p>
 
