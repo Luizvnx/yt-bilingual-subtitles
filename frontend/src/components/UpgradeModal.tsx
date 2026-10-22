@@ -303,8 +303,8 @@ export function UpgradeModal({
             )}
           </button>
 
-          {/* Botão de Teste Rápido (Ambiente Dev) */}
-          {isAuthenticated && (
+          {/* Botão de Teste Rápido (Exibido exclusivamente no ambiente STAGE) */}
+          {process.env.NEXT_PUBLIC_ENVIRONMENT === "stage" && isAuthenticated && (
             <button
               type="button"
               disabled={loading}
