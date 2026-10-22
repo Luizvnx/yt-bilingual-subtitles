@@ -27,6 +27,7 @@ import {
   Swords,
   Shield,
 } from "lucide-react";
+import { getUserGamification } from "@/lib/gamification";
 
 export interface CuratedLesson {
   id: string;
@@ -309,9 +310,9 @@ export function CuratedCatalog({
   const [activeSectionId, setActiveSectionId] = useState<number>(1);
   const [activeLessonPopover, setActiveLessonPopover] = useState<CuratedLesson | null>(null);
 
-  // Estados de Gamificação salvos localmente
-  const [streak, setStreak] = useState<number>(1);
-  const [xp, setXp] = useState<number>(50);
+  // Estados de Gamificação salvos localmente - Inicia em 0 para visitantes não autenticados
+  const [streak, setStreak] = useState<number>(0);
+  const [xp, setXp] = useState<number>(0);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   // Filtros do Modo Grid
@@ -319,75 +320,54 @@ export function CuratedCatalog({
   const [selectedLevel, setSelectedLevel] = useState<string>("todos");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Inicializa gamificação do localStorage
+  // Inicializa gamificação com isolamento estrito por usuário
   useEffect(() => {
-    try {
-      const savedXp = localStorage.getItem("ytsubs_xp");
-      const savedStreak = localStorage.getItem("ytsubs_streak");
-      const savedCompleted = localStorage.getItem("ytsubs_completed");
-      const lastActiveDate = localStorage.getItem("ytsubs_last_active");
-
-      if (savedXp) setXp(parseInt(savedXp, 10));
-      if (savedCompleted) {
-        setCompletedIds(new Set(JSON.parse(savedCompleted)));
+    const reloadProgress = () => {
+      if (typeof window === "undefined") return;
+      if (!user) {
+        setStreak(0);
+        setXp(0);
+        setCompletedIds(new Set());
+        return;
       }
+      try {
+        const stats = getUserGamification(user.id);
+        setXp(stats.xp);
+        setStreak(stats.streak);
+        setCompletedIds(stats.completedIds);
+      } catch {}
+    };
 
-      const todayStr = new Date().toDateString();
-      if (lastActiveDate) {
-        const lastDate = new Date(lastActiveDate);
-        const diffDays = Math.floor(
-          (new Date().getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        if (diffDays === 1) {
-          // Continua streak
-          const newStreak = savedStreak ? parseInt(savedStreak, 10) : 1;
-          setStreak(newStreak);
-        } else if (diffDays > 1) {
-          // Quebrou streak
-          setStreak(1);
-          localStorage.setItem("ytsubs_streak", "1");
-        } else if (savedStreak) {
-          setStreak(parseInt(savedStreak, 10));
-        }
-      } else {
-        localStorage.setItem("ytsubs_last_active", todayStr);
-        localStorage.setItem("ytsubs_streak", "1");
+    reloadProgress();
+
+    const handleXpUpdate = (e: any) => {
+      if (!user) {
+        setStreak(0);
+        setXp(0);
+        return;
       }
+      if (e?.detail?.userId && e.detail.userId !== user.id) return;
+      reloadProgress();
+    };
 
-      const reloadProgress = () => {
-        try {
-          const savedXp = localStorage.getItem("ytsubs_xp");
-          if (savedXp) setXp(parseInt(savedXp, 10));
-          const savedCompleted = localStorage.getItem("ytsubs_completed");
-          if (savedCompleted) {
-            setCompletedIds(new Set(JSON.parse(savedCompleted)));
-          }
-        } catch {}
-      };
+    const handleLessonCompleted = (e: any) => {
+      if (!user) {
+        setCompletedIds(new Set());
+        return;
+      }
+      if (e?.detail?.userId && e.detail.userId !== user.id) return;
+      reloadProgress();
+    };
 
-      const handleXpUpdate = (e: any) => {
-        try {
-          if (e?.detail?.xp !== undefined) {
-            setXp(e.detail.xp);
-          }
-          reloadProgress();
-        } catch {}
-      };
-
-      const handleLessonCompleted = () => {
-        reloadProgress();
-      };
-
-      window.addEventListener("ytsubs_xp_updated", handleXpUpdate);
-      window.addEventListener("ytsubs_lesson_completed", handleLessonCompleted);
-      window.addEventListener("storage", reloadProgress);
-      return () => {
-        window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
-        window.removeEventListener("ytsubs_lesson_completed", handleLessonCompleted);
-        window.removeEventListener("storage", reloadProgress);
-      };
-    } catch {}
-  }, []);
+    window.addEventListener("ytsubs_xp_updated", handleXpUpdate);
+    window.addEventListener("ytsubs_lesson_completed", handleLessonCompleted);
+    window.addEventListener("storage", reloadProgress);
+    return () => {
+      window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
+      window.removeEventListener("ytsubs_lesson_completed", handleLessonCompleted);
+      window.removeEventListener("storage", reloadProgress);
+    };
+  }, [user?.id]);
 
   // Verifica se uma lição está desbloqueada na trilha progressiva
   const isLessonUnlocked = useCallback(

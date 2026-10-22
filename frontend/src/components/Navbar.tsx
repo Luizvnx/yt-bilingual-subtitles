@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Sparkles, User, LogOut, History, BookOpen, Crown, Flame, Zap } from "lucide-react";
+import { getUserGamification } from "@/lib/gamification";
 
 interface NavbarProps {
   user: any;
@@ -19,24 +20,34 @@ export function Navbar({
   onOpenVocabulary,
   onOpenUpgrade,
 }: NavbarProps) {
-  // Estado local para Gamificação no Header (Streak e XP)
-  const [streak, setStreak] = useState<number>(1);
-  const [xp, setXp] = useState<number>(50);
+  // Estado local para Gamificação no Header (Streak e XP) - Inicia em 0 para não vazar dados
+  const [streak, setStreak] = useState<number>(0);
+  const [xp, setXp] = useState<number>(0);
 
   useEffect(() => {
     const syncGamification = () => {
       if (typeof window === "undefined") return;
+      if (!user) {
+        setStreak(0);
+        setXp(0);
+        return;
+      }
       try {
-        const savedStreak = localStorage.getItem("ytsubs_streak");
-        const savedXp = localStorage.getItem("ytsubs_xp");
-        if (savedStreak) setStreak(parseInt(savedStreak, 10));
-        if (savedXp) setXp(parseInt(savedXp, 10));
+        const stats = getUserGamification(user.id);
+        setStreak(stats.streak);
+        setXp(stats.xp);
       } catch {}
     };
 
     syncGamification();
 
     const handleXpUpdate = (e: any) => {
+      if (!user) {
+        setStreak(0);
+        setXp(0);
+        return;
+      }
+      if (e?.detail?.userId && e.detail.userId !== user.id) return;
       if (e?.detail?.xp !== undefined) {
         setXp(e.detail.xp);
       }
@@ -52,7 +63,7 @@ export function Navbar({
       window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
       window.removeEventListener("storage", syncGamification);
     };
-  }, []);
+  }, [user?.id]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#070A0F]/90 backdrop-blur-2xl specular-top">
