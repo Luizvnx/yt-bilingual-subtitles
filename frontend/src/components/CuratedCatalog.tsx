@@ -24,6 +24,8 @@ import {
   Compass,
   Layers,
   Lock,
+  Swords,
+  Shield,
 } from "lucide-react";
 
 export interface CuratedLesson {
@@ -468,19 +470,19 @@ export function CuratedCatalog({
 
   return (
     <section className="space-y-6 pt-2">
-      {/* 1. BARRA SUPERIOR DE GAMIFICAÇÃO DUOLINGO (Streak, XP, Meta e Alternador de Modo) */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0B0D14]/95 p-3 sm:p-4 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.7)] overflow-hidden">
-        {/* Specular highlight superior (padrão Gemini) */}
+      {/* 1. BARRA SUPERIOR DE EXPEDIÇÃO & GAMIFICAÇÃO */}
+      <div className="relative flex flex-wrap items-center justify-between gap-3 sm:gap-4 rounded-3xl border border-white/10 bg-[#090C15]/90 p-3 sm:p-4 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
+        {/* Specular highlight superior */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
-        {/* Métricas de Ofensiva (Streak), XP e Meta Diária */}
+        {/* Lado Esquerdo: Passaporte de Aventura (Ofensiva, XP e Meta Diária com Anel) */}
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
           {/* Streak 3D Token */}
           <div
-            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-orange-500/15 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-[3px] border-b-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.2)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
-            title="Sua sequência diária de estudos de inglês"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-orange-500/20 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-[3px] border-b-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.25)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            title="Sua sequência diária de estudos"
           >
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 text-white shadow-[0_0_12px_rgba(249,115,22,0.7)] shrink-0 border-b border-orange-700">
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 text-white shadow-[0_0_12px_rgba(249,115,22,0.8)] shrink-0 border-b border-orange-700">
               <Flame className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-white text-white drop-shadow" />
             </div>
             <div className="flex flex-col text-left">
@@ -500,10 +502,10 @@ export function CuratedCatalog({
 
           {/* XP Total 3D Token */}
           <div
-            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-amber-500/15 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.2)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
-            title="Pontos de experiência (XP) acumulados na plataforma"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-amber-500/20 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.25)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            title="Pontos de experiência acumulados"
           >
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.7)] shrink-0 border-b border-amber-700">
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.8)] shrink-0 border-b border-amber-700">
               <Zap className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-current text-zinc-950 stroke-[2.5]" />
             </div>
             <div className="flex flex-col text-left">
@@ -521,19 +523,25 @@ export function CuratedCatalog({
             </div>
           </div>
 
-          {/* Meta Diária Dopaminérgica */}
-          <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-zinc-900/60 border border-white/10 border-b-[3px] border-b-zinc-800">
+          {/* Meta Diária Encantadora (Com anel e status de missão) */}
+          <div
+            className={`flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border border-b-[3px] transition-all select-none ${
+              completedIds.size > 0
+                ? "bg-gradient-to-b from-emerald-500/15 via-zinc-900/90 to-zinc-950 border-emerald-500/40 border-b-emerald-600 shadow-[0_4px_16px_rgba(16,185,129,0.2)]"
+                : "bg-zinc-900/60 border-white/10 border-b-zinc-800"
+            }`}
+          >
             <div
               className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl text-white shrink-0 border-b ${
                 completedIds.size > 0
-                  ? "bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.6)] border-emerald-700"
+                  ? "bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.7)] border-emerald-700"
                   : "bg-zinc-800 text-zinc-400 border-zinc-700"
               }`}
             >
               {completedIds.size > 0 ? (
                 <Check className="h-4 w-4 stroke-[3]" />
               ) : (
-                <Target className="h-4 w-4" />
+                <Target className="h-4 w-4 text-emerald-400" />
               )}
             </div>
             <div className="flex flex-col text-left">
@@ -543,8 +551,13 @@ export function CuratedCatalog({
                     completedIds.size > 0 ? "text-emerald-300" : "text-white"
                   }`}
                 >
-                  {completedIds.size > 0 ? "1/1 Concluída" : "0/1 Vídeo"}
+                  {completedIds.size > 0 ? "1/1 Concluída!" : "0/1 Vídeo"}
                 </span>
+                {completedIds.size === 0 && (
+                  <span className="text-[10px] font-bold text-emerald-400 font-display">
+                    +50 XP
+                  </span>
+                )}
               </div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 leading-tight mt-0.5">
                 Meta do Dia
@@ -553,7 +566,7 @@ export function CuratedCatalog({
           </div>
         </div>
 
-        {/* Alternador de Modo 3D (Trilha Duolingo vs. Explorar Catálogo) */}
+        {/* Lado Direito: Alternador de Modo 3D (Trilha Duolingo vs Explorar Todos) */}
         <div className="flex items-center p-1 rounded-2xl bg-zinc-950/90 border border-white/10 text-xs shadow-inner">
           <button
             type="button"
@@ -585,8 +598,8 @@ export function CuratedCatalog({
       {/* 2. MODO TRILHA DUOLINGO (The Learning Path) */}
       {viewMode === "path" && (
         <div className="space-y-6">
-          {/* Navegador de Seções do Duolingo (A1 -> A2 -> B1 -> B2/C1) - Estilo Game Quest Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+          {/* Seletor de Mundos / Capítulos Estilo "Console de Jogo 3D" (Sleek World Island Strip) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             {DUOLINGO_SECTIONS.map((sec) => {
               const isSelected = sec.id === activeSectionId;
               const isSectionUnlocked = sec.lessons.some((l) => isLessonUnlocked(l.id));
@@ -594,37 +607,43 @@ export function CuratedCatalog({
               const isSectionCompleted = completedCount === sec.lessons.length;
               const hasCompleted = completedCount > 0;
 
-              // Estilos 3D dopaminérgicos ricos (sem visual genérico translúcido de IA)
-              let cardStyle = "";
-              let badgeColor = "";
-
-              if (isSelected) {
-                if (sec.themeColor === "emerald") {
-                  cardStyle =
-                    "border-2 border-emerald-400 border-b-[5px] border-b-emerald-600 bg-gradient-to-b from-[#102018] via-[#0b1611] to-[#070e0a] shadow-[0_8px_25px_-4px_rgba(16,185,129,0.35)]";
-                  badgeColor = "bg-emerald-500 text-emerald-950";
-                } else if (sec.themeColor === "indigo") {
-                  cardStyle =
-                    "border-2 border-indigo-400 border-b-[5px] border-b-indigo-600 bg-gradient-to-b from-[#121630] via-[#0b0e20] to-[#070914] shadow-[0_8px_25px_-4px_rgba(99,102,241,0.35)]";
-                  badgeColor = "bg-indigo-500 text-white";
-                } else if (sec.themeColor === "amber") {
-                  cardStyle =
-                    "border-2 border-amber-400 border-b-[5px] border-b-amber-600 bg-gradient-to-b from-[#251808] via-[#160f05] to-[#0d0903] shadow-[0_8px_25px_-4px_rgba(245,158,11,0.35)]";
-                  badgeColor = "bg-amber-500 text-amber-950";
-                } else {
-                  cardStyle =
-                    "border-2 border-purple-400 border-b-[5px] border-b-purple-600 bg-gradient-to-b from-[#1e0f2b] via-[#130a1b] to-[#0a050e] shadow-[0_8px_25px_-4px_rgba(168,85,247,0.35)]";
-                  badgeColor = "bg-purple-500 text-white";
-                }
-              } else if (isSectionUnlocked) {
-                cardStyle =
-                  "border-2 border-zinc-800 border-b-[4px] border-b-zinc-850 bg-[#0C0E14] hover:border-zinc-700 hover:border-b-zinc-700 hover:-translate-y-0.5 text-zinc-300";
-                badgeColor = "bg-zinc-800 text-zinc-300";
-              } else {
-                cardStyle =
-                  "border-2 border-zinc-850/80 border-b-[4px] border-b-zinc-900 bg-[#090A0F]/70 text-zinc-500 opacity-60 hover:opacity-85";
-                badgeColor = "bg-zinc-850 text-zinc-500";
-              }
+              // Ícones e cores temáticas de cada mundo
+              const worldMeta = [
+                {
+                  icon: Sparkles,
+                  label: "Fundações A1",
+                  symbol: "🌱",
+                  activeBorder: "border-emerald-400 border-b-emerald-600 shadow-[0_6px_20px_rgba(16,185,129,0.35)]",
+                  activeBg: "bg-gradient-to-b from-[#0f241a] to-[#07130d]",
+                  accentText: "text-emerald-400",
+                },
+                {
+                  icon: Music,
+                  label: "Músicas & Ritmo",
+                  symbol: "🎵",
+                  activeBorder: "border-indigo-400 border-b-indigo-600 shadow-[0_6px_20px_rgba(99,102,241,0.35)]",
+                  activeBg: "bg-gradient-to-b from-[#141938] to-[#0a0d1e]",
+                  accentText: "text-indigo-400",
+                },
+                {
+                  icon: Zap,
+                  label: "Conexão Nativa",
+                  symbol: "⚡",
+                  activeBorder: "border-amber-400 border-b-amber-600 shadow-[0_6px_20px_rgba(245,158,11,0.35)]",
+                  activeBg: "bg-gradient-to-b from-[#2a1b08] to-[#140d04]",
+                  accentText: "text-amber-400",
+                },
+                {
+                  icon: Crown,
+                  label: "Fluência & Oratória",
+                  symbol: "👑",
+                  activeBorder: "border-purple-400 border-b-purple-600 shadow-[0_6px_20px_rgba(168,85,247,0.35)]",
+                  activeBg: "bg-gradient-to-b from-[#251236] to-[#12081b]",
+                  accentText: "text-purple-400",
+                },
+              ];
+              const meta = worldMeta[sec.id - 1] || worldMeta[0];
+              const IconComp = meta.icon;
 
               return (
                 <button
@@ -634,92 +653,90 @@ export function CuratedCatalog({
                     setActiveSectionId(sec.id);
                     setActiveLessonPopover(null);
                   }}
-                  className={`group flex flex-col justify-between text-left p-3.5 sm:p-4 rounded-2xl transition-all cursor-pointer relative overflow-hidden active:translate-y-0.5 select-none ${cardStyle}`}
+                  className={`group relative flex items-center justify-between p-3 sm:px-4 sm:py-3.5 rounded-2xl transition-all cursor-pointer select-none active:translate-y-0.5 border-b-[4px] ${
+                    isSelected
+                      ? `${meta.activeBg} border-2 ${meta.activeBorder}`
+                      : isSectionUnlocked
+                      ? "bg-[#0B0D14]/90 border border-white/10 border-b-zinc-850 hover:border-white/20 hover:border-b-zinc-700 hover:-translate-y-0.5 text-zinc-300"
+                      : "bg-[#080A10]/60 border border-white/5 border-b-zinc-900 opacity-60 hover:opacity-85 text-zinc-500"
+                  }`}
                 >
-                  {/* Top Specular Line quando selecionado */}
+                  {/* Specular line */}
                   {isSelected && (
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                   )}
 
-                  <div>
-                    {/* Header do Card: Tag da Seção e Status */}
-                    <div className="flex items-center justify-between gap-1 mb-2">
-                      <span
-                        className={`font-display font-black text-[10px] tracking-widest px-2 py-0.5 rounded-md uppercase ${badgeColor}`}
-                      >
-                        SEÇÃO {sec.id}
-                      </span>
-
-                      {isSectionCompleted ? (
-                        <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                          <Check className="h-3 w-3 stroke-[3]" />
-                          <span>Dominada</span>
-                        </span>
-                      ) : hasCompleted ? (
-                        <span className="flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
-                          <span>{completedCount}/{sec.lessons.length}</span>
-                        </span>
-                      ) : !isSectionUnlocked ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full border border-white/5">
-                          <Lock className="h-2.5 w-2.5" />
-                          <span>Bloqueada</span>
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold text-zinc-400">
-                          {sec.lessons.length} lições
-                        </span>
-                      )}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {/* Badge do Ícone 3D */}
+                    <div
+                      className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl text-base sm:text-lg border-b-2 shadow-md transition-transform group-hover:scale-105 ${
+                        isSelected
+                          ? "bg-white/15 border-white/20 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                          : "bg-white/5 border-white/10"
+                      }`}
+                    >
+                      <span>{meta.symbol}</span>
                     </div>
 
-                    {/* Nível da Seção com Tipografia Bold Outfit */}
-                    <h4 className="font-display font-black text-xs sm:text-sm text-white line-clamp-1 tracking-tight">
-                      {sec.levelBadge}
-                    </h4>
+                    <div className="flex flex-col text-left min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`font-display font-black text-[10px] tracking-wider uppercase leading-none ${
+                            isSelected ? meta.accentText : "text-zinc-400"
+                          }`}
+                        >
+                          Mundo {sec.id}
+                        </span>
+                        {isSectionCompleted && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        )}
+                      </div>
+                      <span className="font-display font-black text-xs sm:text-sm text-white truncate leading-tight mt-0.5">
+                        {meta.label}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Micro Barra de Progresso Segmentada por Lições */}
-                  <div className="mt-3 pt-2.5 border-t border-white/5">
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {sec.lessons.map((lesson, idx) => {
-                        const isDone = completedIds.has(lesson.id);
-                        return (
-                          <div
-                            key={lesson.id || idx}
-                            className={`h-1.5 rounded-full transition-all ${
-                              isDone
-                                ? isSelected
-                                  ? "bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_6px_rgba(16,185,129,0.7)]"
-                                  : "bg-emerald-500"
-                                : "bg-zinc-800"
-                            }`}
-                          />
-                        );
-                      })}
-                    </div>
-                    <span className="text-[10px] font-bold text-zinc-400 mt-1.5 block">
-                      {completedCount} de {sec.lessons.length} aulas concluídas
-                    </span>
+                  {/* Status Indicator */}
+                  <div className="shrink-0 ml-2">
+                    {isSectionCompleted ? (
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-zinc-950 shadow-[0_0_10px_rgba(16,185,129,0.7)]">
+                        <Check className="h-3.5 w-3.5 stroke-[3.5]" />
+                      </div>
+                    ) : hasCompleted ? (
+                      <span className="font-display font-black text-[11px] text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/40">
+                        {completedCount}/{sec.lessons.length}
+                      </span>
+                    ) : !isSectionUnlocked ? (
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500">
+                        <Lock className="h-3 w-3" />
+                      </div>
+                    ) : (
+                      <span className="font-display font-bold text-[11px] text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full">
+                        {sec.lessons.length}
+                      </span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Banner da Seção Ativa (Gemini Cosmic Aurora + Duolingo Trophy Chest) */}
+          {/* PORTAL DO CAPÍTULO ATIVO (Cosmic Glass Adventure Gateway) */}
           <div
-            className={`rounded-3xl p-5 sm:p-7 text-white border-2 relative overflow-hidden shadow-2xl transition-all ${
+            className={`relative rounded-3xl p-5 sm:p-7 text-white border border-b-[4px] overflow-hidden shadow-2xl transition-all ${
               currentSection.themeColor === "emerald"
-                ? "bg-gradient-to-br from-[#0c2016] via-[#091410] to-[#070a09] border-emerald-500/40 border-b-[6px] border-b-emerald-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                ? "bg-[#07130D]/90 backdrop-blur-2xl border-emerald-500/25 border-b-emerald-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
                 : currentSection.themeColor === "indigo"
-                ? "bg-gradient-to-br from-[#121530] via-[#0b0e1e] to-[#070810] border-indigo-500/40 border-b-[6px] border-b-indigo-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                ? "bg-[#090D1E]/90 backdrop-blur-2xl border-indigo-500/25 border-b-indigo-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
                 : currentSection.themeColor === "amber"
-                ? "bg-gradient-to-br from-[#24170a] via-[#140e06] to-[#0a0703] border-amber-500/40 border-b-[6px] border-b-amber-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
-                : "bg-gradient-to-br from-[#1f102c] via-[#12091c] to-[#09040e] border-purple-500/40 border-b-[6px] border-b-purple-700 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                ? "bg-[#140E05]/90 backdrop-blur-2xl border-amber-500/25 border-b-amber-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+                : "bg-[#12081B]/90 backdrop-blur-2xl border-purple-500/25 border-b-purple-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
             }`}
           >
-            {/* Luminous Gemini Aurora Glows */}
+            {/* Efeito Aurora Cósmica Iluminada no Canto */}
             <div
-              className={`pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full blur-3xl opacity-25 ${
+              className={`pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full blur-3xl opacity-20 ${
                 currentSection.themeColor === "emerald"
                   ? "bg-emerald-400"
                   : currentSection.themeColor === "indigo"
@@ -729,34 +746,37 @@ export function CuratedCatalog({
                   : "bg-purple-400"
               }`}
             />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+            {/* Linha Especular de Vidro no Topo */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+              {/* Informações da Missão da Unidade */}
               <div className="space-y-2 max-w-xl">
-                {/* Level Tag */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white font-display font-black text-xs uppercase tracking-wider backdrop-blur-md">
-                  <GraduationCap className="h-3.5 w-3.5" />
-                  <span>UNIDADE {currentSection.id} • {currentSection.levelBadge}</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-emerald-400 font-display font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-sm">
+                  <GraduationCap className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-zinc-200">CAPÍTULO {currentSection.id}</span>
+                  <span className="text-white/20">•</span>
+                  <span className="text-emerald-400">{currentSection.levelBadge}</span>
                 </div>
 
                 <h3 className="font-display font-black text-2xl sm:text-3xl tracking-tight text-white leading-tight">
-                  {currentSection.title}
+                  {currentSection.title.replace(/^Seção \d+:\s*/, "")}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-300 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-zinc-400 font-medium leading-relaxed">
                   {currentSection.subtitle}
                 </p>
               </div>
 
-              {/* 3D Golden Trophy Treasure Chest */}
-              <div className="relative group shrink-0 rounded-2xl bg-gradient-to-b from-amber-500/25 via-zinc-950 to-black p-3.5 sm:px-5 sm:py-4 border-2 border-amber-400/50 border-b-4 border-b-amber-600 shadow-[0_10px_30px_rgba(245,158,11,0.25)] flex items-center gap-3.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.7)] shrink-0 border-b-2 border-amber-700">
-                  <Trophy className="h-6 w-6 fill-current stroke-[2.5]" />
+              {/* O Baú de Maestria & Troféu Dourado 3D */}
+              <div className="relative group shrink-0 rounded-2xl bg-gradient-to-b from-amber-500/10 via-zinc-950/80 to-black/90 p-3.5 sm:px-5 sm:py-3.5 border border-amber-500/30 border-b-[3px] border-b-amber-600/70 shadow-[0_8px_25px_rgba(245,158,11,0.15)] flex items-center gap-3.5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.6)] shrink-0 border-b-2 border-amber-700 group-hover:scale-105 transition-transform">
+                  <Trophy className="h-5 w-5 fill-current stroke-[2.5]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-300/90 leading-tight">
-                    Recompensa da Seção
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-300/80 leading-tight">
+                    Recompensa de Maestria
                   </span>
-                  <span className="font-display font-black text-lg sm:text-xl text-white leading-tight mt-0.5">
+                  <span className="font-display font-black text-base sm:text-lg text-white leading-tight mt-0.5">
                     +{currentSection.lessons.reduce((acc, l) => acc + l.xp, 0)} XP{" "}
                     <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wide">
                       Bônus
@@ -766,28 +786,39 @@ export function CuratedCatalog({
               </div>
             </div>
 
-            {/* Barra de Progresso da Seção Integrada */}
-            <div className="mt-5 pt-4 border-t border-white/10 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <span className="text-xs font-bold text-zinc-300">
-                Progresso da Unidade:{" "}
-                <strong className="text-white font-display font-black">
+            {/* Barra de Progresso Líquida da Unidade */}
+            <div className="mt-5 pt-4 border-t border-white/5 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-zinc-400">
+                  Progresso do Capítulo:
+                </span>
+                <span className="font-display font-black text-xs text-white bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
                   {currentSection.lessons.filter((l) => completedIds.has(l.id)).length} de{" "}
                   {currentSection.lessons.length} aulas dominadas
-                </strong>
-              </span>
+                </span>
+              </div>
 
-              {/* Mini barra de preenchimento 3D */}
-              <div className="w-full sm:w-64 h-3.5 rounded-full bg-black/70 border border-white/10 overflow-hidden p-0.5 shadow-inner">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500 shadow-[0_0_10px_rgba(16,185,129,0.7)]"
-                  style={{
-                    width: `${Math.round(
-                      (currentSection.lessons.filter((l) => completedIds.has(l.id)).length /
-                        currentSection.lessons.length) *
-                        100
-                    )}%`,
-                  }}
-                />
+              {/* Barra de preenchimento líquido com efeito neon suave */}
+              <div className="flex items-center gap-3 w-full sm:w-72">
+                <div className="flex-1 h-2.5 rounded-full bg-black/60 border border-white/10 overflow-hidden p-0.5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+                    style={{
+                      width: `${Math.round(
+                        (currentSection.lessons.filter((l) => completedIds.has(l.id)).length /
+                          currentSection.lessons.length) *
+                          100
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <span className="font-display font-black text-xs text-emerald-400 shrink-0">
+                  {Math.round(
+                    (currentSection.lessons.filter((l) => completedIds.has(l.id)).length /
+                      currentSection.lessons.length) *
+                      100
+                  )}%
+                </span>
               </div>
             </div>
           </div>
@@ -889,20 +920,140 @@ export function CuratedCatalog({
                 );
               })}
 
-              {/* Baú / Troféu de Conclusão da Seção (Marco Duolingo 3D) */}
-              <div className="flex justify-center pt-2">
-                <div className="flex flex-col items-center p-5 rounded-3xl border-2 border-amber-400/40 border-b-[5px] border-b-amber-600 bg-gradient-to-b from-amber-500/20 via-zinc-950 to-black text-center max-w-xs shadow-[0_12px_32px_rgba(245,158,11,0.25)]">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.7)] mb-2.5 border-b-2 border-amber-700">
-                    <Crown className="h-8 w-8 fill-current stroke-[2.5]" />
+              {/* ARENA DO BOSS FINAL (Arcade Game Battle Milestone) */}
+              {(() => {
+                const completedCount = currentSection.lessons.filter((l) => completedIds.has(l.id)).length;
+                const isBossDefeated = completedCount === currentSection.lessons.length;
+                const bonusXp = currentSection.lessons.reduce((acc, l) => acc + l.xp, 0);
+
+                return (
+                  <div className="flex justify-center pt-4 relative z-10">
+                    <div
+                      className={`relative flex flex-col items-center p-6 sm:p-7 rounded-3xl text-center max-w-md w-full transition-all overflow-hidden ${
+                        isBossDefeated
+                          ? "border-2 border-amber-400 border-b-[6px] border-b-amber-600 bg-gradient-to-b from-[#281A05] via-[#160E03] to-[#0A0601] shadow-[0_20px_50px_rgba(245,158,11,0.35)]"
+                          : "border-2 border-rose-500/40 border-b-[6px] border-b-rose-900 bg-gradient-to-b from-[#1C0913] via-[#0F050A] to-[#080205] shadow-[0_20px_50px_rgba(244,63,94,0.25)]"
+                      }`}
+                    >
+                      {/* Linha Especular de Vidro no Topo */}
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+                      {/* Brilho de Fogo / Aurora da Arena nos Cantos */}
+                      <div
+                        className={`pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full blur-3xl opacity-30 ${
+                          isBossDefeated ? "bg-amber-400" : "bg-rose-500"
+                        }`}
+                      />
+
+                      {/* Badge Sólida 3D Duolingo Feather (Sem transparências lavadas) */}
+                      <div
+                        className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-xl text-white font-display font-black text-xs uppercase tracking-wider border-b-2 shadow-md mb-4 ${
+                          isBossDefeated
+                            ? "bg-amber-500 border-amber-700 text-zinc-950"
+                            : "bg-rose-600 border-rose-800 text-white"
+                        }`}
+                      >
+                        {isBossDefeated ? (
+                          <>
+                            <Crown className="h-4 w-4 fill-current" />
+                            <span>VITÓRIA SUPREMA</span>
+                          </>
+                        ) : (
+                          <>
+                            <Swords className="h-4 w-4" />
+                            <span>ARENA • BOSS FINAL</span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Emblema Central de Combate 3D do Boss */}
+                      <div
+                        className={`relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-b-[6px] mb-3.5 transition-transform ${
+                          isBossDefeated
+                            ? "bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_24px_rgba(245,158,11,0.9)] border-amber-300 border-b-amber-700 animate-bounce"
+                            : "bg-gradient-to-b from-rose-600/30 via-zinc-900 to-black text-rose-400 border-rose-500/50 border-b-rose-800 shadow-[0_0_20px_rgba(244,63,94,0.5)]"
+                        }`}
+                      >
+                        {isBossDefeated ? (
+                          <Trophy className="h-10 w-10 sm:h-12 sm:w-12 fill-current stroke-[2.5]" />
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <Swords className="h-9 w-9 sm:h-10 sm:w-10 text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                            <span className="text-[9px] font-display font-black uppercase tracking-wider text-rose-300 mt-0.5">
+                              NÍVEL {currentSection.id}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Título e Subtítulo Arcade */}
+                      <h4 className="font-display font-black text-xl sm:text-2xl text-white tracking-tight">
+                        {isBossDefeated ? `Boss Final Derrotado!` : `Boss Final: ${currentSection.levelBadge}`}
+                      </h4>
+
+                      <p className="text-xs text-zinc-300 mt-1 font-medium leading-relaxed max-w-xs">
+                        {isBossDefeated
+                          ? `Incrível! Você dominou todas as lições deste mundo e destruiu o Boss Final!`
+                          : `Derrube os escudos do Boss completando cada lição acima para conquistar o Troféu do Mundo.`}
+                      </p>
+
+                      {/* HUD de Escudo / Vida do Boss (Game HP Bar) */}
+                      {!isBossDefeated && (
+                        <div className="mt-4 w-full bg-black/70 border border-white/10 rounded-2xl p-3 space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="flex items-center gap-1.5 font-display font-bold text-rose-400 text-[11px] uppercase tracking-wider">
+                              <Shield className="h-3.5 w-3.5" />
+                              <span>Barreira do Boss:</span>
+                            </span>
+                            <span className="font-display font-black text-white text-xs">
+                              {completedCount}/{currentSection.lessons.length} Golpes
+                            </span>
+                          </div>
+
+                          {/* Barras de Energia Segmentadas do Boss */}
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {currentSection.lessons.map((lesson, idx) => {
+                              const isHit = completedIds.has(lesson.id);
+                              return (
+                                <div
+                                  key={lesson.id || idx}
+                                  className={`h-2.5 rounded-full transition-all border ${
+                                    isHit
+                                      ? "bg-gradient-to-r from-emerald-500 to-teal-400 border-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+                                      : "bg-rose-950/80 border-rose-500/40 shadow-inner"
+                                  }`}
+                                  title={isHit ? "Barreira quebrada!" : "Ainda blindado"}
+                                />
+                              );
+                            })}
+                          </div>
+
+                          <p className="text-[10px] text-zinc-400 font-medium pt-0.5">
+                            {currentSection.lessons.length - completedCount === 1
+                              ? "Falta apenas 1 golpe para nocautear o Boss!"
+                              : `Faltam ${currentSection.lessons.length - completedCount} golpes para quebrar o escudo!`}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Botão de Recompensa Tátil 3D */}
+                      <div className="mt-4 w-full">
+                        {isBossDefeated ? (
+                          <div className="flex items-center justify-center gap-2.5 py-3 px-5 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 text-zinc-950 font-display font-black text-sm shadow-[0_6px_20px_rgba(245,158,11,0.5)] border-b-[4px] border-b-amber-800 select-none">
+                            <Trophy className="h-5 w-5 fill-current" />
+                            <span>MUNDO CONQUISTADO (+{bonusXp} XP BÔNUS)</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-900 border border-white/10 text-xs font-display font-bold text-zinc-400">
+                            <Lock className="h-3.5 w-3.5 text-zinc-500" />
+                            <span>Complete as aulas acima para vencer o Boss</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="font-display font-black text-base text-amber-300">
-                    Marco da Seção {currentSection.id}
-                  </h4>
-                  <p className="text-xs text-zinc-300 mt-1 font-medium leading-relaxed">
-                    Complete todas as lições acima para dominar {currentSection.levelBadge}!
-                  </p>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           </div>
 
