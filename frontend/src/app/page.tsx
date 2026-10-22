@@ -1035,13 +1035,14 @@ export default function HomePage() {
 
       {/* Barra de Testes e Ferramentas QA (Ativa Exclusivamente em Stage) */}
       <StageDebugBar
+        user={user}
         onTriggerCelebration={({ earnedXp, previousXp, newXp, title }) => {
           setCelebrationData({
             earnedXp,
             previousXp,
             newXp,
             lessonTitle: title,
-            streak: parseInt(localStorage.getItem("ytsubs_streak") || "1", 10),
+            streak: 1,
           });
           setCelebrationOpen(true);
         }}

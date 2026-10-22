@@ -8,12 +8,17 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   Check,
 } from "lucide-react";
 import { calculateLevel } from "./LevelUpCelebrationModal";
+import {
+  getUserGamification,
+  saveUserGamification,
+  cleanupLegacyGamification,
+} from "@/lib/gamification";
 
 interface StageDebugBarProps {
+  user?: any;
   onTriggerCelebration: (data: {
     earnedXp: number;
     previousXp: number;
@@ -22,10 +27,10 @@ interface StageDebugBarProps {
   }) => void;
 }
 
-export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
+export function StageDebugBar({ user, onTriggerCelebration }: StageDebugBarProps) {
   const [isStageEnv, setIsStageEnv] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [currentXp, setCurrentXp] = useState<number>(50);
+  const [currentXp, setCurrentXp] = useState<number>(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Validação estrita de ambiente: roda APENAS em Stage ou desenvolvimento local
@@ -43,8 +48,12 @@ export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
 
     const loadXp = () => {
       try {
-        const saved = localStorage.getItem("ytsubs_xp");
-        if (saved) setCurrentXp(parseInt(saved, 10));
+        if (!user) {
+          setCurrentXp(0);
+          return;
+        }
+        const stats = getUserGamification(user.id);
+        setCurrentXp(stats.xp);
       } catch {}
     };
 
@@ -64,7 +73,7 @@ export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
       window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
       window.removeEventListener("storage", loadXp);
     };
-  }, []);
+  }, [user?.id]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -76,16 +85,18 @@ export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
   // Botão 1: Adicionar +50 XP e disparar a animação
   const handleAdd50Xp = () => {
     try {
-      const prev = parseInt(localStorage.getItem("ytsubs_xp") || "50", 10);
+      const prev = currentXp;
       const earned = 50;
       const nextXp = prev + earned;
 
-      localStorage.setItem("ytsubs_xp", String(nextXp));
+      if (user?.id) {
+        saveUserGamification(user.id, { xp: nextXp, streak: 1 });
+      } else {
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_xp_updated", { detail: { xp: nextXp } })
+        );
+      }
       setCurrentXp(nextXp);
-
-      window.dispatchEvent(
-        new CustomEvent("ytsubs_xp_updated", { detail: { xp: nextXp } })
-      );
 
       onTriggerCelebration({
         earnedXp: earned,
@@ -103,19 +114,20 @@ export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
   // Botão 2: Forçar Subida de Nível (Level Up) imediato
   const handleForceLevelUp = () => {
     try {
-      const prev = parseInt(localStorage.getItem("ytsubs_xp") || "50", 10);
+      const prev = currentXp;
       const lvl = calculateLevel(prev);
 
-      // Quantidade necessária para ultrapassar o threshold atual e entrar no novo nível com folga
       const needed = Math.max(50, lvl.nextThreshold - prev + 25);
       const nextXp = prev + needed;
 
-      localStorage.setItem("ytsubs_xp", String(nextXp));
+      if (user?.id) {
+        saveUserGamification(user.id, { xp: nextXp, streak: 1 });
+      } else {
+        window.dispatchEvent(
+          new CustomEvent("ytsubs_xp_updated", { detail: { xp: nextXp } })
+        );
+      }
       setCurrentXp(nextXp);
-
-      window.dispatchEvent(
-        new CustomEvent("ytsubs_xp_updated", { detail: { xp: nextXp } })
-      );
 
       onTriggerCelebration({
         earnedXp: needed,
@@ -133,14 +145,18 @@ export function StageDebugBar({ onTriggerCelebration }: StageDebugBarProps) {
   // Botão 3: Resetar Níveis e Progresso
   const handleResetProgress = () => {
     try {
-      localStorage.setItem("ytsubs_xp", "0");
-      localStorage.setItem("ytsubs_completed", "[]");
-      localStorage.setItem("ytsubs_streak", "1");
-      localStorage.removeItem("ytsubs_current_lesson_id");
+      cleanupLegacyGamification();
+      if (user?.id) {
+        saveUserGamification(user.id, {
+          xp: 0,
+          streak: 0,
+          completedIds: [],
+        });
+      }
       setCurrentXp(0);
 
       window.dispatchEvent(
-        new CustomEvent("ytsubs_xp_updated", { detail: { xp: 0 } })
+        new CustomEvent("ytsubs_xp_updated", { detail: { xp: 0, streak: 0 } })
       );
       window.dispatchEvent(
         new CustomEvent("ytsubs_lesson_completed", { detail: { reset: true } })
