@@ -1,88 +1,94 @@
-# 🎬 YT Bilingual Subtitles
+# 🎬 YT Bilingual Subtitles | Estudo de Idiomas com YouTube
 
-Aplicativo completo para transformar vídeos do YouTube em um **estúdio interativo de aprendizado de inglês com legendas bilíngues (inglês e português)** sincronizadas em tempo real usando inteligência artificial (**OpenAI Whisper**).
+Aplicativo moderno de alta performance para transformar vídeos do YouTube em um **estúdio interativo e gamificado de aprendizado de idiomas com legendas bilíngues (inglês e português)** sincronizadas em tempo real. Construído com **Next.js 14 (App Router)**, **Tailwind CSS**, **OpenAI Whisper**, **Groq AI / Llama 3**, e infraestrutura de proxy **Cloudflare WARP (SOCKS5)** para contornar bloqueios de datacenter.
 
-![Demonstração](https://img.shields.io/badge/Status-Ativo%20e%20Modernizado-brightgreen)
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Whisper](https://img.shields.io/badge/OpenAI-Whisper-blueviolet)
-![yt-dlp](https://img.shields.io/badge/yt--dlp-2026.8%2B-red)
+![Status](https://img.shields.io/badge/Status-Modernizado%20%26%20Gamificado-emerald)
+![Next.js](https://img.shields.io/badge/Next.js-14%20App%20Router-black)
+![Tailwind](https://img.shields.io/badge/Tailwind%20CSS-3.4-38bdf8)
+![Docker](https://img.shields.io/badge/Docker-Compose%20v2-2496ed)
+![WARP](https://img.shields.io/badge/Cloudflare%20WARP-SOCKS5%20Sidecar-f38020)
 
 ---
 
 ## ✨ Principais Funcionalidades
 
-- **Download em Alta Definição (MP4)**: Baixa vídeos do YouTube com áudio e vídeo integrados via `yt-dlp` e `ffmpeg`.
-- **Transcrição com Inteligência Artificial (Whisper)**: Detecta falas em inglês com alta precisão e gera marcações temporais exatas.
-- **Tradução Bilíngue em Lote**: Traduz rapidamente as legendas em blocos para o português com fallback resiliente.
-- **Player Interativo com Sincronização em Tempo Real**:
-  - **Transcrição Lateral Dinâmica**: Acompanha o vídeo e destaca a frase atual com iluminação e rolagem suave automática (*Auto-scroll*).
-  - **Clique para Pular**: Clique em qualquer frase da transcrição para pular o vídeo diretamente para aquele exato segundo.
-  - **Legendas Customizadas no Vídeo**: Alterne entre modo Bilíngue (PT/EN), Apenas Inglês, Apenas Português ou Oculto.
-  - **Prática de Pronúncia (*Shadowing*)**: Botão de repetição de frase para ouvir e praticar o mesmo trecho repetidamente.
-  - **Controle de Velocidade**: Modos `0.75x`, `1.0x` e `1.25x` para treinar a escuta (*listening*).
-  - **Filtro de Busca em Tempo Real**: Busque palavras em inglês ou português na transcrição completa.
-  - **Copiar para o Anki/Notas**: 1 clique para copiar o par de frases (EN + PT) com timestamp.
-- **Links Compartilháveis Diretos**: Cada vídeo possui seu link permanente local (ex: `http://localhost:5000/watch/<id>`).
-- **Histórico e Biblioteca Local**: Acesso instantâneo a todos os vídeos já processados sem precisar baixar novamente.
-- **Exportação Multiformato**: Baixe as legendas em `.srt` e `.vtt` (Bilíngue, Inglês ou Português).
+### 🎮 Gamificação Imersiva & Trilha de Aprendizado
+- **Trilha de Mundos (*World Island Strip*)**: Navegação fluida entre Mundos Temáticos (Mundo 1: Fundamentos a Mundo 4: Maestria Avançada) com botões táteis 3D estilo arcade.
+- **Portal de Aventura Jade Cósmico**: Ficha viva com barra de progresso de imersão (*2h 45m* recomendadas) e contadores de XP e ofensiva sincronizados no HUD.
+- **Arena do Boss Final**: Desafio culminante de cada mundo com relevo tátil 3D (`bg-rose-600 border-b-4 border-rose-800`), barra de vida/escudo de HP interativa e recompensas massivas de XP (`+150 XP`).
+
+### 🎙️ Modos de Transcrição Amigáveis (Zero Layout Shift)
+- Seleção instantânea sem oscilação de layout da barra de inserção:
+  - **Equilibrado (Recomendado)**: Melhor relação entre velocidade e precisão no vocabulário (`whisper base`).
+  - **Ultra Rápido**: Transcrição quase instantânea para vídeos longos (`whisper tiny`).
+  - **Alta Precisão**: Máxima acurácia para sotaques desafiadores e áudios com ruído (`whisper small`).
+
+### 🎧 Estúdio de Vídeo Multimodo (3 Layouts)
+- **Modo Dividido (Padrão)**: Vídeo à esquerda e transcrição interativa à direita, com auto-scroll suave e iluminação na frase falada.
+- **Modo Cinema**: Player de vídeo expandido ao máximo com transcrição compacta.
+- **Modo Foco Leitura**: Transcrição bilíngue em largura total para estudo aprofundado e exportação.
+
+### ⌨️ Atalhos Nacionais do Teclado
+| Tecla | Ação |
+| :--- | :--- |
+| `Espaço` | Reproduzir / Pausar vídeo (com bypass em campos de digitação) |
+| `R` | Repetir a sentença atual em reprodução |
+| `Seta Esquerda (←)` | Voltar 5 segundos |
+| `Seta Direita (→)` | Avançar 5 segundos |
+
+### 📚 Prática & Exportação
+- **Shadowing & Gravação**: Pratique pronúncia ouvindo o mesmo trecho repetidamente.
+- **Exportação Multiformato**: Copie com 1 clique para Anki (`.apkg`) ou baixe em `.srt` e `.vtt`.
+- **Dicionário Pop-up**: Clique em qualquer palavra em inglês para ver definição fonética e tradução contextual instantânea.
 
 ---
 
 ## 🚀 Como Rodar Localmente
 
 ### 1. Pré-requisitos
+- Node.js 18+ ou 20+
+- Python 3.10+
+- FFmpeg instalado no sistema
 
-- Python 3.10 ou superior.
-- [FFmpeg](https://ffmpeg.org/) instalado no sistema (ou configurado no `.env`).
+### 2. Instalação e Execução
 
-### 2. Instalação das Dependências
-
-Na raiz do projeto, execute:
+Na raiz do projeto:
 ```bash
-pip install -r requirements.txt
-```
+# Instalar dependências do frontend
+cd frontend
+npm install
 
-*(Opcional) Verifique se o caminho do `ffmpeg` no arquivo `.env` está correto, caso não esteja no PATH global do Windows.*
-
-### 3. Iniciar a Aplicação
-
-Execute o servidor Flask:
-```bash
-python backend/app.py
+# Iniciar servidor de desenvolvimento
+npm run dev
 ```
 
 Abra o seu navegador em:
-👉 **[http://localhost:5000](http://localhost:5000)**
+👉 **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-## 🎯 Como Usar para Estudar Inglês
+## 🧪 Ambientes & Deploy (Produção & Staging)
 
-1. Cole o link de qualquer vídeo do YouTube no campo principal.
-2. Selecione o modelo de IA desejado:
-   - **Whisper Base** (Padrão - muito rápido e preciso para inglês).
-   - **Whisper Tiny** (Ultra-rápido).
-   - **Whisper Small** (Maior precisão).
-3. Clique em **"Gerar Legendas Bilíngues"**.
-4. O aplicativo baixará o vídeo, transcreverá, traduzirá e abrirá o **Studio do Vídeo**.
-5. Para salvar o link direto de estudo do vídeo, clique em **"Copiar Link"** (ex: `http://localhost:5000/watch/jNQXAC9IVRw`).
+O projeto possui esteiras de deploy automatizadas com Docker Compose, isolamento de proxy Cloudflare WARP e portas dedicadas.
 
-### ⌨️ Atalhos do Teclado
+### Staging (Homologação)
+- **Porta Web**: `3001`
+- **Script de deploy**:
+  ```bash
+  bash deploy-stage.sh            # Atualiza branch stage ou atual e sobe
+  bash deploy-stage.sh <branch>   # Sobe uma branch específica
+  bash deploy-stage.sh logs       # Logs em tempo real
+  bash deploy-stage.sh stop       # Para os containers de staging
+  ```
 
-| Tecla | Ação |
-| :--- | :--- |
-| `Espaço` | Reproduzir / Pausar vídeo |
-| `Seta Esquerda (←)` | Voltar 5 segundos |
-| `Seta Direita (→)` | Avançar 5 segundos |
-| `L` | Repetir a frase atual em reprodução |
+### Produção
+- **Porta Web**: `3000`
+- **Script de deploy**:
+  ```bash
+  bash deploy.sh
+  ```
 
 ---
 
-## 📡 Endpoints da API
-
-- `POST /subtitles/process`: Processa o vídeo a partir do payload `{"url": "...", "model": "base"}`.
-- `GET /subtitles/history`: Retorna a lista de vídeos processados.
-- `GET /subtitles/video/<video_id>`: Retorna os dados completos e legendas de um vídeo.
-- `DELETE /subtitles/video/<video_id>`: Exclui o vídeo do histórico e do disco.
-- `GET /media/video/<filename>`: Streaming do vídeo MP4 com suporte a HTTP 206 (byte-range).
-- `GET /media/subtitle/<filename>`: Download de arquivos `.vtt` e `.srt`.
+## 🎨 Sistema de Design
+Para detalhes sobre a paleta Gemini Cosmic Dark, relevo físico 3D (Duolingo Feather) e tokens tipográficos (Outfit + Inter), consulte o [DESIGN_SYSTEM.md](file:///d:/projetos/yt-bilingual-subtitles-app/DESIGN_SYSTEM.md).

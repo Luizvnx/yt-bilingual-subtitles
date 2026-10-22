@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, User, LogOut, History, BookOpen, Crown } from "lucide-react";
+import { Sparkles, User, LogOut, History, BookOpen, Crown, Flame, Zap } from "lucide-react";
 
 interface NavbarProps {
   user: any;
@@ -19,102 +19,176 @@ export function Navbar({
   onOpenVocabulary,
   onOpenUpgrade,
 }: NavbarProps) {
+  // Estado local para Gamificação no Header (Streak e XP)
+  const [streak, setStreak] = useState<number>(1);
+  const [xp, setXp] = useState<number>(50);
+
+  useEffect(() => {
+    const syncGamification = () => {
+      if (typeof window === "undefined") return;
+      try {
+        const savedStreak = localStorage.getItem("ytsubs_streak");
+        const savedXp = localStorage.getItem("ytsubs_xp");
+        if (savedStreak) setStreak(parseInt(savedStreak, 10));
+        if (savedXp) setXp(parseInt(savedXp, 10));
+      } catch {}
+    };
+
+    syncGamification();
+
+    const handleXpUpdate = (e: any) => {
+      if (e?.detail?.xp !== undefined) {
+        setXp(e.detail.xp);
+      }
+      if (e?.detail?.streak !== undefined) {
+        setStreak(e.detail.streak);
+      }
+    };
+
+    window.addEventListener("ytsubs_xp_updated", handleXpUpdate);
+    window.addEventListener("storage", syncGamification);
+
+    return () => {
+      window.removeEventListener("ytsubs_xp_updated", handleXpUpdate);
+      window.removeEventListener("storage", syncGamification);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#070A0F]/90 backdrop-blur-2xl specular-top">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8 w-full">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 sm:gap-3 group select-none shrink-0">
-          <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group select-none shrink-0">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 text-white shadow-[0_0_16px_rgba(99,102,241,0.4)] border-b-[3px] border-indigo-700 group-hover:scale-105 active:translate-y-0.5 active:border-b transition-all">
+            <Sparkles className="h-4.5 w-4.5 sm:h-5 sm:w-5 drop-shadow" />
           </div>
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <span className="font-bold text-sm sm:text-base text-zinc-100 tracking-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="font-display font-black text-base sm:text-lg text-white tracking-tight">
                 YT Bilingual
               </span>
-              <span className="hidden sm:inline-block font-semibold text-sm sm:text-base text-zinc-300">
+              <span className="hidden sm:inline-block font-display font-bold text-base sm:text-lg text-zinc-300">
                 Subtitles
               </span>
-              <span className="rounded-md bg-zinc-800/80 border border-zinc-700/60 px-1 py-0.2 sm:px-1.5 sm:py-0.5 text-[9px] sm:text-[10px] font-medium text-zinc-400">
+              <span className="rounded-md bg-zinc-800/90 border border-zinc-700/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-display font-black text-zinc-300 shadow-inner">
                 PRO
               </span>
               {process.env.NEXT_PUBLIC_ENVIRONMENT === "stage" && (
-                <span className="flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-400 tracking-wider">
+                <span className="flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-500/50 border-b-2 border-b-amber-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-display font-black text-amber-300 tracking-wider">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
                   STAGE
                 </span>
               )}
             </div>
-            <p className="hidden md:block text-[11px] text-zinc-500 font-normal">
-              Imersão e prática com vídeos reais
+            <p className="hidden md:block text-[11px] text-zinc-400 font-medium">
+              Imersão e prática com vídeos reais do YouTube
             </p>
           </div>
         </Link>
 
+        {/* Central Gamification HUD (Streak & XP) */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Streak 3D Token */}
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-b from-orange-500/15 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-[3px] border-b-orange-600 shadow-[0_2px_10px_rgba(249,115,22,0.2)] active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
+            title="Sua sequência diária de estudos (Ofensiva)"
+          >
+            <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-orange-600 to-amber-400 text-white shadow-[0_0_8px_rgba(249,115,22,0.6)] shrink-0 border-b border-orange-700">
+              <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-white text-white drop-shadow" />
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="font-display font-black text-white text-sm sm:text-base leading-none">
+                {streak}
+              </span>
+              <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-orange-400 leading-none">
+                {streak === 1 ? "dia" : "dias"}
+              </span>
+            </div>
+          </div>
+
+          {/* XP Total 3D Token */}
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-b from-amber-500/15 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_2px_10px_rgba(245,158,11,0.2)] active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
+            title="Pontos de experiência (XP) acumulados"
+          >
+            <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-300 text-zinc-950 shadow-[0_0_8px_rgba(245,158,11,0.6)] shrink-0 border-b border-amber-700">
+              <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current text-zinc-950 stroke-[2.5]" />
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="font-display font-black text-amber-300 text-sm sm:text-base leading-none">
+                {xp}
+              </span>
+              <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-amber-400 leading-none">
+                XP
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation & Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <button
             type="button"
             onClick={onOpenVocabulary}
-            className="flex items-center gap-1.5 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/70 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 active:translate-y-0.5 transition-all cursor-pointer"
             title="Meu Vocabulário"
           >
-            <BookOpen className="h-4 w-4 text-zinc-400" />
-            <span className="hidden sm:inline">Meu Vocabulário</span>
+            <BookOpen className="h-4 w-4 text-indigo-400" />
+            <span className="hidden sm:inline">Vocabulário</span>
           </button>
 
           <a
             href="#history-section"
-            className="flex items-center gap-1.5 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/70 transition-colors"
+            className="hidden md:flex items-center gap-1.5 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 active:translate-y-0.5 transition-all cursor-pointer"
             title="Biblioteca de vídeos salvos"
           >
             <History className="h-4 w-4 text-zinc-400" />
-            <span className="hidden md:inline">Biblioteca</span>
+            <span>Biblioteca</span>
           </a>
 
           {!user && (
             <button
               type="button"
               onClick={onOpenUpgrade}
-              className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs font-semibold text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-display font-black text-amber-300 bg-gradient-to-b from-amber-500/20 via-zinc-900 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_2px_12px_rgba(245,158,11,0.25)] hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer"
               title="Planos e Assinatura"
             >
               <Crown className="h-3.5 w-3.5 text-amber-400" />
-              <span className="hidden md:inline">Planos</span>
+              <span>Planos PRO</span>
             </button>
           )}
 
           {user ? (
             <div className="flex items-center gap-1.5 sm:gap-2.5 pl-1.5 sm:pl-2 border-l border-white/10">
-              {/* Profile Card */}
-              <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-zinc-800 bg-zinc-900/90 py-1 pl-1 pr-2 sm:pr-3 shadow-sm">
+              {/* Profile Card 3D */}
+              <div className="flex items-center gap-2 rounded-2xl border border-white/10 border-b-[3px] border-b-zinc-800 bg-[#0B0D14] py-1 pl-1.5 pr-2.5 sm:pr-3 shadow-md">
                 {user.avatar ? (
                   <img
                     src={user.avatar}
                     alt={user.name || "Foto de perfil"}
-                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover border border-zinc-700/60"
+                    className="h-6 w-6 rounded-xl object-cover border border-zinc-700/60"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-indigo-600 text-[10px] sm:text-[11px] font-bold text-white shadow-inner">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-[11px] font-display font-black text-white shadow-inner">
                     {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </div>
                 )}
 
-                <span className="text-xs font-medium text-zinc-200 truncate max-w-[70px] sm:max-w-[140px]">
+                <span className="text-xs font-semibold text-zinc-200 truncate max-w-[80px] sm:max-w-[130px]">
                   {user.name ? user.name.split(" ")[0] : user.email?.split("@")[0]}
                 </span>
 
                 {user.tier === "pro" ? (
-                  <span className="flex items-center gap-0.5 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 border border-amber-500/30">
-                    <Crown className="h-2.5 w-2.5" />
+                  <span className="flex items-center gap-1 rounded-lg bg-gradient-to-b from-amber-500 to-amber-600 px-1.5 py-0.5 text-[9px] font-display font-black text-zinc-950 shadow-sm border-b border-amber-700">
+                    <Crown className="h-2.5 w-2.5 fill-current" />
                     <span>PRO</span>
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={onOpenUpgrade}
-                    className="flex items-center gap-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-500/30 transition-all cursor-pointer"
+                    className="flex items-center gap-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 px-1.5 py-0.5 text-[10px] font-display font-bold text-amber-300 border border-amber-500/40 border-b-2 border-b-amber-600 transition-all cursor-pointer"
                     title="Desbloquear vídeos ilimitados"
                   >
                     <Crown className="h-3 w-3" />
@@ -127,7 +201,7 @@ export function Navbar({
                 type="button"
                 onClick={onLogout}
                 title="Sair da conta"
-                className="rounded-lg p-1.5 sm:p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-850 transition-colors"
+                className="rounded-xl p-2 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
               </button>
@@ -136,9 +210,9 @@ export function Navbar({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 rounded-xl bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-zinc-900 hover:bg-zinc-200 active:scale-95 transition-all shadow-sm shrink-0"
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 border border-indigo-400/30 border-b-[3px] border-b-indigo-800 px-3.5 sm:px-4 py-2 text-xs font-display font-black text-white shadow-[0_4px_14px_rgba(99,102,241,0.35)] hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer shrink-0"
             >
-              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-zinc-700" />
+              <User className="h-3.5 w-3.5 text-indigo-200" />
               <span>Entrar<span className="hidden sm:inline"> / Cadastrar</span></span>
             </button>
           )}
@@ -147,3 +221,4 @@ export function Navbar({
     </header>
   );
 }
+

@@ -138,4 +138,22 @@ O projeto possui um guia de design canônico detalhado e obrigatório em [DESIGN
    - ✅ Contadores de XP, dias de ofensiva (Streak), números e títulos de seções usam **`Outfit`** (`.font-display font-black`).
    - ✅ Legendas, diálogos bilíngues e textos de apoio usam **`Inter`** (`font-sans font-medium`).
 
+### 6.2 Arena Boss Final & Gamificação Sem Padrão de IA Lavado
+- **Arena Boss Final:** Deve obrigatoriamente utilizar relevo 3D sólido de arcade (`bg-rose-600 border-b-4 border-rose-800`), badge de combate tátil e barra de escudo HP dinâmica (`bg-rose-500/80` com glow).
+- **Proibição Estrita:** Nunca substituir desafios ou chefões por pílulas sutis de IA com fundo transparente lavado (`bg-rose-500/10 text-rose-400`).
+- **Trilha de Mundos:** A esteira de navegação de mundos deve se comportar como uma fita horizontal (*World Island Strip*) com botões chanfrados 3D (`active:translate-y-0.5 active:border-b`).
+
+### 6.3 Modos de Estúdio, Produtividade & Estabilidade de Layout
+- **Modos de Exibição do Estúdio:**
+  - `Dividido`: Vídeo + transcrição lado a lado (padrão desktop).
+  - `Cinema`: Player de vídeo expandido ao máximo com transcrição compacta.
+  - `Foco Leitura`: Transcrição bilíngue em largura total para estudo aprofundado e exportação.
+- **Atalhos Nativos Globais:**
+  - `[R]`: Repete imediatamente a sentença atual em reprodução no vídeo.
+  - `[Espaço]`: Alterna Play/Pause no player do YouTube (com bypass inteligente em campos de input).
+- **Zero Layout Shift em Formulários:**
+  - Elementos de configuração (ex: seletores de modo de transcrição) não devem alterar o `width` ou `height` do container pai.
+  - Evitar `transition-all` em formulários principais; usar `transition-[border-color,box-shadow]` e manter botões com bordas transparentes estáticas (`h-7 border-b-2 border-transparent`).
+
+
 
