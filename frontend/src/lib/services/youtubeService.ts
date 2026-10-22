@@ -519,9 +519,9 @@ export class YouTubeService {
 
     let rawCookies = "";
     for (const cpath of cookieCandidates) {
-      if (fs.existsSync(cpath)) {
+      if (fs.existsSync(/*turbopackIgnore: true*/ cpath)) {
         try {
-          rawCookies = fs.readFileSync(cpath, "utf-8");
+          rawCookies = fs.readFileSync(/*turbopackIgnore: true*/ cpath, "utf-8");
           if (rawCookies.length > 20) break;
         } catch {}
       }
