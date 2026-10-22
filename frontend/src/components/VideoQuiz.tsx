@@ -18,6 +18,7 @@ import {
   Crown,
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/apiClient";
+import { getUserGamification, saveUserGamification } from "@/lib/gamification";
 
 export interface QuizQuestion {
   id: number;
@@ -119,27 +120,21 @@ export function VideoQuiz({
       // Quiz finalizado
       setIsCompleted(true);
       const earnedXp = (score + (selectedOption === questions[currentIndex].correctIndex ? 1 : 0)) * 10;
-      if (earnedXp > 0) {
+      if (earnedXp > 0 && user?.id) {
         try {
-          const currentXp = parseInt(localStorage.getItem("ytsubs_xp") || "0", 10);
-          const newXp = currentXp + earnedXp;
-          localStorage.setItem("ytsubs_xp", newXp.toString());
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("ytsubs_xp_updated", { detail: { xp: newXp } }));
-          }
+          const stats = getUserGamification(user.id);
+          const newXp = stats.xp + earnedXp;
+          const completedSet = new Set(stats.completedIds);
+          completedSet.add(videoId);
+
+          saveUserGamification(user.id, {
+            xp: newXp,
+            completedIds: completedSet,
+          });
+
           if (onAddXp) onAddXp(earnedXp);
         } catch {}
       }
-      // Se concluiu o quiz e há lição ativa, salva como concluída
-      try {
-        const activeLessonId = localStorage.getItem("ytsubs_current_lesson_id");
-        if (activeLessonId) {
-          const completedRaw = localStorage.getItem("ytsubs_completed");
-          const completedSet = new Set(completedRaw ? JSON.parse(completedRaw) : []);
-          completedSet.add(activeLessonId);
-          localStorage.setItem("ytsubs_completed", JSON.stringify(Array.from(completedSet)));
-        }
-      } catch {}
     }
   };
 
