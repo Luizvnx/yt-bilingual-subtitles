@@ -31,7 +31,7 @@ export default function RootLayout({
       className={`dark h-full antialiased overflow-x-hidden ${inter.variable} ${outfit.variable}`}
     >
       <body
-        className={`${inter.className} min-h-full flex flex-col bg-zinc-950 text-zinc-100 selection:bg-indigo-500 selection:text-white overflow-x-hidden w-full max-w-full relative`}
+        className={`${inter.className} min-h-full flex flex-col bg-[#070A0F] text-zinc-100 selection:bg-indigo-500 selection:text-white overflow-x-hidden w-full max-w-full relative`}
       >
         {children}
       </body>
