@@ -15,7 +15,26 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const bcrypt = require("bcryptjs");
+
+let bcryptInstance = null;
+function getBcrypt() {
+  if (bcryptInstance) return bcryptInstance;
+  const candidates = [
+    "./bcrypt.js",
+    path.join(__dirname, "bcrypt.js"),
+    path.join(process.cwd(), "frontend", "scripts", "bcrypt.js"),
+    path.join(process.cwd(), "scripts", "bcrypt.js"),
+    "/app/scripts/bcrypt.js",
+    "bcryptjs"
+  ];
+  for (const c of candidates) {
+    try {
+      bcryptInstance = require(c);
+      if (bcryptInstance) return bcryptInstance;
+    } catch {}
+  }
+  return null;
+}
 
 // Localiza o arquivo de dados (tanto dentro do Docker quanto no host)
 const candidatePaths = [
@@ -134,6 +153,11 @@ Comandos disponíveis:
         process.exit(1);
       }
 
+      const bcrypt = getBcrypt();
+      if (!bcrypt) {
+        console.error("❌ Módulo de criptografia (bcrypt) não foi encontrado.");
+        process.exit(1);
+      }
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(password, salt);
       const nowIso = new Date().toISOString();
@@ -228,6 +252,11 @@ Comandos disponíveis:
         process.exit(1);
       }
 
+      const bcrypt = getBcrypt();
+      if (!bcrypt) {
+        console.error("❌ Módulo de criptografia (bcrypt) não foi encontrado.");
+        process.exit(1);
+      }
       const salt = await bcrypt.genSalt(10);
       user.passwordHash = await bcrypt.hash(newPassword, salt);
       user.updatedAt = new Date().toISOString();
