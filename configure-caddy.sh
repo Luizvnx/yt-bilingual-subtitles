@@ -18,11 +18,19 @@ if [ ! -f "$CADDYFILE" ]; then
   exit 1
 fi
 
+# Detecta permissão para docker
+DOCKER="docker"
+if docker info >/dev/null 2>&1; then
+  DOCKER="docker"
+elif sudo docker info >/dev/null 2>&1; then
+  DOCKER="sudo docker"
+fi
+
 # Detecta em qual porta o container de produção do yt_subtitles_app está escutando no host
 PROD_PORT="3000"
-if docker ps | grep yt_subtitles_app | grep -q "0.0.0.0:80->"; then
+if $DOCKER ps 2>/dev/null | grep yt_subtitles_app | grep -q "0.0.0.0:80->"; then
   PROD_PORT="80"
-elif docker ps | grep yt_subtitles_app | grep -q "0.0.0.0:3000->"; then
+elif $DOCKER ps 2>/dev/null | grep yt_subtitles_app | grep -q "0.0.0.0:3000->"; then
   PROD_PORT="3000"
 fi
 
@@ -30,19 +38,18 @@ echo "ℹ️ Porta detectada para Produção no Host: $PROD_PORT"
 echo "ℹ️ Porta detectada para Staging no Host: 3001"
 
 # Backup do Caddyfile
-cp "$CADDYFILE" "${CADDYFILE}.bak_$(date +%Y%m%d_%H%M%S)"
+sudo cp "$CADDYFILE" "${CADDYFILE}.bak_$(date +%Y%m%d_%H%M%S)" 2>/dev/null || cp "$CADDYFILE" "${CADDYFILE}.bak_$(date +%Y%m%d_%H%M%S)"
 echo "💾 Backup do Caddyfile criado com sucesso."
 
 # Verifica se os domínios já existem no Caddyfile
 if grep -q "$PROD_DOMAIN" "$CADDYFILE"; then
   echo "ℹ️ O domínio $PROD_DOMAIN já está presente no Caddyfile. Atualizando configurações..."
   # Remove bloco antigo se existir
-  sed -i "/# YT Bilingual Subtitles - Produção/,/# Fim YT Bilingual Subtitles/d" "$CADDYFILE" 2>/dev/null || true
+  sudo sed -i "/# YT Bilingual Subtitles - Produção/,/# Fim YT Bilingual Subtitles/d" "$CADDYFILE" 2>/dev/null || sed -i "/# YT Bilingual Subtitles - Produção/,/# Fim YT Bilingual Subtitles/d" "$CADDYFILE" 2>/dev/null || true
 fi
 
 # Adiciona os blocos para Produção e Stage no final do Caddyfile
-cat >> "$CADDYFILE" <<EOF
-
+CONFIG_BLOCK="
 # YT Bilingual Subtitles - Produção
 $PROD_DOMAIN {
     reverse_proxy 172.17.0.1:$PROD_PORT {
@@ -62,15 +69,16 @@ $STAGE_DOMAIN {
         header_up X-Forwarded-Proto https
     }
 }
-# Fim YT Bilingual Subtitles
-EOF
+# Fim YT Bilingual Subtitles"
+
+echo "$CONFIG_BLOCK" | (sudo tee -a "$CADDYFILE" >/dev/null 2>&1 || tee -a "$CADDYFILE" >/dev/null)
 
 echo "✅ Configuração gravada em $CADDYFILE com sucesso!"
 
 # Recarrega o Caddy sem derrubar conexões ativas
 echo "🔄 Recarregando o container Caddy (sem downtime)..."
-if docker ps | grep -q "favodemel_caddy"; then
-  docker exec favodemel_caddy caddy reload --config /etc/caddy/Caddyfile
+if $DOCKER ps | grep -q "favodemel_caddy"; then
+  $DOCKER exec favodemel_caddy caddy reload --config /etc/caddy/Caddyfile
   echo ""
   echo "🎉 ========================================================"
   echo "🎉 HTTPS / SSL ATIVADO COM CADEADO VERDE!"
