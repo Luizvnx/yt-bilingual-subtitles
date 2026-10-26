@@ -98,6 +98,12 @@ Comandos disponíveis:
   node manage_users.js promote <email>
       Promove uma conta existente para Administrador (Role: admin, Tier: pro).
 
+  node manage_users.js demote <email>
+      Remove privilégios de Administrador, voltando o papel para Usuário (Role: user).
+
+  node manage_users.js set-role <email> <user|admin>
+      Altera diretamente o papel do usuário para 'user' ou 'admin'.
+
   node manage_users.js set-tier <email> <free|pro>
       Altera o plano de um usuário para 'free' ou 'pro'.
 
@@ -208,6 +214,51 @@ Comandos disponíveis:
       saveUsers(users);
 
       console.log(`✅ Usuário '${user.name}' (${cleanEmail}) agora é 👑 ADMIN e 💎 PRO!`);
+      break;
+    }
+
+    case "demote": {
+      const [email] = args;
+      if (!email) {
+        console.error("❌ Uso: node manage_users.js demote <email>");
+        process.exit(1);
+      }
+
+      const cleanEmail = email.trim().toLowerCase();
+      const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+      if (!user) {
+        console.error(`❌ Usuário com email '${cleanEmail}' não foi encontrado.`);
+        process.exit(1);
+      }
+
+      user.role = "user";
+      user.updatedAt = new Date().toISOString();
+      saveUsers(users);
+
+      console.log(`✅ Privilégios de Administrador removidos de '${user.name}' (${cleanEmail}). Papel atual: 👤 USER.`);
+      break;
+    }
+
+    case "set-role": {
+      const [email, role] = args;
+      if (!email || !["user", "admin"].includes(role)) {
+        console.error("❌ Uso: node manage_users.js set-role <email> <user|admin>");
+        process.exit(1);
+      }
+
+      const cleanEmail = email.trim().toLowerCase();
+      const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+      if (!user) {
+        console.error(`❌ Usuário '${cleanEmail}' não encontrado.`);
+        process.exit(1);
+      }
+
+      user.role = role;
+      user.updatedAt = new Date().toISOString();
+      saveUsers(users);
+
+      const label = role === "admin" ? "👑 ADMIN" : "👤 USER";
+      console.log(`✅ Papel do usuário '${user.name}' (${cleanEmail}) alterado para: ${label}`);
       break;
     }
 
