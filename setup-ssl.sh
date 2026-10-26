@@ -101,9 +101,32 @@ EOF
 
 # 5. Ativa a configuração no Nginx e valida sintaxe
 echo "🔗 Ativando configuração no Nginx..."
+$SUDO rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
 $SUDO ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
 $SUDO nginx -t
-$SUDO systemctl reload nginx || $SUDO systemctl restart nginx
+
+# Desativa Apache caso tenha sido instalado como dependência e esteja segurando a porta 80
+if command -v systemctl >/dev/null 2>&1; then
+  if systemctl is-active --quiet apache2 2>/dev/null; then
+    echo "⚠️ Apache2 detectado rodando na porta 80. Desativando Apache2 em favor do Nginx..."
+    $SUDO systemctl stop apache2 2>/dev/null || true
+    $SUDO systemctl disable apache2 2>/dev/null || true
+  fi
+fi
+
+if ! $SUDO systemctl restart nginx 2>/dev/null; then
+  echo "⚠️ Falha ao reiniciar Nginx via systemctl. Verificando conflito na porta 80..."
+  OCCUPIER=$($SUDO ss -tulpn | grep -E ':80\s' || true)
+  if [ -n "$OCCUPIER" ]; then
+    echo "❌ A porta 80 já está ocupada pelo seguinte processo:"
+    echo "$OCCUPIER"
+  fi
+  echo "Tentando liberar processos antigos e reiniciar..."
+  $SUDO systemctl start nginx || {
+    echo "❌ O Nginx não pôde iniciar porque a porta 80 está em uso por outro serviço."
+    exit 1
+  }
+fi
 
 # 6. Emite os Certificados SSL Oficiais com o Certbot (Let's Encrypt)
 echo "📜 Solicitando Certificados SSL ao Let's Encrypt para $STAGE_DOMAIN e $PROD_DOMAIN..."
