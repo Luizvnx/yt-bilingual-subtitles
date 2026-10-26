@@ -6,7 +6,9 @@
 #   ./manage-users.sh list
 #   ./manage-users.sh create-admin "Seu Nome" admin@exemplo.com "senhaForte123"
 #   ./manage-users.sh promote usuario@exemplo.com
-#   ./manage-users.sh set-tier usuario@exemplo.com pro
+#   ./manage-users.sh demote usuario@exemplo.com
+#   ./manage-users.sh set-role usuario@exemplo.com user
+#   ./manage-users.sh set-tier usuario@exemplo.com free
 #   ./manage-users.sh reset-password usuario@exemplo.com "novaSenha123"
 #   ./manage-users.sh delete usuario@exemplo.com
 # ==============================================================================
