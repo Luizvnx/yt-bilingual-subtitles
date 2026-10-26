@@ -113,10 +113,11 @@ if [ -n "$1" ] && [[ "$1" == *"@"* ]]; then
 fi
 
 $SUDO certbot --nginx --agree-tos $EMAIL_ARG --redirect --non-interactive \
-  -d "$STAGE_DOMAIN" \
-  -d "$PROD_DOMAIN" || {
-    echo "⚠️ Aviso: O Certbot encontrou uma restrição ao obter certificados para ambos os domínios simultaneamente."
-    echo "Tentando isoladamente para o Stage ($STAGE_DOMAIN)..."
+  -d "$PROD_DOMAIN" \
+  -d "$STAGE_DOMAIN" || {
+    echo "⚠️ Aviso: Tentativa conjunta falhou. Emitindo certificado individual para Produção ($PROD_DOMAIN)..."
+    $SUDO certbot --nginx --agree-tos $EMAIL_ARG --redirect --non-interactive -d "$PROD_DOMAIN" || true
+    echo "Tentando emissão individual para Stage ($STAGE_DOMAIN)..."
     $SUDO certbot --nginx --agree-tos $EMAIL_ARG --redirect --non-interactive -d "$STAGE_DOMAIN" || true
 }
 
