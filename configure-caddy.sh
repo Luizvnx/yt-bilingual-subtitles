@@ -5,8 +5,9 @@
 set -e
 
 CADDYFILE="/home/ubuntu/apiario-favo-de-mel-site/Caddyfile"
-STAGE_DOMAIN="stage.137.131.164.202.sslip.io"
-PROD_DOMAIN="137.131.164.202.sslip.io"
+VPS_IP="${HOST_IP:-$(curl -s -m 2 https://api.ipify.org 2>/dev/null || curl -s -m 2 https://ifconfig.me 2>/dev/null || echo "")}"
+STAGE_DOMAIN="${1:-${STAGE_DOMAIN:-stage.${VPS_IP}.sslip.io}}"
+PROD_DOMAIN="${2:-${PROD_DOMAIN:-${VPS_IP}.sslip.io}}"
 
 echo "🔒 ========================================================"
 echo "🔒 INTEGRAÇÃO DE SSL AUTOMÁTICO COM O CADDY"

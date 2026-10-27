@@ -27,7 +27,7 @@ export function shouldSetSecureCookie(req?: NextRequest): boolean {
     "";
   if (baseUrl.startsWith("https://")) return true;
 
-  // Por padrão em ambientes acessados via HTTP direto (ex: http://137.131.164.202:3001)
+  // Por padrão em ambientes acessados via HTTP direto (ex: localhost:3000)
   return false;
 }
 

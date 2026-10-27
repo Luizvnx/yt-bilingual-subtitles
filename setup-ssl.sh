@@ -2,7 +2,6 @@
 # ==============================================================================
 # Script de Configuração Automatizada de SSL / HTTPS com Nginx e Certbot
 # Hostname Gratuito: sslip.io (Zero Custo, Let's Encrypt Oficial, Cadeado Verde)
-# VPS Oracle Cloud (137.131.164.202)
 # ==============================================================================
 # Este script:
 #   1. Libera portas 80 e 443 no firewall do Ubuntu.
@@ -16,8 +15,9 @@
 
 set -e
 
-STAGE_DOMAIN="stage.137.131.164.202.sslip.io"
-PROD_DOMAIN="137.131.164.202.sslip.io"
+VPS_IP="${HOST_IP:-$(curl -s -m 2 https://api.ipify.org 2>/dev/null || curl -s -m 2 https://ifconfig.me 2>/dev/null || echo "")}"
+STAGE_DOMAIN="${STAGE_DOMAIN:-stage.${VPS_IP}.sslip.io}"
+PROD_DOMAIN="${PROD_DOMAIN:-${VPS_IP}.sslip.io}"
 
 echo "🔒 ========================================================"
 echo "🔒 CONFIGURAÇÃO DE HTTPS / SSL COM CADEADO VERDE (SSLIP.IO)"
