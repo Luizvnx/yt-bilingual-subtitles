@@ -41,20 +41,39 @@ data/temp_audio/
 *.mp4
 *.mp3
 
-# Editor directories
+# Editor & OS directories
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
 
 # Docker
 docker-data/
 
-# Graphify cache & backups
-graphify-out/cache/ast/
-graphify-out/20*/
+# Application databases & runtime state (CRITICAL: Never commit user accounts/hashes/tokens/videos)
+data/
+!data/
+!data/.gitkeep
+data/*.json
+*.json.bak*
 
-# AI agents & local skills
+# Graphify & Knowledge Graph outputs (Internal architecture dumps)
+graphify-out/
+
+# AI Agents & local skills
 .agents/
-data/usage_saas.json
 
+# SSL / TLS certificates, keys & secrets
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.csr
+
+# Markdown documentation files (Keep ONLY README.md for public repository)
+*.md
+!README.md
+*/**/*.md
+!**/README.md

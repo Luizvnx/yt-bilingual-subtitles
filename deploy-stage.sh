@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==============================================================================
 # Script de Deploy e Gerenciamento do Ambiente STAGE (Testes)
-# VPS Oracle Cloud (137.131.164.202) — Porta 3001 / Postgres 5434
+# Porta 3001 / Postgres 5434
 # ==============================================================================
 # Uso:
 #   ./deploy-stage.sh               -> Atualiza e sobe o Stage na branch 'stage' (ou 'main')
@@ -136,10 +136,10 @@ echo "============================================================"
 $COMMAND_PREFIX ps
 echo ""
 echo "🌐 Acesse o Ambiente de Testes:"
-echo "   👉 http://137.131.164.202:3001"
+echo "   👉 Porta :3001 (ex: http://SEU_IP:3001)"
 echo ""
-echo "🛡️ Produção continua 100% ativa e intacta em:"
-echo "   👉 http://137.131.164.202:3000 (ou porta configurada)"
+echo "🛡️ Produção continua ativa em:"
+echo "   👉 Porta :3000 (ou porta configurada)"
 echo ""
 echo "💡 Comandos Úteis do Ambiente de Testes:"
 echo "   - Ver logs:         ./deploy-stage.sh logs"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ========================================================
-# Script de Deploy Automático para a VPS (137.131.164.202)
+# Script de Deploy Automático para a VPS
 # ========================================================
 
 set -e
@@ -50,4 +50,4 @@ sleep 6
 
 $DC ps
 
-echo "🎉 Deploy concluído com sucesso! Aplicação ativa em http://137.131.164.202"
+echo "🎉 Deploy concluído com sucesso! Aplicação ativa."
