@@ -485,43 +485,56 @@ export default function HomePage() {
       {/* Conteúdo Principal */}
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
         {/* Hero Section */}
-        <section className="text-center space-y-4 max-w-3xl mx-auto pt-4 sm:pt-8 relative">
-          {/* Top Category Tag (Clean & Language Neutral) */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.04] border border-white/10 px-3.5 py-1 text-xs font-medium text-zinc-300 select-none backdrop-blur-md">
-            <Languages className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Estudo de Idiomas por Imersão</span>
+        <section className="relative text-center max-w-4xl mx-auto pt-6 sm:pt-10 pb-4 space-y-6 sm:space-y-8">
+          {/* Ambient Glass Glow (Subtle Specular Depth without Neon Saturation) */}
+          <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[520px] h-[220px] bg-gradient-to-b from-indigo-500/[0.08] via-purple-500/[0.03] to-transparent blur-3xl rounded-full" />
+
+          {/* Top Category Badge (Refined Glassmorphism + 3D Micro-Depth) */}
+          <div className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 px-4 py-1.5 text-xs text-zinc-300 shadow-sm backdrop-blur-xl transition-all cursor-default select-none border-b-2 border-b-white/5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+              <Languages className="h-3.5 w-3.5" />
+            </div>
+            <span className="font-display font-bold uppercase tracking-wider text-[11px] text-zinc-200">
+              Estudo de Idiomas por Imersão
+            </span>
+            <span className="h-3 w-px bg-white/10" />
+            <span className="text-[10px] font-semibold text-indigo-300 font-display">
+              Inteligência Artificial
+            </span>
           </div>
 
-          {/* Headline with Clean Specular Depth */}
-          <div className="relative">
-            <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-[420px] h-[160px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl rounded-full" />
-            <h1 className="relative text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.15]">
+          {/* Headline with Bold Typography & Metallic Contrast */}
+          <div className="relative space-y-3">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.12]">
               Aprenda idiomas com o que você{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+              <span className="bg-gradient-to-r from-indigo-300 via-purple-200 to-pink-300 bg-clip-text text-transparent drop-shadow-sm">
                 ama assistir
               </span>
             </h1>
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed">
+              Transforme qualquer vídeo do YouTube em uma aula interativa com legendas bilíngues sincronizadas,
+              dicionário instantâneo com pronúncia nativa e caderno de vocabulário.
+            </p>
           </div>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto font-medium">
-            Cole o link de qualquer vídeo do YouTube. Obtenha legendas bilíngues
-            sincronizadas, dicionário instantâneo com pronúncia nativa e caderno de vocabulário.
-          </p>
-
-          {/* Prompt Box de Entrada estilo Gemini / Perplexity */}
+          {/* Interactive Glassmorphic Console Card */}
           <form
             onSubmit={handleProcess}
-            className="mt-6 rounded-3xl border border-white/15 bg-[#0B0D14]/90 p-3 sm:p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] backdrop-blur-2xl specular-top focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/30 transition-[border-color,box-shadow] duration-200 text-left"
+            className="rounded-3xl sm:rounded-[32px] border border-white/12 bg-[#0B0D14]/85 p-3.5 sm:p-5 shadow-[0_24px_64px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl specular-top focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-[border-color,box-shadow] duration-200 text-left"
           >
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <div className="relative flex-1 w-full flex items-center">
+            {/* Inner Input Cavity Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 rounded-2xl bg-black/40 border border-white/5 p-1.5 focus-within:border-white/15 focus-within:bg-black/60 transition-all">
+              <div className="relative flex-1 flex items-center min-h-[48px]">
+                <div className="pl-3 pr-2 text-zinc-500 shrink-0">
+                  <Play className="h-4 w-4 text-indigo-400/80 fill-indigo-400/20" />
+                </div>
                 <input
                   type="text"
                   required
                   placeholder="Cole o link do YouTube (ex: https://www.youtube.com/watch?v=...)"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="w-full rounded-2xl bg-transparent px-4 py-3.5 pr-20 text-sm text-white placeholder-zinc-500 focus:outline-none"
+                  className="w-full bg-transparent px-2 py-3 pr-20 text-sm text-white placeholder-zinc-500 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -531,18 +544,19 @@ export default function HomePage() {
                       if (text) setUrl(text.trim());
                     } catch {}
                   }}
-                  className="absolute right-2 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 active:translate-y-0.5 border border-white/10 text-[11px] font-semibold text-zinc-300 hover:text-white flex items-center gap-1 transition-all cursor-pointer"
+                  className="absolute right-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:translate-y-0.5 border border-white/10 border-b-2 border-b-white/5 text-[11px] font-display font-bold text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
                   title="Colar link da área de transferência"
                 >
-                  <Clipboard className="h-3.5 w-3.5" />
+                  <Clipboard className="h-3.5 w-3.5 text-zinc-400" />
                   <span>Colar</span>
                 </button>
               </div>
 
+              {/* Primary 3D Tátil Arcade CTA Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 px-7 py-3.5 font-display font-black text-sm text-white shadow-md shadow-indigo-950/60 border border-indigo-400/30 border-b-[4px] border-b-indigo-800 hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 transition-all cursor-pointer shrink-0"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 px-7 py-3.5 font-display font-black text-sm text-white shadow-lg shadow-indigo-950/60 border border-indigo-400/40 border-b-[4px] border-b-indigo-900 hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 transition-all cursor-pointer shrink-0"
               >
                 {loading ? (
                   <>
@@ -558,14 +572,14 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Rodapé do Input Card: Seletor de Modo de Transcrição Amigável */}
-            <div className="mt-3 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+            {/* Console Footer: Seletor de Modo de Transcrição + Trust Indicators */}
+            <div className="mt-3.5 pt-3.5 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex flex-wrap items-center gap-2 text-zinc-400">
                 <div className="flex items-center gap-1.5">
                   <Cpu className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
-                  <span className="text-[11px] font-semibold text-zinc-300">Modo de Transcrição:</span>
+                  <span className="text-[11px] font-display font-bold text-zinc-300">Modo de Transcrição:</span>
                 </div>
-                <div className="inline-flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-white/10">
+                <div className="inline-flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/10">
                   {[
                     { id: "base", label: "Equilibrado (Recomendado)", note: "Melhor equilíbrio: rápido e com alta precisão" },
                     { id: "tiny", label: "Ultra Rápido", note: "Processamento instantâneo para falas nítidas" },
@@ -577,7 +591,7 @@ export default function HomePage() {
                         key={m.id}
                         type="button"
                         onClick={() => setModel(m.id)}
-                        className={`h-7 px-2.5 rounded-lg text-[10px] font-display font-bold transition-colors cursor-pointer border-b-2 flex items-center justify-center ${
+                        className={`h-7 px-2.5 rounded-lg text-[10px] font-display font-bold transition-all cursor-pointer border-b-2 flex items-center justify-center ${
                           isSelected
                             ? "bg-indigo-600 text-white shadow-sm border-indigo-800"
                             : "text-zinc-400 hover:text-white hover:bg-white/5 border-transparent"
@@ -591,14 +605,23 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="text-[11px] text-zinc-500 font-medium">
-                Sincronização bilíngue PT/EN instantânea
+              {/* Micro Trust Marks */}
+              <div className="flex items-center gap-3 text-[11px] text-zinc-400 font-medium">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-emerald-400" />
+                  <span>Sincronia PT/EN</span>
+                </div>
+                <span className="text-zinc-700">•</span>
+                <div className="flex items-center gap-1.5">
+                  <BookOpen className="h-3 w-3 text-indigo-400" />
+                  <span>Dicionário Nativo</span>
+                </div>
               </div>
             </div>
           </form>
 
-          {/* Inspiration Quick-Chips */}
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          {/* Inspiration Quick-Chips (Glass Pills with 3D Micro-Bevel) */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-[11px] font-display font-bold uppercase tracking-wider text-zinc-500">
               Vídeos de exemplo:
             </span>
@@ -622,7 +645,7 @@ export default function HomePage() {
                 onClick={() => {
                   setUrl(chip.url);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 border-b-[2px] border-b-zinc-800 hover:border-indigo-500/40 text-[11px] font-medium text-zinc-300 hover:text-white transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 border-b-2 border-b-zinc-800 hover:border-indigo-500/40 text-[11px] font-medium text-zinc-300 hover:text-white backdrop-blur-md active:translate-y-0.5 transition-all cursor-pointer"
               >
                 <span>{chip.label}</span>
                 <ArrowRight className="h-3 w-3 text-indigo-400" />
@@ -630,10 +653,10 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Indicador de Quota para Usuários Gratuitos */}
+          {/* Indicador de Quota para Usuários Gratuitos (Obsidian Glass 3D Token) */}
           {user && user.tier !== "pro" && (
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs">
-              <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 border-b-[3px] border-b-zinc-850 bg-[#0B0D14] px-4 py-2 text-xs text-zinc-300 shadow-md">
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 border-b-[3px] border-b-zinc-850 bg-[#0B0D14]/85 backdrop-blur-xl px-4 py-2 text-xs text-zinc-300 shadow-md">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-zinc-400">Vídeos gratuitos hoje:</span>
                   <span className="font-display font-black text-white text-sm">
@@ -669,21 +692,21 @@ export default function HomePage() {
           )}
 
           {!user && (
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 border-b-[3px] border-b-zinc-850 bg-[#0B0D14] px-4 py-2 text-center text-xs text-zinc-300 shadow-md">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 border-b-[3px] border-b-zinc-850 bg-[#0B0D14]/85 backdrop-blur-xl px-4 py-2 text-center text-xs text-zinc-300 shadow-md">
               <span>Experimente vídeos gratuitamente ou</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMessage("");
-                    setAuthModalOpen(true);
-                  }}
-                  className="font-display font-black text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
-                >
-                  conecte sua conta
-                </button>
-                <span className="hidden xs:inline">para salvar seu progresso e histórico</span>
-              </div>
-            )}
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMessage("");
+                  setAuthModalOpen(true);
+                }}
+                className="font-display font-black text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
+              >
+                conecte sua conta
+              </button>
+              <span className="hidden xs:inline">para salvar seu progresso e histórico</span>
+            </div>
+          )}
 
           {/* Barra de Progresso e Status em Tempo Real 3D */}
           {loading && (
