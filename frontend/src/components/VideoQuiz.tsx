@@ -251,13 +251,13 @@ export function VideoQuiz({
     const earnedXp = finalScore * 10;
 
     return (
-      <div className="p-6 sm:p-8 text-center space-y-4 bg-zinc-900/90 rounded-2xl sm:rounded-3xl border border-amber-500/30 shadow-2xl backdrop-blur-xl animate-in fade-in duration-300">
-        <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 shadow-lg shadow-amber-500/30">
+      <div className="p-6 sm:p-8 text-center space-y-4 bg-[#0B0D14] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl backdrop-blur-xl animate-in fade-in duration-300">
+        <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 shadow-md border-b-2 border-amber-700">
           <Trophy className="h-9 w-9 fill-current" />
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-lg sm:text-xl font-black text-white">
+          <h3 className="text-lg sm:text-xl font-display font-black text-white">
             {finalScore === total
               ? "Perfeito! Você dominou o vídeo!"
               : finalScore > 0
@@ -270,7 +270,7 @@ export function VideoQuiz({
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/25 px-4 py-2 text-xs font-bold text-amber-300">
+        <div className="inline-flex items-center gap-2 rounded-2xl bg-[#070A0F] border border-amber-500/30 border-b-2 border-b-amber-600 px-4 py-2 text-xs font-display font-black text-amber-300">
           <Zap className="h-4 w-4 fill-amber-400 text-amber-400" />
           <span>+{earnedXp} XP adicionados à sua ofensiva!</span>
         </div>
@@ -289,7 +289,7 @@ export function VideoQuiz({
             <button
               type="button"
               onClick={onBackToTranscript}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:brightness-110 active:scale-95 text-xs font-bold text-white shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:translate-y-0.5 text-xs font-display font-black text-white shadow-md border-b-[3px] border-indigo-800 transition-all cursor-pointer"
             >
               <BookOpen className="h-3.5 w-3.5" />
               <span>Voltar à Transcrição</span>
@@ -304,7 +304,7 @@ export function VideoQuiz({
   const isAnswered = selectedOption !== null;
 
   return (
-    <div className="space-y-4 bg-zinc-900/80 rounded-2xl sm:rounded-3xl border border-white/[0.08] p-4 sm:p-6 backdrop-blur-xl shadow-xl">
+    <div className="space-y-4 bg-[#0B0D14] rounded-2xl sm:rounded-3xl border border-white/10 p-4 sm:p-6 backdrop-blur-xl shadow-xl">
       {/* Barra de Progresso do Quiz */}
       <div className="flex items-center justify-between text-xs text-zinc-400 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-1.5">
@@ -317,8 +317,8 @@ export function VideoQuiz({
           <span className="font-mono font-bold text-indigo-400">
             Pergunta {currentIndex + 1} de {questions.length}
           </span>
-          <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-            <Zap className="h-3 w-3 fill-current" />
+          <span className="flex items-center gap-1 text-[11px] font-display font-black text-amber-300 bg-[#070A0F] px-2.5 py-0.5 rounded-lg border border-amber-500/30 border-b border-b-amber-600">
+            <Zap className="h-3 w-3 fill-current text-amber-400" />
             +10 XP
           </span>
         </div>
@@ -331,7 +331,7 @@ export function VideoQuiz({
         </h4>
 
         {currentQ.quote && (
-          <div className="inline-flex items-center gap-2 text-xs text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-3 py-1.5 italic">
+          <div className="inline-flex items-center gap-2 text-xs text-indigo-300 bg-[#070A0F] border border-indigo-500/30 rounded-xl px-3 py-1.5 italic">
             <span>"{currentQ.quote}"</span>
           </div>
         )}

@@ -70,8 +70,8 @@ export function Navbar({
       <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-2 sm:px-6 lg:px-8 w-full">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-1.5 sm:gap-3 group select-none shrink-0">
-          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 text-white shadow-[0_0_16px_rgba(99,102,241,0.4)] border-b-2 sm:border-b-[3px] border-indigo-700 group-hover:scale-105 active:translate-y-0.5 active:border-b transition-all">
-            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 drop-shadow" />
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-md border-b-2 sm:border-b-[3px] border-indigo-800 group-hover:scale-105 active:translate-y-0.5 active:border-b transition-all">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1 sm:gap-2">
@@ -94,44 +94,46 @@ export function Navbar({
           </div>
         </Link>
 
-        {/* Central Gamification HUD (Streak & XP) */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          {/* Streak 3D Token */}
-          <div
-            className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-gradient-to-b from-orange-500/15 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-2 sm:border-b-[3px] border-b-orange-600 shadow-[0_2px_10px_rgba(249,115,22,0.2)] active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
-            title="Sua sequência diária de estudos (Ofensiva)"
-          >
-            <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-md sm:rounded-lg bg-gradient-to-tr from-orange-600 to-amber-400 text-white shadow-[0_0_8px_rgba(249,115,22,0.6)] shrink-0 border-b border-orange-700">
-              <Flame className="h-3 w-3 sm:h-4 sm:w-4 fill-white text-white drop-shadow" />
+        {/* Central Gamification HUD (Streak & XP) - Visível apenas para usuários conectados */}
+        {user ? (
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Streak 3D Token */}
+            <div
+              className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-[#0B0D14] border border-orange-500/30 border-b-2 sm:border-b-[3px] border-b-orange-600/80 active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
+              title="Sua sequência diária de estudos (Ofensiva)"
+            >
+              <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 text-white shrink-0 border-b border-orange-700">
+                <Flame className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-white text-white" />
+              </div>
+              <div className="flex items-baseline gap-0.5 sm:gap-1">
+                <span className="font-display font-black text-white text-xs sm:text-base leading-none">
+                  {streak}
+                </span>
+                <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-orange-400 leading-none">
+                  {streak === 1 ? "dia" : "dias"}
+                </span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-0.5 sm:gap-1">
-              <span className="font-display font-black text-white text-xs sm:text-base leading-none">
-                {streak}
-              </span>
-              <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-orange-400 leading-none">
-                {streak === 1 ? "dia" : "dias"}
-              </span>
-            </div>
-          </div>
 
-          {/* XP Total 3D Token */}
-          <div
-            className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-gradient-to-b from-amber-500/15 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-2 sm:border-b-[3px] border-b-amber-600 shadow-[0_2px_10px_rgba(245,158,11,0.2)] active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
-            title="Pontos de experiência (XP) acumulados"
-          >
-            <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-md sm:rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-300 text-zinc-950 shadow-[0_0_8px_rgba(245,158,11,0.6)] shrink-0 border-b border-amber-700">
-              <Zap className="h-3 w-3 sm:h-4 sm:w-4 fill-current text-zinc-950 stroke-[2.5]" />
-            </div>
-            <div className="flex items-baseline gap-0.5 sm:gap-1">
-              <span className="font-display font-black text-amber-300 text-xs sm:text-base leading-none">
-                {xp}
-              </span>
-              <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-amber-400 leading-none">
-                XP
-              </span>
+            {/* XP Total 3D Token */}
+            <div
+              className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-[#0B0D14] border border-amber-500/30 border-b-2 sm:border-b-[3px] border-b-amber-600/80 active:translate-y-0.5 active:border-b select-none transition-all cursor-default"
+              title="Pontos de experiência (XP) acumulados"
+            >
+              <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 shrink-0 border-b border-amber-700">
+                <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-current text-zinc-950 stroke-[2.5]" />
+              </div>
+              <div className="flex items-baseline gap-0.5 sm:gap-1">
+                <span className="font-display font-black text-amber-300 text-xs sm:text-base leading-none">
+                  {xp}
+                </span>
+                <span className="hidden sm:inline text-[9px] font-black uppercase tracking-wider text-amber-400 leading-none">
+                  XP
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Navigation & Actions */}
         <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
@@ -158,7 +160,7 @@ export function Navbar({
             <button
               type="button"
               onClick={onOpenUpgrade}
-              className="hidden sm:flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-display font-black text-amber-300 bg-gradient-to-b from-amber-500/20 via-zinc-900 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_2px_12px_rgba(245,158,11,0.25)] hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-display font-black text-amber-300 bg-gradient-to-b from-amber-500/10 via-zinc-900 to-zinc-950 border border-amber-500/30 border-b-[3px] border-b-amber-600/80 shadow-sm hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer"
               title="Planos e Assinatura"
             >
               <Crown className="h-3.5 w-3.5 text-amber-400 shrink-0" />
@@ -169,7 +171,7 @@ export function Navbar({
           {user ? (
             <div className="flex items-center gap-1 sm:gap-2 pl-1 sm:pl-2 border-l border-white/10">
               {/* Profile Card 3D */}
-              <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-white/10 border-b-2 sm:border-b-[3px] border-b-zinc-800 bg-[#0B0D14] py-0.5 sm:py-1 pl-1 sm:pl-1.5 pr-2 sm:pr-3 shadow-md">
+              <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-white/10 border-b-2 sm:border-b-[3px] border-b-zinc-800 bg-[#0B0D14] py-0.5 sm:py-1 pl-1 sm:pl-1.5 pr-2 sm:pr-3 shadow-sm">
                 {user.avatar ? (
                   <img
                     src={user.avatar}
@@ -218,7 +220,7 @@ export function Navbar({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="flex items-center gap-1 sm:gap-1.5 rounded-xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 border border-indigo-400/30 border-b-2 sm:border-b-[3px] border-b-indigo-800 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-display font-black text-white shadow-[0_4px_14px_rgba(99,102,241,0.35)] hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 border border-indigo-400/30 border-b-2 sm:border-b-[3px] border-b-indigo-800 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs font-display font-black text-white shadow-md hover:brightness-110 active:translate-y-0.5 active:border-b transition-all cursor-pointer shrink-0 whitespace-nowrap"
             >
               <User className="h-3.5 w-3.5 text-indigo-200 shrink-0" />
               <span>Entrar<span className="hidden sm:inline"> / Cadastrar</span></span>

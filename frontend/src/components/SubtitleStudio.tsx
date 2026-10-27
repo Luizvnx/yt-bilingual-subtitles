@@ -344,7 +344,7 @@ export function SubtitleStudio({
               onClick={() => setActiveTab("transcript")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "transcript"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border-b-[3px] border-b-indigo-800"
+                  ? "bg-indigo-600 text-white shadow-sm border-b-[3px] border-b-indigo-800"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
@@ -370,7 +370,7 @@ export function SubtitleStudio({
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "quiz"
-                  ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-md shadow-amber-500/30 border-b-[3px] border-b-amber-700"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 shadow-sm border-b-[3px] border-b-amber-700"
                   : user?.tier === "pro"
                   ? "text-zinc-400 hover:text-amber-300"
                   : "text-zinc-500 hover:text-amber-300/80"
@@ -493,7 +493,7 @@ export function SubtitleStudio({
                 onClick={() => onSeek(seg.start)}
                 className={`group relative rounded-2xl p-3.5 transition-all cursor-pointer ${
                   isActive
-                    ? "bg-gradient-to-r from-emerald-500/15 via-teal-500/5 to-transparent border-l-4 border-l-emerald-400 pl-4 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20"
+                    ? "bg-emerald-500/[0.08] border-l-4 border-l-emerald-400 pl-4 border border-white/5 shadow-sm"
                     : "hover:bg-white/5 border-l-4 border-l-transparent"
                 }`}
               >

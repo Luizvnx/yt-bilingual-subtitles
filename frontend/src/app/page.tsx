@@ -486,16 +486,16 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="text-center space-y-4 max-w-3xl mx-auto pt-4 sm:pt-8 relative">
           {/* Top Token Badge */}
-          <div className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-b from-indigo-500/15 via-zinc-900/90 to-zinc-950 border border-indigo-500/30 border-b-[3px] border-b-indigo-600 px-4 py-1.5 shadow-[0_4px_16px_rgba(99,102,241,0.25)] select-none">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-2xl bg-[#0B0D14] border border-indigo-500/30 border-b-[3px] border-b-indigo-700/80 px-4 py-1.5 shadow-sm select-none">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30 animate-pulse" />
             <span className="font-display font-black text-xs text-indigo-200 tracking-wide">
               Estúdio Inteligente de Imersão em Inglês
             </span>
           </div>
 
-          {/* Headline with Ambient Nebula Glow */}
+          {/* Headline with Clean Specular Depth */}
           <div className="relative">
-            <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[550px] h-[220px] bg-gradient-to-tr from-indigo-600/25 via-purple-600/20 to-pink-500/15 blur-3xl rounded-full" />
+            <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-[420px] h-[160px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl rounded-full" />
             <h1 className="relative text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.15]">
               Aprenda inglês com o que você{" "}
               <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
@@ -543,7 +543,7 @@ export default function HomePage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 px-7 py-3.5 font-display font-black text-sm text-white shadow-[0_6px_20px_rgba(99,102,241,0.4)] border border-indigo-400/30 border-b-[4px] border-b-indigo-800 hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 transition-all cursor-pointer shrink-0"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 px-7 py-3.5 font-display font-black text-sm text-white shadow-md shadow-indigo-950/60 border border-indigo-400/30 border-b-[4px] border-b-indigo-800 hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 transition-all cursor-pointer shrink-0"
               >
                 {loading ? (
                   <>
@@ -649,7 +649,7 @@ export default function HomePage() {
                           key={idx}
                           className={`h-2 w-4 rounded-md transition-all ${
                             isFilled
-                              ? "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"
+                              ? "bg-indigo-500 shadow-sm"
                               : "bg-zinc-800"
                           }`}
                         />
@@ -688,17 +688,17 @@ export default function HomePage() {
 
           {/* Barra de Progresso e Status em Tempo Real 3D */}
           {loading && (
-            <div className="mt-4 rounded-3xl border border-indigo-500/40 border-b-[4px] border-b-indigo-700 bg-gradient-to-b from-indigo-500/10 via-[#0B0D14] to-[#070A0F] p-4 sm:p-5 text-left space-y-3 shadow-[0_8px_32px_rgba(99,102,241,0.25)] animate-in fade-in duration-200 specular-top">
+            <div className="mt-4 rounded-3xl border border-indigo-500/30 border-b-[4px] border-b-indigo-800 bg-[#0B0D14] p-4 sm:p-5 text-left space-y-3 shadow-xl animate-in fade-in duration-200 specular-top">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.8)] border-b border-indigo-700">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 text-white border-b border-indigo-800 shadow-sm">
                     <Loader2 className="h-4.5 w-4.5 animate-spin" />
                   </div>
                   <div>
                     <p className="font-display font-black text-sm text-white">
                       {progressStatus || "Processando áudio e gerando legendas..."}
                     </p>
-                    <p className="text-[11px] text-indigo-300/80 font-medium">
+                    <p className="text-[11px] text-zinc-400 font-medium">
                       Inteligência Artificial Whisper detectando falas nativas
                     </p>
                   </div>
@@ -707,9 +707,9 @@ export default function HomePage() {
                   {progressStage}%
                 </span>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-900 border border-white/10 p-0.5">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-900 border border-white/10 p-0.5">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_12px_rgba(99,102,241,0.8)] transition-all duration-500 ease-out"
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500 ease-out"
                   style={{ width: `${progressStage}%` }}
                 />
               </div>
@@ -718,9 +718,9 @@ export default function HomePage() {
 
           {/* Alerta de Erro com Card 3D */}
           {errorMessage && (
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-red-500/40 border-b-[4px] border-b-red-700 bg-gradient-to-b from-red-500/15 via-[#0B0D14] to-[#070A0F] p-4 text-left shadow-[0_6px_24px_rgba(239,68,68,0.2)]">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-red-500/40 border-b-[4px] border-b-red-800 bg-[#12070A] p-4 text-left shadow-lg">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.7)] shrink-0 border-b border-red-700">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600 text-white shrink-0 border-b border-red-800 shadow-sm">
                   <AlertCircle className="h-4 w-4" />
                 </div>
                 <span className="text-xs font-medium text-red-200 leading-relaxed">

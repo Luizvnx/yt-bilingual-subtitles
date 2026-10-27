@@ -451,19 +451,19 @@ export function CuratedCatalog({
   return (
     <section className="space-y-6 pt-2">
       {/* 1. BARRA SUPERIOR DE EXPEDIÇÃO & GAMIFICAÇÃO */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 sm:gap-4 rounded-3xl border border-white/10 bg-[#090C15]/90 p-3 sm:p-4 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
+      <div className="relative flex flex-wrap items-center justify-between gap-3 sm:gap-4 rounded-3xl border border-white/10 bg-[#090C15]/90 p-3 sm:p-4 backdrop-blur-2xl shadow-xl overflow-hidden">
         {/* Specular highlight superior */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
         {/* Lado Esquerdo: Passaporte de Aventura (Ofensiva, XP e Meta Diária com Anel) */}
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3.5">
           {/* Streak 3D Token */}
           <div
-            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-orange-500/20 via-zinc-900/90 to-zinc-950 border border-orange-500/40 border-b-[3px] border-b-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.25)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-[#0B0D14] border border-orange-500/30 border-b-[3px] border-b-orange-600/80 shadow-sm transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
             title="Sua sequência diária de estudos"
           >
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 text-white shadow-[0_0_12px_rgba(249,115,22,0.8)] shrink-0 border-b border-orange-700">
-              <Flame className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-white text-white drop-shadow" />
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-500 text-white shrink-0 border-b border-orange-700">
+              <Flame className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-white text-white" />
             </div>
             <div className="flex flex-col text-left">
               <div className="flex items-baseline gap-1">
@@ -482,10 +482,10 @@ export function CuratedCatalog({
 
           {/* XP Total 3D Token */}
           <div
-            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-b from-amber-500/20 via-zinc-900/90 to-zinc-950 border border-amber-500/40 border-b-[3px] border-b-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.25)] transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
+            className="group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-[#0B0D14] border border-amber-500/30 border-b-[3px] border-b-amber-600/80 shadow-sm transition-all active:translate-y-0.5 active:border-b select-none cursor-default"
             title="Pontos de experiência acumulados"
           >
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.8)] shrink-0 border-b border-amber-700">
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-400 text-zinc-950 shrink-0 border-b border-amber-700">
               <Zap className="h-4 w-4 sm:h-4.5 sm:w-4.5 fill-current text-zinc-950 stroke-[2.5]" />
             </div>
             <div className="flex flex-col text-left">
@@ -507,14 +507,14 @@ export function CuratedCatalog({
           <div
             className={`flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border border-b-[3px] transition-all select-none ${
               completedIds.size > 0
-                ? "bg-gradient-to-b from-emerald-500/15 via-zinc-900/90 to-zinc-950 border-emerald-500/40 border-b-emerald-600 shadow-[0_4px_16px_rgba(16,185,129,0.2)]"
+                ? "bg-[#0B0D14] border-emerald-500/30 border-b-emerald-600/80 shadow-sm"
                 : "bg-zinc-900/60 border-white/10 border-b-zinc-800"
             }`}
           >
             <div
               className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl text-white shrink-0 border-b ${
                 completedIds.size > 0
-                  ? "bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.7)] border-emerald-700"
+                  ? "bg-gradient-to-tr from-emerald-600 to-emerald-500 border-emerald-700"
                   : "bg-zinc-800 text-zinc-400 border-zinc-700"
               }`}
             >
@@ -553,7 +553,7 @@ export function CuratedCatalog({
             onClick={() => setViewMode("path")}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all cursor-pointer font-display font-bold ${
               viewMode === "path"
-                ? "bg-emerald-500 text-emerald-950 font-black shadow-[0_4px_14px_rgba(16,185,129,0.4)] border-b-[3px] border-emerald-700 active:translate-y-0.5 active:border-b"
+                ? "bg-emerald-500 text-emerald-950 font-black shadow-md border-b-[3px] border-emerald-700 active:translate-y-0.5 active:border-b"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
@@ -565,7 +565,7 @@ export function CuratedCatalog({
             onClick={() => setViewMode("grid")}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all cursor-pointer font-display font-bold ${
               viewMode === "grid"
-                ? "bg-indigo-500 text-white font-black shadow-[0_4px_14px_rgba(99,102,241,0.4)] border-b-[3px] border-indigo-700 active:translate-y-0.5 active:border-b"
+                ? "bg-indigo-600 text-white font-black shadow-md border-b-[3px] border-indigo-800 active:translate-y-0.5 active:border-b"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
@@ -593,32 +593,32 @@ export function CuratedCatalog({
                   icon: Sparkles,
                   label: "Fundações A1",
                   symbol: "🌱",
-                  activeBorder: "border-emerald-400 border-b-emerald-600 shadow-[0_6px_20px_rgba(16,185,129,0.35)]",
-                  activeBg: "bg-gradient-to-b from-[#0f241a] to-[#07130d]",
+                  activeBorder: "border-emerald-500/60 border-b-emerald-600 shadow-md",
+                  activeBg: "bg-[#09150F]",
                   accentText: "text-emerald-400",
                 },
                 {
                   icon: Music,
                   label: "Músicas & Ritmo",
                   symbol: "🎵",
-                  activeBorder: "border-indigo-400 border-b-indigo-600 shadow-[0_6px_20px_rgba(99,102,241,0.35)]",
-                  activeBg: "bg-gradient-to-b from-[#141938] to-[#0a0d1e]",
+                  activeBorder: "border-indigo-500/60 border-b-indigo-600 shadow-md",
+                  activeBg: "bg-[#0B1024]",
                   accentText: "text-indigo-400",
                 },
                 {
                   icon: Zap,
                   label: "Conexão Nativa",
                   symbol: "⚡",
-                  activeBorder: "border-amber-400 border-b-amber-600 shadow-[0_6px_20px_rgba(245,158,11,0.35)]",
-                  activeBg: "bg-gradient-to-b from-[#2a1b08] to-[#140d04]",
+                  activeBorder: "border-amber-500/60 border-b-amber-600 shadow-md",
+                  activeBg: "bg-[#181105]",
                   accentText: "text-amber-400",
                 },
                 {
                   icon: Crown,
                   label: "Fluência & Oratória",
                   symbol: "👑",
-                  activeBorder: "border-purple-400 border-b-purple-600 shadow-[0_6px_20px_rgba(168,85,247,0.35)]",
-                  activeBg: "bg-gradient-to-b from-[#251236] to-[#12081b]",
+                  activeBorder: "border-purple-500/60 border-b-purple-600 shadow-md",
+                  activeBg: "bg-[#150A1F]",
                   accentText: "text-purple-400",
                 },
               ];
@@ -649,9 +649,9 @@ export function CuratedCatalog({
                   <div className="flex items-center gap-2.5 min-w-0">
                     {/* Badge do Ícone 3D */}
                     <div
-                      className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl text-base sm:text-lg border-b-2 shadow-md transition-transform group-hover:scale-105 ${
+                      className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl text-base sm:text-lg border-b-2 shadow-sm transition-transform group-hover:scale-105 ${
                         isSelected
-                          ? "bg-white/15 border-white/20 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                          ? "bg-white/15 border-white/20 text-white"
                           : "bg-white/5 border-white/10"
                       }`}
                     >
@@ -668,7 +668,7 @@ export function CuratedCatalog({
                           Mundo {sec.id}
                         </span>
                         {isSectionCompleted && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                         )}
                       </div>
                       <span className="font-display font-black text-xs sm:text-sm text-white truncate leading-tight mt-0.5">
@@ -680,7 +680,7 @@ export function CuratedCatalog({
                   {/* Status Indicator */}
                   <div className="shrink-0 ml-2">
                     {isSectionCompleted ? (
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-zinc-950 shadow-[0_0_10px_rgba(16,185,129,0.7)]">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-zinc-950 shadow-sm">
                         <Check className="h-3.5 w-3.5 stroke-[3.5]" />
                       </div>
                     ) : hasCompleted ? (
@@ -704,19 +704,19 @@ export function CuratedCatalog({
 
           {/* PORTAL DO CAPÍTULO ATIVO (Cosmic Glass Adventure Gateway) */}
           <div
-            className={`relative rounded-3xl p-5 sm:p-7 text-white border border-b-[4px] overflow-hidden shadow-2xl transition-all ${
+            className={`relative rounded-3xl p-5 sm:p-7 text-white border border-b-[4px] overflow-hidden shadow-xl transition-all ${
               currentSection.themeColor === "emerald"
-                ? "bg-[#07130D]/90 backdrop-blur-2xl border-emerald-500/25 border-b-emerald-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+                ? "bg-[#06110B]/95 backdrop-blur-2xl border-emerald-500/25 border-b-emerald-900/80"
                 : currentSection.themeColor === "indigo"
-                ? "bg-[#090D1E]/90 backdrop-blur-2xl border-indigo-500/25 border-b-indigo-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+                ? "bg-[#080B1A]/95 backdrop-blur-2xl border-indigo-500/25 border-b-indigo-900/80"
                 : currentSection.themeColor === "amber"
-                ? "bg-[#140E05]/90 backdrop-blur-2xl border-amber-500/25 border-b-amber-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
-                : "bg-[#12081B]/90 backdrop-blur-2xl border-purple-500/25 border-b-purple-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+                ? "bg-[#110B04]/95 backdrop-blur-2xl border-amber-500/25 border-b-amber-900/80"
+                : "bg-[#0F0717]/95 backdrop-blur-2xl border-purple-500/25 border-b-purple-900/80"
             }`}
           >
-            {/* Efeito Aurora Cósmica Iluminada no Canto */}
+            {/* Efeito Aurora Cósmica Iluminada Discreta no Canto */}
             <div
-              className={`pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full blur-3xl opacity-20 ${
+              className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl opacity-10 ${
                 currentSection.themeColor === "emerald"
                   ? "bg-emerald-400"
                   : currentSection.themeColor === "indigo"
@@ -748,8 +748,8 @@ export function CuratedCatalog({
               </div>
 
               {/* O Baú de Maestria & Troféu Dourado 3D */}
-              <div className="relative group shrink-0 rounded-2xl bg-gradient-to-b from-amber-500/10 via-zinc-950/80 to-black/90 p-3.5 sm:px-5 sm:py-3.5 border border-amber-500/30 border-b-[3px] border-b-amber-600/70 shadow-[0_8px_25px_rgba(245,158,11,0.15)] flex items-center gap-3.5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_16px_rgba(245,158,11,0.6)] shrink-0 border-b-2 border-amber-700 group-hover:scale-105 transition-transform">
+              <div className="relative group shrink-0 rounded-2xl bg-[#0B0D14] p-3.5 sm:px-5 sm:py-3.5 border border-amber-500/30 border-b-[3px] border-b-amber-600/70 shadow-sm flex items-center gap-3.5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-400 text-zinc-950 shrink-0 border-b border-amber-700 group-hover:scale-105 transition-transform">
                   <Trophy className="h-5 w-5 fill-current stroke-[2.5]" />
                 </div>
                 <div className="flex flex-col">
@@ -780,9 +780,9 @@ export function CuratedCatalog({
 
               {/* Barra de preenchimento líquido com efeito neon suave */}
               <div className="flex items-center gap-3 w-full sm:w-72">
-                <div className="flex-1 h-2.5 rounded-full bg-black/60 border border-white/10 overflow-hidden p-0.5">
+                <div className="flex-1 h-2 rounded-full bg-black/60 border border-white/10 overflow-hidden p-0.5">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
                     style={{
                       width: `${Math.round(
                         (currentSection.lessons.filter((l) => completedIds.has(l.id)).length /
@@ -885,14 +885,14 @@ export function CuratedCatalog({
                           </div>
                         )}
 
-                        {/* Halo pulsante apenas no nó ativo atual (desbloqueado e não feito) */}
+                        {/* Indicador refinado no nó ativo atual (desbloqueado e não feito) */}
                         {!isGuest && isCurrentStep && (
-                          <span className="absolute -inset-1.5 rounded-full border-2 border-indigo-400 animate-ping pointer-events-none" />
+                          <span className="absolute -inset-1.5 rounded-full ring-2 ring-indigo-400/50 ring-offset-2 ring-offset-[#070A0F] pointer-events-none" />
                         )}
                       </button>
 
                       {/* Título flutuante abaixo do nó */}
-                      <span className="mt-2 text-[11px] sm:text-xs font-bold text-zinc-300 max-w-[140px] text-center truncate drop-shadow-md">
+                      <span className="mt-2 text-[11px] sm:text-xs font-bold text-zinc-300 max-w-[140px] text-center truncate">
                         {lesson.title}
                       </span>
                     </div>
@@ -911,23 +911,16 @@ export function CuratedCatalog({
                     <div
                       className={`relative flex flex-col items-center p-6 sm:p-7 rounded-3xl text-center max-w-md w-full transition-all overflow-hidden ${
                         isBossDefeated
-                          ? "border-2 border-amber-400 border-b-[6px] border-b-amber-600 bg-gradient-to-b from-[#281A05] via-[#160E03] to-[#0A0601] shadow-[0_20px_50px_rgba(245,158,11,0.35)]"
-                          : "border-2 border-rose-500/40 border-b-[6px] border-b-rose-900 bg-gradient-to-b from-[#1C0913] via-[#0F050A] to-[#080205] shadow-[0_20px_50px_rgba(244,63,94,0.25)]"
+                          ? "border-2 border-amber-500/60 border-b-[6px] border-b-amber-700 bg-gradient-to-b from-[#1C1203] via-[#0E0901] to-[#070400] shadow-xl"
+                          : "border-2 border-rose-500/40 border-b-[6px] border-b-rose-900 bg-gradient-to-b from-[#16070E] via-[#0B0307] to-[#070104] shadow-xl"
                       }`}
                     >
                       {/* Linha Especular de Vidro no Topo */}
-                      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-
-                      {/* Brilho de Fogo / Aurora da Arena nos Cantos */}
-                      <div
-                        className={`pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full blur-3xl opacity-30 ${
-                          isBossDefeated ? "bg-amber-400" : "bg-rose-500"
-                        }`}
-                      />
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                       {/* Badge Sólida 3D Duolingo Feather (Sem transparências lavadas) */}
                       <div
-                        className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-xl text-white font-display font-black text-xs uppercase tracking-wider border-b-2 shadow-md mb-4 ${
+                        className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-xl text-white font-display font-black text-xs uppercase tracking-wider border-b-2 shadow-sm mb-4 ${
                           isBossDefeated
                             ? "bg-amber-500 border-amber-700 text-zinc-950"
                             : "bg-rose-600 border-rose-800 text-white"
@@ -950,15 +943,15 @@ export function CuratedCatalog({
                       <div
                         className={`relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-b-[6px] mb-3.5 transition-transform ${
                           isBossDefeated
-                            ? "bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-zinc-950 shadow-[0_0_24px_rgba(245,158,11,0.9)] border-amber-300 border-b-amber-700 animate-bounce"
-                            : "bg-gradient-to-b from-rose-600/30 via-zinc-900 to-black text-rose-400 border-rose-500/50 border-b-rose-800 shadow-[0_0_20px_rgba(244,63,94,0.5)]"
+                            ? "bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-400 text-zinc-950 border-amber-400 border-b-amber-700 shadow-md animate-bounce"
+                            : "bg-[#14060C] text-rose-400 border-rose-500/40 border-b-rose-800 shadow-sm"
                         }`}
                       >
                         {isBossDefeated ? (
                           <Trophy className="h-10 w-10 sm:h-12 sm:w-12 fill-current stroke-[2.5]" />
                         ) : (
                           <div className="flex flex-col items-center">
-                            <Swords className="h-9 w-9 sm:h-10 sm:w-10 text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                            <Swords className="h-9 w-9 sm:h-10 sm:w-10 text-rose-400" />
                             <span className="text-[9px] font-display font-black uppercase tracking-wider text-rose-300 mt-0.5">
                               NÍVEL {currentSection.id}
                             </span>
@@ -979,7 +972,7 @@ export function CuratedCatalog({
 
                       {/* HUD de Escudo / Vida do Boss (Game HP Bar) */}
                       {!isBossDefeated && (
-                        <div className="mt-4 w-full bg-black/70 border border-white/10 rounded-2xl p-3 space-y-2">
+                        <div className="mt-4 w-full bg-black/60 border border-white/10 rounded-2xl p-3 space-y-2">
                           <div className="flex items-center justify-between text-xs">
                             <span className="flex items-center gap-1.5 font-display font-bold text-rose-400 text-[11px] uppercase tracking-wider">
                               <Shield className="h-3.5 w-3.5" />
@@ -999,8 +992,8 @@ export function CuratedCatalog({
                                   key={lesson.id || idx}
                                   className={`h-2.5 rounded-full transition-all border ${
                                     isHit
-                                      ? "bg-gradient-to-r from-emerald-500 to-teal-400 border-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-                                      : "bg-rose-950/80 border-rose-500/40 shadow-inner"
+                                      ? "bg-gradient-to-r from-emerald-500 to-teal-400 border-emerald-400 shadow-sm"
+                                      : "bg-rose-950/60 border-rose-500/30"
                                   }`}
                                   title={isHit ? "Barreira quebrada!" : "Ainda blindado"}
                                 />
@@ -1019,7 +1012,7 @@ export function CuratedCatalog({
                       {/* Botão de Recompensa Tátil 3D */}
                       <div className="mt-4 w-full">
                         {isBossDefeated ? (
-                          <div className="flex items-center justify-center gap-2.5 py-3 px-5 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 text-zinc-950 font-display font-black text-sm shadow-[0_6px_20px_rgba(245,158,11,0.5)] border-b-[4px] border-b-amber-800 select-none">
+                          <div className="flex items-center justify-center gap-2.5 py-3 px-5 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 text-zinc-950 font-display font-black text-sm shadow-md border-b-[4px] border-b-amber-800 select-none">
                             <Trophy className="h-5 w-5 fill-current" />
                             <span>MUNDO CONQUISTADO (+{bonusXp} XP BÔNUS)</span>
                           </div>
@@ -1269,7 +1262,7 @@ export function CuratedCatalog({
                       }
                       handleStartLesson(item);
                     }}
-                    className={`group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden ${
+                    className={`group relative flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-indigo-500/50 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer overflow-hidden ${
                       isCardLocked ? "opacity-75 hover:opacity-90 contrast-90" : ""
                     }`}
                   >
@@ -1299,11 +1292,11 @@ export function CuratedCatalog({
 
                         {/* Overlay com Play */}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/40 scale-75 group-hover:scale-100 transition-transform">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md border-b-2 border-indigo-800 scale-75 group-hover:scale-100 transition-transform">
                             {isCardLocked ? (
-                              <Lock className="h-5 w-5 text-amber-400" />
+                              <Lock className="h-4 w-4 text-amber-400" />
                             ) : (
-                              <Play className="h-5 w-5 fill-current ml-0.5" />
+                              <Play className="h-4 w-4 fill-current ml-0.5" />
                             )}
                           </div>
                         </div>
