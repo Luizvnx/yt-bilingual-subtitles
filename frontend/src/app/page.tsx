@@ -37,6 +37,7 @@ import {
   Tv,
   BookOpen,
   Keyboard,
+  Languages,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -485,19 +486,17 @@ export default function HomePage() {
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
         {/* Hero Section */}
         <section className="text-center space-y-4 max-w-3xl mx-auto pt-4 sm:pt-8 relative">
-          {/* Top Token Badge */}
-          <div className="inline-flex items-center gap-2 rounded-2xl bg-[#0B0D14] border border-indigo-500/30 border-b-[3px] border-b-indigo-700/80 px-4 py-1.5 shadow-sm select-none">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30 animate-pulse" />
-            <span className="font-display font-black text-xs text-indigo-200 tracking-wide">
-              Estúdio Inteligente de Imersão em Inglês
-            </span>
+          {/* Top Category Tag (Clean & Language Neutral) */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.04] border border-white/10 px-3.5 py-1 text-xs font-medium text-zinc-300 select-none backdrop-blur-md">
+            <Languages className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Estudo de Idiomas por Imersão</span>
           </div>
 
           {/* Headline with Clean Specular Depth */}
           <div className="relative">
             <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-[420px] h-[160px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl rounded-full" />
             <h1 className="relative text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-[1.15]">
-              Aprenda inglês com o que você{" "}
+              Aprenda idiomas com o que você{" "}
               <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
                 ama assistir
               </span>
